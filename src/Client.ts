@@ -33,6 +33,12 @@ class Client {
     this._commands = {};
   }
 
+  /**
+   * Uses the provided map of commands, appropriately executing them when
+   * a user runs them.
+   *
+   * @param commands The commands to use.
+   */
   handleCommands(commands: Record<string, Command>): void {
     this._commands = commands;
   }
@@ -67,6 +73,7 @@ class Client {
 
   /**
    * Handles a message from the gateway.
+   *
    * @param msg
    */
   private async _handleMessage(msg: Discord.GatewayMessage) {
@@ -98,6 +105,12 @@ class Client {
     }
   }
 
+  /**
+   * Handles the event dispatch from Discord.
+   *
+   * @param type The event type.
+   * @param data The event data.
+   */
   private async _handleEvent(type: Discord.Event, data: unknown) {
     switch (type) {
       case Discord.Event.READY: {
@@ -126,6 +139,7 @@ class Client {
 
   /**
    * Begins the periodic heartbeat sending loop.
+   *
    * @param interval How often to send a heartbeat, in milliseconds.
    */
   private _beginHeartbeat(interval: number) {
@@ -140,7 +154,8 @@ class Client {
 
   /**
    * Sends a message to the gateway.
-   * @param msg
+   *
+   * @param msg The raw Discord gateway message.
    */
   private _sendMessage(msg: Discord.GatewayMessage) {
     if (!this._ws) throw new Error('WebSocket connection not initialized');
