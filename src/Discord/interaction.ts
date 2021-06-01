@@ -6,6 +6,7 @@ import {
 } from './message';
 import { Channel, GuildMember } from './guild';
 import { Role, User } from './user';
+import { OptionType } from '../arguments';
 
 export type InteractionResponse = {
   type: InteractionCallbackType;
@@ -54,7 +55,7 @@ export type CommandInteractionData = {
 export type CommandInteractionDataOption = {
   name: string;
   type: CommandOptionType;
-  value?: CommandOptionType;
+  value?: OptionType;
   options?: CommandInteractionDataOption[];
 };
 
