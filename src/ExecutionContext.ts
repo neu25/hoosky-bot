@@ -2,6 +2,7 @@ import axios from 'axios';
 import * as Discord from './Discord';
 import Snowflake from './Snowflake';
 import { performRequest } from './utils';
+import { parseCommand, OptionType, Arguments } from './arguments';
 
 const client = axios.create({
   baseURL: 'https://discord.com/api/v8',
@@ -23,10 +24,60 @@ const client = axios.create({
 class ExecutionContext {
   private readonly _appId: string;
   private readonly _interaction: Discord.Interaction;
+  private readonly _cmd: string[];
+  private _cmdIndex: number;
+  private readonly _args: Arguments;
 
   constructor(appId: string, interaction: Discord.Interaction) {
     this._appId = appId;
     this._interaction = interaction;
+    this._cmdIndex = 0;
+
+    if (interaction.data) {
+      const { command, args } = parseCommand(interaction.data);
+      this._cmd = command;
+      this._args = args;
+    } else {
+      this._args = {};
+      this._cmd = [];
+    }
+  }
+
+  /**
+   * Retrieves the argument of the provided name. If no argument with the name
+   * is found, it returns `undefined`.
+   *
+   * @param name The name of the argument.
+   */
+  getArgument<T extends OptionType>(name: string): T | undefined {
+    return this._args[name] as T;
+  }
+
+  /**
+   * Returns the current command name being processed.
+   *
+   * NOTE: This is for internal use in matching the command with the respective
+   * handler. There are currently no use cases for this method, as the command
+   * name is obvious within each command handler.
+   */
+  getCurrentCommand(): string {
+    if (this._cmdIndex >= this._cmd.length) {
+      return '';
+    }
+    return this._cmd[this._cmdIndex];
+  }
+
+  /**
+   * Advances the current command name being processed.
+   *
+   * NOTE: This is for internal use in matching the command with the respective
+   * handler. There are currently no use cases for this method, as the command
+   * name is obvious within each command handler.
+   */
+  advanceCommand(): string {
+    const current = this.getCurrentCommand();
+    this._cmdIndex++;
+    return current;
   }
 
   /**
@@ -52,7 +103,7 @@ class ExecutionContext {
    *
    * @param res The raw interaction response.
    */
-  async respond(res: Discord.InteractionResponse): Promise<void> {
+  respond(res: Discord.InteractionResponse): Promise<void> {
     return performRequest(async () => {
       await client.post(
         `/interactions/${this._interaction.id}/${this._interaction.token}/callback`,
@@ -94,7 +145,7 @@ class ExecutionContext {
    * Returns our response to the command execution. This is only relevant if
    * `respond` has already been called.
    */
-  async getResponse(): Promise<Discord.Message> {
+  getResponse(): Promise<Discord.Message> {
     return performRequest(async () => {
       const res = await client.get(
         `/webhooks/${this._appId}/${this._interaction.token}/messages/@original`,
@@ -124,7 +175,7 @@ class ExecutionContext {
    *
    * @param msg The follow-up message.
    */
-  async followUp(msg: Discord.FollowUpMessage): Promise<Discord.Message> {
+  followUp(msg: Discord.FollowUpMessage): Promise<Discord.Message> {
     return performRequest(async () => {
       const res = await client.post(
         `/webhooks/${this._appId}/${this._interaction.token}`,
@@ -140,7 +191,7 @@ class ExecutionContext {
    * @param messageId The message ID of the follow-up.
    * @param edit The message edits.
    */
-  async editFollowUp(
+  editFollowUp(
     messageId: string,
     edit: Discord.MessageEdit,
   ): Promise<Discord.Message> {

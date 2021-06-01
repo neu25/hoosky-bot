@@ -1,20 +1,22 @@
+import { CommandHandler } from './SubCommand';
+import SubCommandGroup, { SubCommandGroupProps } from './SubCommandGroup';
 import ExecutionContext from './ExecutionContext';
-import * as Discord from './Discord';
-import { NewCommand } from './Discord';
 
 type CommandOptions = {
-  handler: (ctx: ExecutionContext) => Promise<void>;
-} & Discord.NewCommand;
+  handler?: CommandHandler;
+} & SubCommandGroupProps;
 
 /**
  * Command represents a command supported by the Hoosky bot. Use this
  * constructor to add new commands to the bot.
  */
-class Command {
-  private readonly _opts: CommandOptions;
+class Command extends SubCommandGroup {
+  private readonly _handler?: CommandHandler;
 
-  constructor(opts: CommandOptions) {
-    this._opts = opts;
+  constructor(options: CommandOptions) {
+    const { handler, ...base } = options;
+    super(base);
+    this._handler = handler;
   }
 
   /**
@@ -23,17 +25,25 @@ class Command {
    *
    * @param ctx The execution context.
    */
-  execute(ctx: ExecutionContext): Promise<void> {
-    return this._opts.handler(ctx);
+  execute(ctx: ExecutionContext): void | Promise<void> {
+    if (this._handler) {
+      return this._handler(ctx);
+    }
+
+    console.log(JSON.stringify(ctx.getInteraction(), null, 2));
+
+    ctx.advanceCommand();
+
+    super.execute(ctx);
   }
 
   /**
-   * Serialized the command to a JSON representation understood by the Discord
+   * Serializes the command to a JSON representation understood by the Discord
    * API. It simply removes the JavaScript handler from the command options.
    */
-  serialize(): NewCommand {
+  serialize(): any {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { handler, ...serialized } = this._opts;
+    const { type, ...serialized } = super.serialize();
     return serialized;
   }
 }

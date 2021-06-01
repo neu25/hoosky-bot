@@ -4,7 +4,7 @@ import Command from './Command';
 import { performRequest } from './utils';
 
 /**
- * CommandManager creates and deletes Hoosky bot commands appropriately to
+ * `CommandManager` creates and deletes Hoosky bot commands appropriately to
  * ensure the latest changes are reflected.
  */
 class CommandManager {
@@ -25,16 +25,14 @@ class CommandManager {
    * @param guildId The ID of the guild.
    * @param commands The set of commands to use.
    */
-  syncGuildCommands(
+  async syncGuildCommands(
     guildId: string,
     commands: Record<string, Command>,
   ): Promise<void> {
-    return performRequest(async () => {
-      await this._bulkOverwriteGuildCommands(
-        guildId,
-        Object.values(commands).map(c => c.serialize()),
-      );
-    });
+    await this._bulkOverwriteGuildCommands(
+      guildId,
+      Object.values(commands).map(c => c.serialize()),
+    );
   }
 
   /**
@@ -53,7 +51,7 @@ class CommandManager {
    *
    * Takes up to 1 hour to propagate to all guilds.
    *
-   * @param command
+   * @param command The command to be created.
    */
   private _createGlobalCommand(command: Discord.NewCommand): Promise<void> {
     return performRequest(async () => {
@@ -66,7 +64,7 @@ class CommandManager {
    *
    * Takes up to 1 hour to propagate to all guilds.
    *
-   * @param commands
+   * @param commands The commands to use.
    */
   private _bulkOverwriteGlobalCommands(
     commands: Discord.NewCommand[],
@@ -81,7 +79,7 @@ class CommandManager {
    *
    * Takes up to 1 hour to propagate to all guilds.
    *
-   * @param id
+   * @param id The ID of the command.
    */
   private _deleteGlobalCommand(id: string): Promise<void> {
     return performRequest(async () => {
@@ -92,7 +90,7 @@ class CommandManager {
   /**
    * Gets a list of all guild commandManager.
    *
-   * @param guildId
+   * @param guildId The ID of the guild.
    */
   private _getGuildCommands(guildId: string): Promise<Discord.Command[]> {
     return performRequest(async () => {
@@ -104,8 +102,8 @@ class CommandManager {
   /**
    * Creates a new guild command.
    *
-   * @param guildId
-   * @param command
+   * @param guildId The ID of the guild.
+   * @param command The command to be created.
    */
   private _createGuildCommand(
     guildId: string,
@@ -119,8 +117,8 @@ class CommandManager {
   /**
    * Replaces all guild commandManager with the provided list of commandManager.
    *
-   * @param guildId
-   * @param commands
+   * @param guildId The ID of the guild.
+   * @param commands The set of commands to use.
    */
   private _bulkOverwriteGuildCommands(
     guildId: string,
