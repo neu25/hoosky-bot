@@ -16,7 +16,7 @@ It supports the following commands:
 
 ```shell
 /permissions user add role:@Moderator
-/permissions user remove role:@Moderator
+/permissions user ban temp:True
 ```
 
 ```typescript
