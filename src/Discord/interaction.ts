@@ -54,9 +54,11 @@ export type CommandInteractionData = {
 export type CommandInteractionDataOption = {
   name: string;
   type: CommandOptionType;
-  value?: CommandOptionType;
+  value?: OptionType;
   options?: CommandInteractionDataOption[];
 };
+
+export type OptionType = string | number | boolean | User | Channel | Role;
 
 export enum CommandOptionType {
   SUB_COMMAND = 1,
