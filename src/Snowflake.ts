@@ -1,5 +1,5 @@
 /**
- * Snowflake represents a Discord snowflake ID, which is a special ID that
+ * `Snowflake` represents a Discord snowflake ID, which is a special ID that
  * includes a timestamp.
  *
  * This constructor creates a Discord snowflake object representation containing
