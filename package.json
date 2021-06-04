@@ -21,10 +21,14 @@
   "homepage": "https://github.com/nu25/hoosky-bot#readme",
   "dependencies": {
     "axios": "^0.21.1",
-    "ws": "^7.4.6"
+    "mongodb": "^3.6.9",
+    "ws": "^7.4.6",
+    "yargs": "^17.0.1"
   },
   "devDependencies": {
+    "@types/mongodb": "^3.6.17",
     "@types/ws": "^7.4.4",
+    "@types/yargs": "^17.0.0",
     "@typescript-eslint/eslint-plugin": "^4.25.0",
     "@typescript-eslint/parser": "^4.25.0",
     "eslint": "^7.27.0",

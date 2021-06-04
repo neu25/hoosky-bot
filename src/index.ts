@@ -1,34 +1,30 @@
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
 import Client from './Client';
+import { loadConfig } from './config';
 import commands from './commands';
 import CommandManager from './CommandManager';
+import { Database } from './database';
 
 (async () => {
-  const appId = process.env.APPLICATION_ID as string;
-  const token = process.env.DISCORD_TOKEN as string;
-  const guildId = process.env.GUILD_ID as string;
+  const argv = await yargs(hideBin(process.argv)).argv;
+  const configPath = (argv.config as string) || 'config.json';
+  const config = await loadConfig(configPath);
 
-  if (!appId) {
-    throw new Error(
-      'Application ID is required. Did you forget to set the `APPLICATION_ID` environment variable?',
-    );
-  }
-  if (!token) {
-    throw new Error(
-      'Discord token is required. Did you forget to set the `DISCORD_TOKEN` environment variable?',
-    );
-  }
-  if (!guildId) {
-    throw new Error(
-      'Guild ID is required. Did you forget to set the `GUILD_ID` environment variable?',
-    );
-  }
+  console.log('Connecting to database...');
+  const database = new Database(config.mongodb.url);
+  await database.connect();
 
   console.log('Synchronizing guild commands...');
-  const commandManager = new CommandManager(appId, token);
-  await commandManager.syncGuildCommands(guildId, commands);
+  const commandManager = new CommandManager(
+    config.discord.appId,
+    config.discord.token,
+  );
+  await commandManager.syncGuildCommands(config.discord.guildId, commands);
 
   console.log('Connecting to gateway...');
-  const client = new Client(appId, token);
+  const client = new Client(config.discord.appId, config.discord.token);
+  // Supply the commands we'd like to handle to the client.
   client.handleCommands(commands);
   client.connect().then(data => {
     console.log(`${data.user.username}#${data.user.discriminator} connected`);
