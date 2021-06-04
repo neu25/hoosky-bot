@@ -5,7 +5,8 @@ export type CommandOptionChoiceProps = {
 
 /**
  * CommandOptionChoice can be used to feed different values to a single command's option.
- * NOTE: Accepts only integer and string values
+ * The 'name' field is the text displayed in the command tooltip, meanwhile
+ * the 'value' field is the value being retreived.
  */
 class CommandOptionChoice {
   private readonly _opts: CommandOptionChoiceProps;
