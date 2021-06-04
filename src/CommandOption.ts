@@ -1,10 +1,12 @@
 import * as Discord from './Discord';
+import CommandOptionChoice from './CommandOptionChoice';
 
 export type CommandOptionProps = {
   name: string;
   description: string;
   type: Discord.CommandOptionType;
   required?: boolean;
+  choices?: CommandOptionChoice[];
   options?: CommandOption[];
 };
 
@@ -33,6 +35,7 @@ class CommandOption {
   serialize(): any {
     return {
       ...this._opts,
+      choices: this._opts.choices?.map(c => c.serialize()),
       options: this._opts.options?.map(c => c.serialize()),
     };
   }
