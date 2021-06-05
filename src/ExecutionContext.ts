@@ -1,12 +1,8 @@
-import axios from 'axios';
+import { AxiosInstance } from 'axios';
 import * as Discord from './Discord';
 import Snowflake from './Snowflake';
 import { performRequest } from './utils';
 import { parseCommand, OptionType, Arguments } from './arguments';
-
-const client = axios.create({
-  baseURL: 'https://discord.com/api/v8',
-});
 
 /**
  * ExecutionContext is a helper class with a straightforward interface for
@@ -27,11 +23,17 @@ class ExecutionContext {
   private readonly _cmd: string[];
   private _cmdIndex: number;
   private readonly _args: Arguments;
+  private readonly _client: AxiosInstance;
 
-  constructor(appId: string, interaction: Discord.Interaction) {
+  constructor(
+    appId: string,
+    interaction: Discord.Interaction,
+    client: AxiosInstance,
+  ) {
     this._appId = appId;
     this._interaction = interaction;
     this._cmdIndex = 0;
+    this._client = client;
 
     if (interaction.data) {
       const { command, args } = parseCommand(interaction.data);
@@ -105,7 +107,7 @@ class ExecutionContext {
    */
   respond(res: Discord.InteractionResponse): Promise<void> {
     return performRequest(async () => {
-      await client.post(
+      await this._client.post(
         `/interactions/${this._interaction.id}/${this._interaction.token}/callback`,
         res,
       );
@@ -147,7 +149,7 @@ class ExecutionContext {
    */
   getResponse(): Promise<Discord.Message> {
     return performRequest(async () => {
-      const res = await client.get(
+      const res = await this._client.get(
         `/webhooks/${this._appId}/${this._interaction.token}/messages/@original`,
       );
       return res.data;
@@ -177,7 +179,7 @@ class ExecutionContext {
    */
   followUp(msg: Discord.FollowUpMessage): Promise<Discord.Message> {
     return performRequest(async () => {
-      const res = await client.post(
+      const res = await this._client.post(
         `/webhooks/${this._appId}/${this._interaction.token}`,
         msg,
       );
@@ -196,7 +198,7 @@ class ExecutionContext {
     edit: Discord.MessageEdit,
   ): Promise<Discord.Message> {
     return performRequest(async () => {
-      const res = await client.patch(
+      const res = await this._client.patch(
         `/webhooks/${this._appId}/${this._interaction.token}/messages/${messageId}`,
         edit,
       );
@@ -211,10 +213,111 @@ class ExecutionContext {
    */
   async deleteFollowUp(messageId: string): Promise<void> {
     await performRequest(() =>
-      client.delete(
+      this._client.delete(
         `/webhooks/${this._appId}/${this._interaction.token}/messages/${messageId}`,
       ),
     );
+  }
+
+  /**
+   * Helper method to prepare the emoji for requests
+   *
+   * @param emojiString The emoji string
+   */
+  private _prepareEmoji(emojiString: string): string {
+    // checks if the emoji is custom and if it is, it will trim it
+    // example:
+    //  - from: <:test2:850478323712131073>
+    //  - to: <:test2:850478323712131073>
+    return encodeURI(emojiString.split('<:').join('').split('>').join(''));
+  }
+
+  /**
+   * Creates a reaction to a message
+   *
+   * @param messageId The message ID of the message.
+   * @param channelId The channel ID of the channel.
+   * @param emojiString The emoji string of the reaction.
+   */
+  async createReaction(
+    messageId: string,
+    channelId: string,
+    emojiString: string,
+  ): Promise<void> {
+    await performRequest(() =>
+      this._client.put(
+        `/channels/${channelId}/messages/${messageId}/reactions/${this._prepareEmoji(
+          emojiString,
+        )}/@me`,
+      ),
+    );
+  }
+
+  /**
+   * Deletes a reaction made by an user or by the bot
+   *
+   * @param messageId The message ID of the message.
+   * @param channelId The channel ID of the channel.
+   * @param emojiString The emoji string of the reaction.
+   * @param userId? The id of the user. If ommitted it will delete the reaction made by the bot.
+   */
+  async deleteUserReaction(
+    messageId: string,
+    channelId: string,
+    emojiString: string,
+    userId?: number,
+  ): Promise<void> {
+    const target = userId == null ? '@me' : userId.toString();
+    await performRequest(() =>
+      this._client.delete(
+        `/channels/${channelId}/messages/${messageId}/reactions/${this._prepareEmoji(
+          emojiString,
+        )}/${target}`,
+      ),
+    );
+  }
+
+  /**
+   * Deletes all reactions on a message for an emoji or all emojis
+   *
+   * @param messageId The message ID of the message.
+   * @param channelId The channel ID of the channel.
+   * @param emojiString? The emoji string of the reaction.
+   */
+  async deleteAllReactions(
+    messageId: string,
+    channelId: string,
+    emojiString?: string,
+  ): Promise<void> {
+    await performRequest(() =>
+      this._client.delete(
+        `/channels/${channelId}/messages/${messageId}/reactions${
+          emojiString == null ? '' : `/${this._prepareEmoji(emojiString)}`
+        }`,
+      ),
+    );
+  }
+
+  /**
+   * Fetches all the users that reacted to a message
+   *
+   * @param messageId The message ID of the message.
+   * @param channelId The channel ID of the channel.
+   * @param emoji The emoji string of the reaction.
+   */
+  getReactions(
+    messageId: string,
+    channelId: string,
+    emojiString: string,
+  ): Promise<Discord.User[]> {
+    return performRequest(async () => {
+      const res = await this._client.get(
+        `/channels/${channelId}/messages/${messageId}/reactions/${this._prepareEmoji(
+          emojiString,
+        )}`,
+      );
+      return res.data;
+    });
   }
 }
 
