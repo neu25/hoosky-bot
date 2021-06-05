@@ -2,6 +2,7 @@ import WebSocket from 'ws';
 import * as Discord from './Discord';
 import ExecutionContext from './ExecutionContext';
 import Command from './Command';
+import { AxiosInstance } from 'axios';
 
 /**
  * Client connects to the Discord bot gateway and maintains the connection.
@@ -9,6 +10,9 @@ import Command from './Command';
 class Client {
   // The WebSocket connection object.
   private _ws?: WebSocket;
+
+  // The axios client to pass to the ExecutionContext
+  private readonly _client: AxiosInstance;
 
   // The Discord bot token.
   private readonly _token: string;
@@ -26,9 +30,10 @@ class Client {
   // A callback function to be called when the connection is established.
   private _connectCallback?: (data: Discord.ReadyPayload) => void;
 
-  constructor(appId: string, token: string) {
+  constructor(appId: string, token: string, client: AxiosInstance) {
     this._token = token;
     this._appId = appId;
+    this._client = client;
     this._lastSeqNum = null;
     this._commands = {};
   }
@@ -128,7 +133,7 @@ class Client {
           const command = this._commands[interaction.data.name];
           if (command) {
             await command.execute(
-              new ExecutionContext(this._appId, interaction),
+              new ExecutionContext(this._appId, interaction, this._client),
             );
           }
         }

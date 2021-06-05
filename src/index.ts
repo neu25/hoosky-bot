@@ -1,5 +1,6 @@
 import Client from './Client';
 import commands from './commands';
+import axios from 'axios';
 import CommandManager from './CommandManager';
 
 (async () => {
@@ -23,12 +24,19 @@ import CommandManager from './CommandManager';
     );
   }
 
+  const reqClient = axios.create({
+    baseURL: `https://discord.com/api/v8/`,
+    headers: {
+      Authorization: `Bot ${token}`,
+    },
+  });
+
   console.log('Synchronizing guild commands...');
-  const commandManager = new CommandManager(appId, token);
+  const commandManager = new CommandManager(appId, reqClient);
   await commandManager.syncGuildCommands(guildId, commands);
 
   console.log('Connecting to gateway...');
-  const client = new Client(appId, token);
+  const client = new Client(appId, token, reqClient);
   client.handleCommands(commands);
   client.connect().then(data => {
     console.log(`${data.user.username}#${data.user.discriminator} connected`);
