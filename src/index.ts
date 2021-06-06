@@ -12,8 +12,9 @@ import { Database } from './database';
   const config = await loadConfig(configPath);
 
   console.log('Connecting to database...');
-  const database = new Database(config.mongodb.url);
+  const database = new Database(config.mongodb.url, config.mongodb.db);
   await database.connect();
+  await database.initializeConfig();
 
   console.log('Synchronizing guild commands...');
   const commandManager = new CommandManager(
