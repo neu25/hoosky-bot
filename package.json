@@ -1,0 +1,39 @@
+{
+  "name": "hoosky-bot",
+  "version": "0.1.0",
+  "description": "Custom-built Discord bot for the Northeastern Class of 2025 Discord server",
+  "scripts": {
+    "start": "ts-node src/index.ts",
+    "check": "tsc --noEmit && eslint . && prettier --check .",
+    "lint": "eslint .",
+    "format": "prettier --write ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nu25/hoosky-bot.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nu25/hoosky-bot/issues"
+  },
+  "homepage": "https://github.com/nu25/hoosky-bot#readme",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "mongodb": "^3.6.9",
+    "ws": "^7.4.6",
+    "yargs": "^17.0.1"
+  },
+  "devDependencies": {
+    "@types/mongodb": "^3.6.17",
+    "@types/ws": "^7.4.4",
+    "@types/yargs": "^17.0.0",
+    "@typescript-eslint/eslint-plugin": "^4.25.0",
+    "@typescript-eslint/parser": "^4.25.0",
+    "eslint": "^7.27.0",
+    "prettier": "^2.3.0",
+    "ts-node": "^10.0.0",
+    "typescript": "^4.3.2"
+  }
+}
