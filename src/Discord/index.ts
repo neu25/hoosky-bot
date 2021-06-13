@@ -60,6 +60,10 @@ export {
   EmbedVideo,
   EmbedThumbnail,
   EmbedFooter,
+  MessageReactionAddPayload,
+  MessageReactionRemovePayload,
+  MessageReactionRemoveAllPayload,
+  MessageReactionRemoveEmojiPayload,
 } from './message';
 export {
   CommandOption,
