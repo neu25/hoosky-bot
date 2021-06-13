@@ -43,7 +43,7 @@ const poll = new Command({
 
         for (const c of emojis) {
           if (/\p{Extended_Pictographic}/u.test(c)) {
-            await ctx.createReaction(msg.id, msg.channel_id, c);
+            ctx.createReaction(msg.id, msg.channel_id, c);
           }
         }
 
