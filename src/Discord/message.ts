@@ -177,3 +177,34 @@ export type Reaction = {
   me: boolean;
   emoji: Emoji;
 };
+
+// https://discord.com/developers/docs/topics/gateway#message-reaction-add
+export type MessageReactionAddPayload = {
+  user_id: string;
+  channel_id: string;
+  message_id: string;
+  guild_id?: string;
+  member?: GuildMember;
+  emoji: Emoji;
+};
+
+export type MessageReactionRemovePayload = {
+  user_id: string;
+  channel_id: string;
+  message_id: string;
+  guild_id?: string;
+  emoji: Emoji;
+};
+
+export type MessageReactionRemoveAllPayload = {
+  channel_id: string;
+  message_id: string;
+  guild_id?: string;
+};
+
+export type MessageReactionRemoveEmojiPayload = {
+  channel_id: string;
+  guild_id?: string;
+  message_id: string;
+  emoji: Emoji;
+};

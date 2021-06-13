@@ -51,6 +51,10 @@ export {
   Attachment,
   ButtonStyle,
   FollowUpMessage,
+  MessageReactionAddPayload,
+  MessageReactionRemovePayload,
+  MessageReactionRemoveAllPayload,
+  MessageReactionRemoveEmojiPayload,
 } from './message';
 export {
   CommandOption,
