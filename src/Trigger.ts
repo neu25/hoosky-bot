@@ -22,6 +22,12 @@ type EventTypeMap = {
   [Discord.Event.CHANNEL_UPDATE]: Discord.Channel;
   [Discord.Event.CHANNEL_DELETE]: Discord.Channel;
   [Discord.Event.INTERACTION_CREATE]: Discord.Interaction;
+  [Discord.Event.MESSAGE_REACTION_ADD]: Discord.MessageReactionAddPayload;
+  [Discord.Event.MESSAGE_REACTION_REMOVE]: Discord.MessageReactionRemovePayload;
+  [Discord.Event
+    .MESSAGE_REACTION_REMOVE_ALL]: Discord.MessageReactionRemoveAllPayload;
+  [Discord.Event
+    .MESSAGE_REACTION_REMOVE_EMOJI]: Discord.MessageReactionRemoveEmojiPayload;
 };
 
 export type EventData<E extends keyof EventTypeMap> = EventTypeMap[E];
