@@ -9,7 +9,6 @@ import CommandOption from '../CommandOption';
  *  - Delete poll/reactions
  *  - Time based poll
  *  - Reaction-count to close poll
- *
  */
 const poll = new Command({
   name: 'poll',
@@ -43,13 +42,13 @@ const poll = new Command({
 
         for (const c of emojis) {
           if (/\p{Extended_Pictographic}/u.test(c)) {
-            await ctx.createReaction(msg.id, msg.channel_id, c);
+            await ctx.api.createReaction(msg.id, msg.channel_id, c);
           }
         }
 
         if (customEmojis != null)
           customEmojis.forEach(element => {
-            ctx.createReaction(msg.id, msg.channel_id, element);
+            ctx.api.createReaction(msg.id, msg.channel_id, element);
           });
       },
     }),

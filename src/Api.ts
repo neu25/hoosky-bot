@@ -1,6 +1,6 @@
 import { AxiosInstance } from 'axios';
 import * as Discord from './Discord';
-import { performRequest } from './utils';
+import { performRequest, prepareEmoji } from './utils';
 
 export type GuildRoleData = {
   name?: string;
@@ -143,6 +143,94 @@ class Api {
         permissions,
       );
     });
+  }
+
+  /**
+   * Deletes a reaction made by an user or by the bot
+   *
+   * @param messageId The message ID of the message.
+   * @param channelId The channel ID of the channel.
+   * @param emojiString The emoji string of the reaction.
+   * @param userId? The id of the user. If ommitted it will delete the reaction made by the bot.
+   */
+  async deleteUserReaction(
+    messageId: string,
+    channelId: string,
+    emojiString: string,
+    userId?: number,
+  ): Promise<void> {
+    const target = userId == null ? '@me' : userId.toString();
+    await performRequest(() =>
+      this._client.delete(
+        `/channels/${channelId}/messages/${messageId}/reactions/${prepareEmoji(
+          emojiString,
+        )}/${target}`,
+      ),
+    );
+  }
+
+  /**
+   * Deletes all reactions on a message for an emoji or all emojis
+   *
+   * @param messageId The message ID of the message.
+   * @param channelId The channel ID of the channel.
+   * @param emojiString? The emoji string of the reaction.
+   */
+  async deleteAllReactions(
+    messageId: string,
+    channelId: string,
+    emojiString?: string,
+  ): Promise<void> {
+    await performRequest(() =>
+      this._client.delete(
+        `/channels/${channelId}/messages/${messageId}/reactions${
+          emojiString == null ? '' : `/${prepareEmoji(emojiString)}`
+        }`,
+      ),
+    );
+  }
+
+  /**
+   * Fetches all the users that reacted to a message
+   *
+   * @param messageId The message ID of the message.
+   * @param channelId The channel ID of the channel.
+   * @param emojiString The emoji string of the reaction.
+   */
+  getReactions(
+    messageId: string,
+    channelId: string,
+    emojiString: string,
+  ): Promise<Discord.User[]> {
+    return performRequest(async () => {
+      const res = await this._client.get(
+        `/channels/${channelId}/messages/${messageId}/reactions/${prepareEmoji(
+          emojiString,
+        )}`,
+      );
+      return res.data;
+    });
+  }
+
+  /**
+   * Creates a reaction to a message
+   *
+   * @param messageId The message ID of the message.
+   * @param channelId The channel ID of the channel.
+   * @param emojiString The emoji string of the reaction.
+   */
+  async createReaction(
+    messageId: string,
+    channelId: string,
+    emojiString: string,
+  ): Promise<void> {
+    await performRequest(() =>
+      this._client.put(
+        `/channels/${channelId}/messages/${messageId}/reactions/${prepareEmoji(
+          emojiString,
+        )}/@me`,
+      ),
+    );
   }
 }
 
