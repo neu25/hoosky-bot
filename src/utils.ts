@@ -47,3 +47,16 @@ export const performRequest = async <T>(fn: () => Promise<T>): Promise<T> => {
     throw e;
   }
 };
+
+/**
+ * Helper method to prepare the emoji for requests
+ *
+ * @param emojiString The emoji string
+ */
+export const prepareEmoji = (emojiString: string): string => {
+  // checks if the emoji is custom and if it is, it will trim it
+  // example:
+  //  - from: <:test2:850478323712131073>
+  //  - to: test2:850478323712131073
+  return encodeURI(emojiString.split('<:').join('').split('>').join(''));
+};

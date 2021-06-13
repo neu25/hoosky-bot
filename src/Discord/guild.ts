@@ -22,7 +22,7 @@ export enum GuildFeature {
 export type GuildMember = {
   user?: User;
   nick?: string;
-  roles: Role[];
+  roles: string[];
   joined_at: string;
   premium_since?: string;
   deaf: boolean;
@@ -48,6 +48,7 @@ export type VoiceState = {
   suppress: boolean;
   request_to_speak_timestamp: string;
 };
+
 export type Guild = {
   id: string;
   name: string;
@@ -85,6 +86,18 @@ export type Guild = {
   presences?: PresenceUpdate[];
   // ... and many other omitted fields.
   // https://discord.com/developers/docs/resources/guild#guild-object
+};
+
+export type GuildRoleCreatePayload = {
+  guild_id: string;
+  role: Role;
+};
+
+export type GuildRoleUpdatePayload = GuildRoleCreatePayload;
+
+export type GuildRoleDeletePayload = {
+  guild_id: string;
+  role_id: string;
 };
 
 export type Overwrite = {

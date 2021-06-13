@@ -2,6 +2,10 @@ import WebSocket from 'ws';
 import * as Discord from './Discord';
 import ExecutionContext from './ExecutionContext';
 import Command from './Command';
+import Trigger from './Trigger';
+import TriggerContext from './TriggerContext';
+import { Database } from './database';
+import { AxiosInstance } from 'axios';
 
 /**
  * Client connects to the Discord bot gateway and maintains the connection.
@@ -17,20 +21,35 @@ class Client {
 
   // The commands that the bot should handle.
   private _commands: Record<string, Command>;
+  // The triggers that the bot should handle.
+  private _triggers: Partial<Record<Discord.Event, Trigger<any>[]>>;
 
   // Dynamic parameters supplied by the Discord gateway.
   private _heartbeatInterval?: NodeJS.Timeout;
   private _lastSeqNum: number | null;
   private _sessionId?: string;
 
+  // The axios client to pass to the ExecutionContext
+  private readonly _client: AxiosInstance;
+
   // A callback function to be called when the connection is established.
   private _connectCallback?: (data: Discord.ReadyPayload) => void;
 
-  constructor(appId: string, token: string) {
+  private readonly _database: Database;
+
+  constructor(
+    appId: string,
+    token: string,
+    database: Database,
+    client: AxiosInstance,
+  ) {
     this._token = token;
     this._appId = appId;
+    this._database = database;
     this._lastSeqNum = null;
     this._commands = {};
+    this._triggers = {};
+    this._client = client;
   }
 
   /**
@@ -41,6 +60,18 @@ class Client {
    */
   handleCommands(commands: Record<string, Command>): void {
     this._commands = commands;
+  }
+
+  /**
+   * Uses the provided map of triggers, appropriately executing them when
+   * a user runs them.
+   *
+   * @param triggers The triggers to use.
+   */
+  handleTriggers(
+    triggers: Partial<Record<Discord.Event, Trigger<any>[]>>,
+  ): void {
+    this._triggers = triggers;
   }
 
   /**
@@ -128,11 +159,32 @@ class Client {
           const command = this._commands[interaction.data.name];
           if (command) {
             await command.execute(
-              new ExecutionContext(this._appId, interaction),
+              new ExecutionContext(
+                this._appId,
+                this._database,
+                interaction,
+                this._client,
+              ),
             );
           }
         }
         break;
+      }
+      default:
+      // console.log(type);
+      // console.log(data);
+    }
+
+    const triggers = this._triggers[type];
+    if (triggers) {
+      const ctx = new TriggerContext(
+        this._appId,
+        this._client,
+        this._database,
+        data,
+      );
+      for (const t of triggers) {
+        t.execute(ctx);
       }
     }
   }
@@ -203,7 +255,7 @@ class Client {
         $browser: 'hoosky',
         $device: 'hoosky',
       },
-      intents: 0,
+      intents: Discord.Intent.GUILDS,
     };
 
     this._sendMessage({
