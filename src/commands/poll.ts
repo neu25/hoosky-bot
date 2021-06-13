@@ -17,6 +17,7 @@ const poll = new Command({
   options: [
     new SubCommand({
       name: 'create',
+      displayName: 'Create',
       description: 'Create a new poll',
       options: [
         new CommandOption({

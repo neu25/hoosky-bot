@@ -1,8 +1,11 @@
+import * as Discord from './Discord';
 import { CommandHandler } from './SubCommand';
 import SubCommandGroup, { SubCommandGroupProps } from './SubCommandGroup';
 import ExecutionContext from './ExecutionContext';
 
-type CommandOptions = {
+type CommandProps = {
+  default_permission?: boolean;
+  permissions?: Discord.CommandPermission[];
   handler?: CommandHandler;
 } & SubCommandGroupProps;
 
@@ -12,11 +15,13 @@ type CommandOptions = {
  */
 class Command extends SubCommandGroup {
   private readonly _handler?: CommandHandler;
+  private readonly _defaultPerm: boolean;
 
-  constructor(options: CommandOptions) {
-    const { handler, ...base } = options;
+  constructor(props: CommandProps) {
+    const { handler, default_permission, ...base } = props;
     super(base);
     this._handler = handler;
+    this._defaultPerm = default_permission ?? true;
   }
 
   /**
@@ -30,8 +35,6 @@ class Command extends SubCommandGroup {
       return this._handler(ctx);
     }
 
-    console.log(JSON.stringify(ctx.getInteraction(), null, 2));
-
     ctx.advanceCommand();
 
     super.execute(ctx);
@@ -44,7 +47,10 @@ class Command extends SubCommandGroup {
   serialize(): any {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { type, ...serialized } = super.serialize();
-    return serialized;
+    return {
+      default_permission: this._defaultPerm,
+      ...serialized,
+    };
   }
 }
 

@@ -34,3 +34,14 @@ export type CommandOptionChoice = {
   name: string;
   value: string | number;
 };
+
+export enum CommandPermissionType {
+  ROLE = 1,
+  USER = 2,
+}
+
+export type CommandPermission = {
+  id: string;
+  type: CommandPermissionType;
+  permission: boolean;
+};

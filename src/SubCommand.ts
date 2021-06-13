@@ -1,11 +1,14 @@
 import * as Discord from './Discord';
 import SubCommandGroup, { SubCommandGroupProps } from './SubCommandGroup';
 import ExecutionContext from './ExecutionContext';
+import Permissions from './Permissions';
 
 export type CommandHandler = (ctx: ExecutionContext) => void | Promise<void>;
 
 export type SubCommandOptions = {
   handler: CommandHandler;
+  displayName: string;
+  requiredPermissions?: Discord.Permission[];
 } & SubCommandGroupProps;
 
 /**
@@ -19,12 +22,16 @@ export type SubCommandOptions = {
  * that `SubCommand` is a leaf node and possesses a `handler`.
  */
 class SubCommand extends SubCommandGroup {
+  readonly displayName: string;
   private readonly _handler: CommandHandler;
+  private readonly _requiredPerms: Discord.Permission[];
 
   constructor(opts: SubCommandOptions) {
-    const { handler, ...base } = opts;
+    const { handler, requiredPermissions, displayName, ...base } = opts;
     super(base);
+    this.displayName = displayName;
     this._handler = handler;
+    this._requiredPerms = requiredPermissions ?? [];
   }
 
   /**
@@ -33,7 +40,23 @@ class SubCommand extends SubCommandGroup {
    *
    * @param ctx The execution context.
    */
-  execute(ctx: ExecutionContext): void | Promise<void> {
+  async execute(ctx: ExecutionContext): Promise<void> {
+    const { interaction } = ctx;
+    if (!interaction.member) {
+      throw new Error('No member found in interaction');
+    }
+
+    const executorPerms = new Permissions(interaction.member.permissions);
+    for (const p of this._requiredPerms) {
+      if (!executorPerms.hasPermission(p)) {
+        await ctx.respondWithError(
+          `The **${this.displayName}** command requires the ` +
+            `**${Discord.PermissionName[p]}** permission, but you don't have it.`,
+        );
+        return;
+      }
+    }
+
     return this._handler(ctx);
   }
 

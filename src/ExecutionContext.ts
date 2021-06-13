@@ -3,6 +3,8 @@ import * as Discord from './Discord';
 import Snowflake from './Snowflake';
 import { performRequest } from './utils';
 import { parseCommand, OptionType, Arguments } from './arguments';
+import { Database } from './database';
+import Api from './Api';
 
 /**
  * ExecutionContext is a helper class with a straightforward interface for
@@ -18,8 +20,10 @@ import { parseCommand, OptionType, Arguments } from './arguments';
  * https://discord.com/developers/docs/interactions/slash-commands#responding-to-an-interaction.
  */
 class ExecutionContext {
+  readonly api: Api;
+  readonly db: Database;
+  readonly interaction: Discord.Interaction;
   private readonly _appId: string;
-  private readonly _interaction: Discord.Interaction;
   private readonly _cmd: string[];
   private _cmdIndex: number;
   private readonly _args: Arguments;
@@ -27,11 +31,14 @@ class ExecutionContext {
 
   constructor(
     appId: string,
+    database: Database,
     interaction: Discord.Interaction,
     client: AxiosInstance,
   ) {
+    this.api = new Api(appId, client);
+    this.db = database;
+    this.interaction = interaction;
     this._appId = appId;
-    this._interaction = interaction;
     this._cmdIndex = 0;
     this._client = client;
 
@@ -53,6 +60,17 @@ class ExecutionContext {
    */
   getArgument<T extends OptionType>(name: string): T | undefined {
     return this._args[name] as T;
+  }
+
+  /**
+   * Retrieves the guild ID of the current interaction. If none is included,
+   * it throws an error.
+   */
+  mustGetGuildId(): string {
+    if (!this.interaction.guild_id) {
+      throw new Error('No guild ID found in interaction');
+    }
+    return this.interaction.guild_id;
   }
 
   /**
@@ -83,19 +101,10 @@ class ExecutionContext {
   }
 
   /**
-   * Returns the raw interaction object provided by Discord. Usually, you don't
-   * need to access this object. See if there is another method that achieves
-   * the abstract action you want.
-   */
-  getInteraction(): Discord.Interaction {
-    return this._interaction;
-  }
-
-  /**
    * Returns the date of the command execution.
    */
-  getInteractionDate(): Date {
-    return new Snowflake(this._interaction.id).getDate();
+  interactionDate(): Date {
+    return new Snowflake(this.interaction.id).getDate();
   }
 
   /**
@@ -108,7 +117,7 @@ class ExecutionContext {
   respond(res: Discord.InteractionResponse): Promise<void> {
     return performRequest(async () => {
       await this._client.post(
-        `/interactions/${this._interaction.id}/${this._interaction.token}/callback`,
+        `/interactions/${this.interaction.id}/${this.interaction.token}/callback`,
         res,
       );
     });
@@ -133,6 +142,10 @@ class ExecutionContext {
     });
   }
 
+  respondWithError(content: string): Promise<void> {
+    return this.respondWithMessage(`Unable to run command: ${content}`, true);
+  }
+
   /**
    * Responds to the command execution with a loading status. `editResponse`
    * should be called later to update the initial response message.
@@ -150,7 +163,7 @@ class ExecutionContext {
   getResponse(): Promise<Discord.Message> {
     return performRequest(async () => {
       const res = await this._client.get(
-        `/webhooks/${this._appId}/${this._interaction.token}/messages/@original`,
+        `/webhooks/${this._appId}/${this.interaction.token}/messages/@original`,
       );
       return res.data;
     });
@@ -180,7 +193,7 @@ class ExecutionContext {
   followUp(msg: Discord.FollowUpMessage): Promise<Discord.Message> {
     return performRequest(async () => {
       const res = await this._client.post(
-        `/webhooks/${this._appId}/${this._interaction.token}`,
+        `/webhooks/${this._appId}/${this.interaction.token}`,
         msg,
       );
       return res.data;
@@ -199,7 +212,7 @@ class ExecutionContext {
   ): Promise<Discord.Message> {
     return performRequest(async () => {
       const res = await this._client.patch(
-        `/webhooks/${this._appId}/${this._interaction.token}/messages/${messageId}`,
+        `/webhooks/${this._appId}/${this.interaction.token}/messages/${messageId}`,
         edit,
       );
       return res.data;
@@ -214,7 +227,7 @@ class ExecutionContext {
   async deleteFollowUp(messageId: string): Promise<void> {
     await performRequest(() =>
       this._client.delete(
-        `/webhooks/${this._appId}/${this._interaction.token}/messages/${messageId}`,
+        `/webhooks/${this._appId}/${this.interaction.token}/messages/${messageId}`,
       ),
     );
   }
