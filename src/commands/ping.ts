@@ -4,7 +4,7 @@ const ping = new Command({
   name: 'ping',
   description: 'Responds with "pong"',
   handler: async ctx => {
-    const startTime = ctx.getInteractionDate();
+    const startTime = ctx.interactionDate();
 
     await ctx.respondWithMessage('pong');
 
