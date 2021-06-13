@@ -12,6 +12,7 @@ export enum Collection {
  */
 export enum Config {
   GUILD = 'guild',
+  ROLES = 'roles',
 }
 
 /**

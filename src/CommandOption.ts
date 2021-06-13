@@ -4,6 +4,7 @@ export type CommandOptionProps = {
   name: string;
   description: string;
   type: Discord.CommandOptionType;
+  required?: boolean;
   options?: CommandOption[];
 };
 

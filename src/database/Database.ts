@@ -32,36 +32,77 @@ class Database {
   /**
    * Returns the MongoDB database instance.
    */
-  db(): Db {
-    return this._client.db(this._dbName);
+  getDb(guildId: string): Db {
+    return this._client.db(`${this._dbName}-${guildId}`);
   }
 
   /**
    * Inserts default configuration values into the `config` collection. If one
    * already exists, the insertion is skipped.
    */
-  async initializeConfig(): Promise<void> {
-    await this._insertDefaultConfigValue(Config.GUILD, guildConfig);
+  async initializeConfig(guildIds: string[]): Promise<void> {
+    for (const gId of guildIds) {
+      await this.insertDefaultConfigValue(gId, Config.GUILD, guildConfig);
+    }
+  }
+
+  async getConfigValue<T>(
+    guildId: string,
+    docId: string,
+  ): Promise<T | undefined> {
+    const cfg = await this.getDb(guildId)
+      .collection(Collection.CONFIG)
+      .findOne({ _id: docId });
+    return (cfg || {}).value;
+  }
+
+  /**
+   * Updates a configuration document into the `config` collection, creating
+   * one if it does not exist.
+   *
+   * @param guildId The ID of the guild.
+   * @param docId The ID of the document.
+   * @param value The value of the document.
+   */
+  async updateConfigValue(
+    guildId: string,
+    docId: string,
+    value: any,
+  ): Promise<void> {
+    await this.getDb(guildId)
+      .collection(Collection.CONFIG)
+      .updateOne(
+        { _id: docId },
+        {
+          $set: {
+            _id: docId,
+            value,
+          },
+        },
+        { upsert: true },
+      );
   }
 
   /**
    * Inserts a configuration document into the `config` collection if one does
    * not already exist.
    *
-   * @param id The ID of the document.
+   * @param guildId The ID of the guild.
+   * @param docId The ID of the document.
    * @param value The value of the document.
    */
-  private async _insertDefaultConfigValue(
-    id: string,
+  async insertDefaultConfigValue(
+    guildId: string,
+    docId: string,
     value: any,
   ): Promise<void> {
-    await this.db()
+    await this.getDb(guildId)
       .collection(Collection.CONFIG)
       .updateOne(
-        { _id: id },
+        { _id: docId },
         {
           $setOnInsert: {
-            _id: id,
+            _id: docId,
             value,
           },
         },

@@ -1,3 +1,4 @@
+export { Permission, PermissionName } from './permission';
 export { Application, ClientStatus } from './application';
 export {
   Guild,
@@ -9,6 +10,9 @@ export {
   Overwrite,
   Channel,
   UnavailableGuild,
+  GuildRoleCreatePayload,
+  GuildRoleUpdatePayload,
+  GuildRoleDeletePayload,
 } from './guild';
 export {
   Interaction,
@@ -53,6 +57,8 @@ export {
   CommandOptionType,
   CommandOptionChoice,
   Command,
+  CommandPermission,
+  CommandPermissionType,
   NewCommand,
 } from './command';
 export { default as Event } from './event';

@@ -22,17 +22,19 @@ class CommandManager {
   /**
    * Overrides all guild commands with the provided set of commands.
    *
-   * @param guildId The ID of the guild.
+   * @param guildIds The IDs of guilds to sync commands with.
    * @param commands The set of commands to use.
    */
   async syncGuildCommands(
-    guildId: string,
+    guildIds: string[],
     commands: Record<string, Command>,
   ): Promise<void> {
-    await this._bulkOverwriteGuildCommands(
-      guildId,
-      Object.values(commands).map(c => c.serialize()),
-    );
+    for (const gId of guildIds) {
+      await this._bulkOverwriteGuildCommands(
+        gId,
+        Object.values(commands).map(c => c.serialize()),
+      );
+    }
   }
 
   /**
@@ -123,9 +125,13 @@ class CommandManager {
   private _bulkOverwriteGuildCommands(
     guildId: string,
     commands: Discord.NewCommand[],
-  ): Promise<void> {
+  ): Promise<Discord.Command[]> {
     return performRequest(async () => {
-      await this._client.put(`/guilds/${guildId}/commands`, commands);
+      const res = await this._client.put(
+        `/guilds/${guildId}/commands`,
+        commands,
+      );
+      return res.data as Discord.Command[];
     });
   }
 }
