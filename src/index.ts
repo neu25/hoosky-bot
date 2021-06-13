@@ -1,4 +1,5 @@
 import yargs from 'yargs';
+import axios from 'axios';
 import { hideBin } from 'yargs/helpers';
 import Client from './Client';
 import { loadConfig } from './config';
@@ -12,9 +13,15 @@ import Api from './Api';
   const argv = await yargs(hideBin(process.argv)).argv;
   const configPath = (argv.config as string) || 'config.json';
   const config = await loadConfig(configPath);
+  const reqClient = axios.create({
+    baseURL: `https://discord.com/api/v8/`,
+    headers: {
+      Authorization: `Bot ${config.discord.token}`,
+    },
+  });
 
   console.log('Fetching list of joined guilds...');
-  const api = new Api(config.discord.appId, config.discord.token);
+  const api = new Api(config.discord.appId, reqClient);
   const guilds = await api.getCurrentGuilds();
   const guildIds = guilds.map(g => g.id);
   for (let i = 0; i < guilds.length; i++) {
@@ -27,10 +34,7 @@ import Api from './Api';
   await database.initializeConfig(guildIds);
 
   console.log('Synchronizing guild commands...');
-  const commandManager = new CommandManager(
-    config.discord.appId,
-    config.discord.token,
-  );
+  const commandManager = new CommandManager(config.discord.appId, reqClient);
   await commandManager.syncGuildCommands(guildIds, commands);
 
   console.log('Connecting to gateway...');
@@ -38,6 +42,7 @@ import Api from './Api';
     config.discord.appId,
     config.discord.token,
     database,
+    reqClient,
   );
 
   // Supply the commands we'd like to handle.

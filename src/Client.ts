@@ -5,6 +5,7 @@ import Command from './Command';
 import Trigger from './Trigger';
 import TriggerContext from './TriggerContext';
 import { Database } from './database';
+import { AxiosInstance } from 'axios';
 
 /**
  * Client connects to the Discord bot gateway and maintains the connection.
@@ -28,18 +29,27 @@ class Client {
   private _lastSeqNum: number | null;
   private _sessionId?: string;
 
+  // The axios client to pass to the ExecutionContext
+  private readonly _client: AxiosInstance;
+
   // A callback function to be called when the connection is established.
   private _connectCallback?: (data: Discord.ReadyPayload) => void;
 
   private readonly _database: Database;
 
-  constructor(appId: string, token: string, database: Database) {
+  constructor(
+    appId: string,
+    token: string,
+    database: Database,
+    client: AxiosInstance,
+  ) {
     this._token = token;
     this._appId = appId;
     this._database = database;
     this._lastSeqNum = null;
     this._commands = {};
     this._triggers = {};
+    this._client = client;
   }
 
   /**
@@ -151,9 +161,9 @@ class Client {
             await command.execute(
               new ExecutionContext(
                 this._appId,
-                this._token,
                 this._database,
                 interaction,
+                this._client,
               ),
             );
           }
@@ -169,7 +179,7 @@ class Client {
     if (triggers) {
       const ctx = new TriggerContext(
         this._appId,
-        this._token,
+        this._client,
         this._database,
         data,
       );

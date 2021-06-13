@@ -1,4 +1,4 @@
-import axios, { AxiosInstance } from 'axios';
+import { AxiosInstance } from 'axios';
 import * as Discord from './Discord';
 import Command from './Command';
 import { performRequest } from './utils';
@@ -9,14 +9,11 @@ import { performRequest } from './utils';
  */
 class CommandManager {
   private readonly _client: AxiosInstance;
+  private readonly _appId: string;
 
-  constructor(appId: string, token: string) {
-    this._client = axios.create({
-      baseURL: `https://discord.com/api/v8/applications/${appId}`,
-      headers: {
-        Authorization: `Bot ${token}`,
-      },
-    });
+  constructor(appId: string, client: AxiosInstance) {
+    this._appId = appId;
+    this._client = client;
   }
 
   /**
@@ -42,7 +39,9 @@ class CommandManager {
    */
   private _getGlobalCommands(): Promise<Discord.Command[]> {
     return performRequest(async () => {
-      const res = await this._client.get('/commandManager');
+      const res = await this._client.get(
+        `/applications/${this._appId}/commandManager`,
+      );
       return res.data;
     });
   }
@@ -57,7 +56,10 @@ class CommandManager {
    */
   private _createGlobalCommand(command: Discord.NewCommand): Promise<void> {
     return performRequest(async () => {
-      await this._client.post('/commandManager', command);
+      await this._client.post(
+        `/applications/${this._appId}/commandManager`,
+        command,
+      );
     });
   }
 
@@ -72,7 +74,7 @@ class CommandManager {
     commands: Discord.NewCommand[],
   ): Promise<void> {
     return performRequest(async () => {
-      await this._client.put(`/commands`, commands);
+      await this._client.put(`/applications/${this._appId}/commands`, commands);
     });
   }
 
@@ -85,7 +87,7 @@ class CommandManager {
    */
   private _deleteGlobalCommand(id: string): Promise<void> {
     return performRequest(async () => {
-      await this._client.delete(`/commands/${id}`);
+      await this._client.delete(`/applications/${this._appId}/commands/${id}`);
     });
   }
 
@@ -96,7 +98,9 @@ class CommandManager {
    */
   private _getGuildCommands(guildId: string): Promise<Discord.Command[]> {
     return performRequest(async () => {
-      const res = await this._client.get(`/guilds/${guildId}/commands`);
+      const res = await this._client.get(
+        `/applications/${this._appId}/guilds/${guildId}/commands`,
+      );
       return res.data;
     });
   }
@@ -112,7 +116,10 @@ class CommandManager {
     command: Discord.NewCommand,
   ): Promise<void> {
     return performRequest(async () => {
-      await this._client.post(`/guilds/${guildId}/commands`, command);
+      await this._client.post(
+        `/applications/${this._appId}/guilds/${guildId}/commands`,
+        command,
+      );
     });
   }
 
@@ -128,11 +135,15 @@ class CommandManager {
   ): Promise<Discord.Command[]> {
     return performRequest(async () => {
       const res = await this._client.put(
-        `/guilds/${guildId}/commands`,
+        `/applications/${this._appId}/guilds/${guildId}/commands`,
         commands,
       );
       return res.data as Discord.Command[];
     });
+  }
+
+  getClient(): AxiosInstance {
+    return this._client;
   }
 }
 

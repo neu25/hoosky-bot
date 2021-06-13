@@ -1,14 +1,10 @@
-import axios from 'axios';
+import { AxiosInstance } from 'axios';
 import * as Discord from './Discord';
 import Snowflake from './Snowflake';
 import { performRequest } from './utils';
 import { parseCommand, OptionType, Arguments } from './arguments';
 import { Database } from './database';
 import Api from './Api';
-
-const client = axios.create({
-  baseURL: 'https://discord.com/api/v8',
-});
 
 /**
  * ExecutionContext is a helper class with a straightforward interface for
@@ -31,18 +27,20 @@ class ExecutionContext {
   private readonly _cmd: string[];
   private _cmdIndex: number;
   private readonly _args: Arguments;
+  private readonly _client: AxiosInstance;
 
   constructor(
     appId: string,
-    token: string,
     database: Database,
     interaction: Discord.Interaction,
+    client: AxiosInstance,
   ) {
-    this.api = new Api(appId, token);
+    this.api = new Api(appId, client);
     this.db = database;
     this.interaction = interaction;
     this._appId = appId;
     this._cmdIndex = 0;
+    this._client = client;
 
     if (interaction.data) {
       const { command, args } = parseCommand(interaction.data);
@@ -118,7 +116,7 @@ class ExecutionContext {
    */
   respond(res: Discord.InteractionResponse): Promise<void> {
     return performRequest(async () => {
-      await client.post(
+      await this._client.post(
         `/interactions/${this.interaction.id}/${this.interaction.token}/callback`,
         res,
       );
@@ -164,7 +162,7 @@ class ExecutionContext {
    */
   getResponse(): Promise<Discord.Message> {
     return performRequest(async () => {
-      const res = await client.get(
+      const res = await this._client.get(
         `/webhooks/${this._appId}/${this.interaction.token}/messages/@original`,
       );
       return res.data;
@@ -194,7 +192,7 @@ class ExecutionContext {
    */
   followUp(msg: Discord.FollowUpMessage): Promise<Discord.Message> {
     return performRequest(async () => {
-      const res = await client.post(
+      const res = await this._client.post(
         `/webhooks/${this._appId}/${this.interaction.token}`,
         msg,
       );
@@ -213,7 +211,7 @@ class ExecutionContext {
     edit: Discord.MessageEdit,
   ): Promise<Discord.Message> {
     return performRequest(async () => {
-      const res = await client.patch(
+      const res = await this._client.patch(
         `/webhooks/${this._appId}/${this.interaction.token}/messages/${messageId}`,
         edit,
       );
@@ -228,7 +226,7 @@ class ExecutionContext {
    */
   async deleteFollowUp(messageId: string): Promise<void> {
     await performRequest(() =>
-      client.delete(
+      this._client.delete(
         `/webhooks/${this._appId}/${this.interaction.token}/messages/${messageId}`,
       ),
     );
