@@ -36,6 +36,32 @@ class Database {
     return this._client.db(`${this._dbName}-${guildId}`);
   }
 
+  async getDocValue(
+    guildId: string,
+    collectionId: string,
+    docId: string,
+  ): Promise<unknown> {
+    const doc = await this.getDb(guildId)
+      .collection(collectionId)
+      .findOne({ _id: docId });
+    return (doc || {}).value;
+  }
+
+  async setDocValue(
+    guildId: string,
+    collectionId: string,
+    docId: string,
+    value: any,
+  ): Promise<void> {
+    await this.getDb(guildId)
+      .collection(collectionId)
+      .updateOne(
+        { _id: docId },
+        { $set: { _id: docId, value } },
+        { upsert: true },
+      );
+  }
+
   /**
    * Inserts default configuration values into the `config` collection. If one
    * already exists, the insertion is skipped.
