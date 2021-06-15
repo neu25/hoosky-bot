@@ -4,7 +4,7 @@ import SubCommand from '../SubCommand';
 import CommandOption from '../CommandOption';
 
 /**
- * Basic /pool command.
+ * Basic /po1l command.
  * TODO:
  *  - Delete poll/reactions
  *  - Time based poll
