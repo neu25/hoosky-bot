@@ -146,6 +146,10 @@ class ExecutionContext {
     return this.respondWithMessage(`Unable to run command: ${content}`, true);
   }
 
+  respondSilently(content: string): Promise<void> {
+    return this.respondWithMessage(content, true);
+  }
+
   /**
    * Responds to the command execution with a loading status. `editResponse`
    * should be called later to update the initial response message.

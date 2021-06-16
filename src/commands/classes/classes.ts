@@ -107,7 +107,7 @@ const classes = new Command({
       ],
       handler: async ctx => {
         const guildId = ctx.mustGetGuildId();
-        let classesList = 'Here is a list of classes: \n```';
+        let classesList = 'Here is a list of classes: \n';
         classesList += '```';
         const classes = await getClasses(ctx, guildId);
         while (await classes.hasNext()) {
@@ -115,7 +115,7 @@ const classes = new Command({
           classesList += `${nextClass.name} - ${nextClass.description} \n`
         }
         classesList += '```';
-        ctx.respondWithMessage(classesList);
+        ctx.respondSilently(classesList);
       },
     }),
     new SubCommand({
@@ -145,7 +145,7 @@ const classes = new Command({
             membersList += `<@${members[i]}> \n`
           }
 
-          ctx.respondWithMessage(membersList);
+          ctx.respondSilently(membersList);
         }
       }
     }),
