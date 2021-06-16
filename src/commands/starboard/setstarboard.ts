@@ -1,5 +1,5 @@
 import * as Discord from '../../Discord';
-import Command from '../../Command'; 
+import Command from '../../Command';
 import SubCommand from '../../SubCommand';
 import CommandOption from '../../CommandOption';
 
@@ -33,7 +33,14 @@ const setstarboard = new Command({
         }),
       ],
       handler: async ctx => {
-        
+        const channel = ctx.getArgument('channel') as string;
+        //
+        const emoji = ctx.getArgument('emoji') as string;
+        //
+        const minstars = ctx.getArgument('minstars') as number;
+
+        await ctx.respondWithMessage('Starboard created in ' + channel + 'with ' +minstars + " " + emoji + "required");
+
       /*
         Use response system to extract variables from parameters
         Use database as a means to communicate with starboard.ts and as a means to store afformentioned variables
