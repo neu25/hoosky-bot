@@ -1,8 +1,10 @@
 import ExecutionContext from '../../ExecutionContext';
+import * as Discord from '../../Discord';
 
 export type dbClass = {
   name: string,
   description: string
+  id: string
 };
 
 export const classExists = async (
@@ -15,6 +17,18 @@ export const classExists = async (
   const classObj = await db.collection('classes').findOne({name: name});
 
   return classObj != null;
+};
+
+export const getRole = async (
+  ctx: ExecutionContext,
+  guildId: string,
+  name: string
+): Promise<Discord.Role> => {
+  const db = await ctx.db.getDb(guildId);
+
+  const role = await db.collection('classes').findOne({name: name});
+
+  return role;
 };
 
 export const createClass = async (
