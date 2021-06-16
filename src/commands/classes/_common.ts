@@ -51,7 +51,7 @@ export const addUserToClass = async (
 ) => {
   const db = await ctx.db.getDb(guildId);
 
-  await db.collection('classes').update(
+  await db.collection('classes').updateOne(
     {
       name: className,
     },
