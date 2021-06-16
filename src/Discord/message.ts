@@ -1,5 +1,5 @@
 import { MessageInteraction } from './interaction';
-import { Channel, GuildMember } from './guild';
+import { Channel, Guild, GuildMember } from './guild';
 import { Role, User } from './user';
 import { Application } from './application';
 

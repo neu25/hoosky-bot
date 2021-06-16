@@ -255,7 +255,7 @@ class Client {
         $browser: 'hoosky',
         $device: 'hoosky',
       },
-      intents: Discord.Intent.GUILDS,
+      intents: Discord.Intent.GUILDS | Discord.Intent.GUILD_MESSAGE_REACTIONS,
     };
 
     this._sendMessage({
