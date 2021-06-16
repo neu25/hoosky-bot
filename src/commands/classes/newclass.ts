@@ -32,15 +32,10 @@ const newclass = new Command({
         const guildId = ctx.mustGetGuildId();
         const name = ctx.getArgument<string>('name')?.trim() as string;
         const description = ctx.getArgument<string>('description') as string;
-        
-        const classObj = {name, description};
 
         if (await classExists(ctx, guildId, name)) {
           ctx.respondWithError(`That class already exists`);
         } else {
-          // Create class in database
-          createClass(ctx, guildId, classObj);
-
           const roleParams = {
               name: name,
               permissions: '0',
@@ -48,8 +43,11 @@ const newclass = new Command({
           }
 
           // Create the class role
-          await ctx.api.createGuildRole(guildId, roleParams);
-          
+          const classRole = await ctx.api.createGuildRole(guildId, roleParams);
+          const id = classRole.id;
+          // Create class in database
+          const classObj = {name, description, id};
+          createClass(ctx, guildId, classObj);
 
 
           // Notify of successful class creation

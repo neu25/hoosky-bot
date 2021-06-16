@@ -1,14 +1,15 @@
 import ping from './ping';
 import poll from './poll';
 import { mute, unmute } from './mute';
-import { newclass } from './classes';
+import { newclass, joinclass } from './classes';
 
 const commands = {
   ping,
   mute,
   unmute,
   poll,
-  newclass
+  newclass,
+  joinclass
 };
 
 export default commands;
