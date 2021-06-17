@@ -4,7 +4,7 @@ A custom-built Discord bot for the Northeastern Class of 2025 Discord server.
 
 ## Commands
 
-All current commands are documented in `[COMMANDS.md](COMMANDS.md)`. Source files are located in `[src/commands](src/commands)`.
+All current commands are documented in [`COMMANDS.md`](COMMANDS.md). Source files are located in [`src/commands`](src/commands).
 
 ## Configuration
 
