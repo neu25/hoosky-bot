@@ -20,7 +20,7 @@ This is a list of commands currently implemented in Hoosky Bot.
 
 | Command                            | Returns                              | Description                                                             |
 | ---------------------------------- | ------------------------------------ | ----------------------------------------------------------------------- |
-| `/poll create [emojis] [question]` | `[question]` with reactions `[emojis]` | Sends a message with the user's question and reacts with each supplied emoji |
+| `/poll create [emojis] [question]` | `[question]` with reactions [emojis] | Sends a message with the user's question and reacts with each supplied emoji |
 
 ## `/unmute`
 
