@@ -57,7 +57,7 @@ class Database {
       .collection(collectionId)
       .updateOne(
         { _id: docId },
-        { $set: { _id: docId, value } },
+        value,
         { upsert: true },
       );
   }
