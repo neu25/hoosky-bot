@@ -10,7 +10,7 @@ All current commands are documented in [`COMMANDS.md`](COMMANDS.md). Source file
 
 All configuration is stored in `config.json`. The shape should look like this:
 
-```json
+```jsonc
 {
   "discord": {
     "token": "ABCD01293ndsljfjlkejw.YLFp_A.ZZFJDSKFL312f",
