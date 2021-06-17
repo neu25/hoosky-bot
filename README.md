@@ -14,11 +14,11 @@ All configuration is stored in `config.json`. The shape should look like this:
 {
   "discord": {
     "token": "ABCD01293ndsljfjlkejw.YLFp_A.ZZFJDSKFL312f",
-    "appId": "123459672673140000"
+    "appId": "098765432123456789"
   },
   "mongodb": {
     "url": "mongodb://admin:DATABASE_PASSWORD123@127.0.0.1:27017/?authSource=admin&readPreference=primary&ssl=false",
-    "db": "example" // A unique database prefix to prevent conflicts. The bot creates a new database for every server ID: e.g., "aiyan-847507390956830760".
+    "db": "example" // A unique database prefix to prevent conflicts. The bot creates a new database for every server ID: e.g., "example-123456789098765432".
   }
 }
 ```
