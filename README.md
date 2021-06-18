@@ -1,5 +1,7 @@
 # Hoosky Bot
 
+![Deploy Workflow](https://github.com/nu25/hoosky-bot/actions/workflows/deploy.yml/badge.svg)
+
 A custom-built Discord bot for the Northeastern Class of 2025 Discord server.
 
 ## Commands
