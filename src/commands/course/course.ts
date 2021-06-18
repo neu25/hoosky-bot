@@ -4,33 +4,33 @@ import SubCommand from '../../SubCommand';
 import CommandOption from '../../CommandOption';
 import { CommandOptionType } from '../../Discord';
 import {
-  classExists,
-  createClass,
+  courseExists,
+  createCourse,
   getRole,
-  addUserToClass,
-  getClassMembers,
-  getClasses,
+  addUserToCourse,
+  getCourseMembers,
+  getCourses,
 } from './_common';
 
-const classes = new Command({
-  name: 'classes',
-  description: 'Manage server classes',
+const course = new Command({
+  name: 'course',
+  description: 'Manage server courses',
   options: [
     new SubCommand({
       name: 'create',
-      displayName: 'New Class',
-      description: 'Creates a new class role',
+      displayName: 'New Course',
+      description: 'Creates a new course role',
       requiredPermissions: [Discord.Permission.MANAGE_ROLES],
       options: [
         new CommandOption({
           name: 'name',
-          description: 'The class name/code',
+          description: 'The course name/code',
           required: true,
           type: CommandOptionType.STRING,
         }),
         new CommandOption({
           name: 'description',
-          description: 'The description of the class',
+          description: 'The description of the course',
           required: true,
           type: CommandOptionType.STRING,
         }),
@@ -40,8 +40,8 @@ const classes = new Command({
         const name = ctx.getArgument<string>('name')?.trim() as string;
         const description = ctx.getArgument<string>('description') as string;
 
-        if (await classExists(ctx, guildId, name)) {
-          ctx.respondWithError(`That class already exists`);
+        if (await courseExists(ctx, guildId, name)) {
+          ctx.respondWithError(`That course already exists`);
         } else {
           const roleParams = {
             name: name,
@@ -49,28 +49,28 @@ const classes = new Command({
             mentionable: true,
           };
 
-          // Create the class role
-          const classRole = await ctx.api.createGuildRole(guildId, roleParams);
-          const id = classRole.id;
-          // Create class in database
+          // Create the course role
+          const courseRole = await ctx.api.createGuildRole(guildId, roleParams);
+          const id = courseRole.id;
+          // Create course in database
           const members: string[] = [];
-          const classObj = { name, description, id, members };
-          createClass(ctx, guildId, classObj);
+          const courseObj = { name, description, id, members };
+          createCourse(ctx, guildId, courseObj);
 
-          // Notify of successful class creation
-          return ctx.respondWithMessage(`Created role for class **${name}**`);
+          // Notify of successful course creation
+          return ctx.respondWithMessage(`Created role for course **${name}**`);
         }
       },
     }),
     new SubCommand({
       name: 'join',
-      displayName: 'Join Class',
-      description: 'Joins a class',
+      displayName: 'Join Course',
+      description: 'Joins a course',
       requiredPermissions: [],
       options: [
         new CommandOption({
           name: 'name',
-          description: 'The class name/code',
+          description: 'The course name/code',
           required: true,
           type: CommandOptionType.STRING,
         }),
@@ -78,28 +78,28 @@ const classes = new Command({
       handler: async ctx => {
         const guildId = ctx.mustGetGuildId();
         const name = ctx.getArgument<string>('name')?.trim() as string;
-        if (!(await classExists(ctx, guildId, name))) {
-          ctx.respondWithError(`That class does not exist`);
+        if (!(await courseExists(ctx, guildId, name))) {
+          ctx.respondWithError(`That course does not exist`);
         } else {
-          // Get the class role
-          const classRole = await getRole(ctx, guildId, name);
-          const roleId = classRole.id;
+          // Get the course role
+          const courseRole = await getRole(ctx, guildId, name);
+          const roleId = courseRole.id;
           const userId = ctx.interaction.member?.user?.id;
 
           if (userId) {
             if (
               !(await (
-                await getClassMembers(ctx, guildId, name)
+                await getCourseMembers(ctx, guildId, name)
               ).includes(userId))
             ) {
               await ctx.api.addRoleToMember(guildId, userId, roleId);
 
-              await addUserToClass(ctx, guildId, userId, name);
+              await addUserToCourse(ctx, guildId, userId, name);
 
-              // Notify of successful class creation
-              return ctx.respondWithMessage(`Joined class **${name}**`);
+              // Notify of successful course creation
+              return ctx.respondWithMessage(`Joined course **${name}**`);
             } else {
-              ctx.respondWithError(`You are already in that class`);
+              ctx.respondWithError(`You are already in that course`);
             }
           }
         }
@@ -107,32 +107,32 @@ const classes = new Command({
     }),
     new SubCommand({
       name: 'list',
-      displayName: 'List Classes',
-      description: 'Lists all available classes',
+      displayName: 'List Courses',
+      description: 'Lists all available courses',
       requiredPermissions: [],
       options: [],
       handler: async ctx => {
         const guildId = ctx.mustGetGuildId();
-        let classesList = 'Here is a list of classes: \n';
-        classesList += '```';
-        const classes = await getClasses(ctx, guildId);
-        while (await classes.hasNext()) {
-          const nextClass = await classes.next();
-          classesList += `${nextClass.name} - ${nextClass.description} \n`;
+        let coursesList = 'Here is a list of courses: \n';
+        coursesList += '```';
+        const courses = await getCourses(ctx, guildId);
+        while (await courses.hasNext()) {
+          const nextCourse = await courses.next();
+          coursesList += `${nextCourse.name} - ${nextCourse.description} \n`;
         }
-        classesList += '```';
-        ctx.respondSilently(classesList);
+        coursesList += '```';
+        ctx.respondSilently(coursesList);
       },
     }),
     new SubCommand({
       name: 'roster',
-      displayName: 'Returns a roster of members in a class',
-      description: 'Returns a roster of members in a class',
+      displayName: 'Returns a roster of members in a course',
+      description: 'Returns a roster of members in a course',
       requiredPermissions: [],
       options: [
         new CommandOption({
           name: 'name',
-          description: 'The class name/code',
+          description: 'The course name/code',
           required: true,
           type: CommandOptionType.STRING,
         }),
@@ -140,13 +140,13 @@ const classes = new Command({
       handler: async ctx => {
         const guildId = ctx.mustGetGuildId();
         const name = ctx.getArgument<string>('name')?.trim() as string;
-        if (!(await classExists(ctx, guildId, name))) {
-          ctx.respondWithError(`That class does not exist`);
+        if (!(await courseExists(ctx, guildId, name))) {
+          ctx.respondWithError(`That course does not exist`);
         } else {
           const guildId = ctx.mustGetGuildId();
           let membersList = `Here is a list of members in ${name}: \n`;
 
-          const members = await getClassMembers(ctx, guildId, name);
+          const members = await getCourseMembers(ctx, guildId, name);
           for (let i = 0; i < members.length; i++) {
             membersList += `<@${members[i]}> \n`;
           }
@@ -158,4 +158,4 @@ const classes = new Command({
   ],
 });
 
-export default classes;
+export default course;

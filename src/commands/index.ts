@@ -1,14 +1,14 @@
 import ping from './ping';
 import poll from './poll';
 import { mute, unmute } from './mute';
-import { classes } from './classes';
+import { course } from './course';
 
 const commands = {
   ping,
   mute,
   unmute,
   poll,
-  classes,
+  course,
 };
 
 export default commands;
