@@ -1,5 +1,6 @@
 import ExecutionContext from '../../ExecutionContext';
 import * as Discord from '../../Discord';
+import { Collection } from '../../database';
 
 export type courseObject = {
   name: string;
@@ -15,7 +16,7 @@ export const courseExists = async (
 ): Promise<boolean> => {
   const db = await ctx.db.getDb(guildId);
 
-  const course = await db.collection('classes').findOne({ name: name });
+  const course = await db.collection(Collection.COURSES).findOne({ name: name });
 
   return course != null;
 };
@@ -27,7 +28,7 @@ export const getRole = async (
 ): Promise<Discord.Role> => {
   const db = await ctx.db.getDb(guildId);
 
-  const role = await db.collection('classes').findOne({ name: name });
+  const role = await db.collection(Collection.COURSES).findOne({ name: name });
 
   return role;
 };
@@ -39,7 +40,7 @@ export const createCourse = async (
 ): Promise<any> => {
   const db = await ctx.db.getDb(guildId);
 
-  const course = await db.collection('classes').insertOne(courseInfo);
+  const course = await db.collection(Collection.COURSES).insertOne(courseInfo);
   return course;
 };
 
@@ -47,13 +48,13 @@ export const addUserToCourse = async (
   ctx: ExecutionContext,
   guildId: string,
   userId: string,
-  courseName: string,
+  name: string,
 ) => {
   const db = await ctx.db.getDb(guildId);
 
-  await db.collection('classes').updateOne(
+  await db.collection(Collection.COURSES).updateOne(
     {
-      name: courseName,
+      name: name,
     },
     {
       $push: {
@@ -66,13 +67,13 @@ export const addUserToCourse = async (
 export const getCourseMembers = async (
   ctx: ExecutionContext,
   guildId: string,
-  courseName: string,
+  name: string,
 ): Promise<string[]> => {
   const db = await ctx.db.getDb(guildId);
 
   const course = await db
-    .collection('classes')
-    .findOne({ name: courseName });
+    .collection(Collection.COURSES)
+    .findOne({ name: name });
 
   return course.members;
 };
@@ -83,7 +84,7 @@ export const getCourses = async (
 ): Promise<any> => {
   const db = await ctx.db.getDb(guildId);
 
-  const courses = await db.collection('classes').find();
+  const courses = await db.collection(Collection.COURSES).find();
 
   return courses;
 };
