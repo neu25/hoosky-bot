@@ -23,10 +23,10 @@ export const performRequest = async <T>(fn: () => Promise<T>): Promise<T> => {
         // We hit a rate-limit, so try again after the specified time (s).
         const delay = (e.response.data || {}).retry_after * 1000 || 1000;
         await wait(delay);
-        return performRequest(fn);
+        return performRequest(fn); // Recursively try again.
       }
 
-      // Log the status code and status text.
+      // Unexpected response code: log the status code and status text.
       console.error(
         'HTTP request error:',
         e.response.status,

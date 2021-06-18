@@ -24,10 +24,12 @@ class ExecutionContext {
   readonly db: Database;
   readonly interaction: Discord.Interaction;
   private readonly _appId: string;
-  private readonly _cmd: string[];
-  private _cmdIndex: number;
   private readonly _args: Arguments;
   private readonly _client: AxiosInstance;
+
+  // For internal use.
+  private readonly _cmd: string[];
+  private _cmdIndex: number;
 
   constructor(
     appId: string,
@@ -74,33 +76,6 @@ class ExecutionContext {
   }
 
   /**
-   * Returns the current command name being processed.
-   *
-   * NOTE: This is for internal use in matching the command with the respective
-   * handler. There are currently no use cases for this method, as the command
-   * name is obvious within each command handler.
-   */
-  getCurrentCommand(): string {
-    if (this._cmdIndex >= this._cmd.length) {
-      return '';
-    }
-    return this._cmd[this._cmdIndex];
-  }
-
-  /**
-   * Advances the current command name being processed.
-   *
-   * NOTE: This is for internal use in matching the command with the respective
-   * handler. There are currently no use cases for this method, as the command
-   * name is obvious within each command handler.
-   */
-  advanceCommand(): string {
-    const current = this.getCurrentCommand();
-    this._cmdIndex++;
-    return current;
-  }
-
-  /**
    * Returns the date of the command execution.
    */
   interactionDate(): Date {
@@ -142,6 +117,12 @@ class ExecutionContext {
     });
   }
 
+  /**
+   * Responds to the command execution with an error message only visible to the
+   * executor. The error message is prefixed with "Unable to run command: ".
+   *
+   * @param content The error message.
+   */
   respondWithError(content: string): Promise<void> {
     return this.respondWithMessage(`Unable to run command: ${content}`, true);
   }
@@ -224,12 +205,40 @@ class ExecutionContext {
    *
    * @param messageId The message ID of the follow-up.
    */
-  async deleteFollowUp(messageId: string): Promise<void> {
-    await performRequest(() =>
-      this._client.delete(
-        `/webhooks/${this._appId}/${this.interaction.token}/messages/${messageId}`,
-      ),
+  deleteFollowUp(messageId: string): Promise<void> {
+    return performRequest(
+      async () =>
+        await this._client.delete(
+          `/webhooks/${this._appId}/${this.interaction.token}/messages/${messageId}`,
+        ),
     );
+  }
+
+  /**
+   * Returns the current command name being processed.
+   *
+   * NOTE: This is for internal use in matching the command with the respective
+   * handler. There are currently no use cases for this method, as the command
+   * name is obvious within each command handler.
+   */
+  getCurrentCommand(): string {
+    if (this._cmdIndex >= this._cmd.length) {
+      return '';
+    }
+    return this._cmd[this._cmdIndex];
+  }
+
+  /**
+   * Advances the current command name being processed.
+   *
+   * NOTE: This is for internal use in matching the command with the respective
+   * handler. There are currently no use cases for this method, as the command
+   * name is obvious within each command handler.
+   */
+  advanceCommand(): string {
+    const current = this.getCurrentCommand();
+    this._cmdIndex++;
+    return current;
   }
 }
 
