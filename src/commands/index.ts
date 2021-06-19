@@ -1,7 +1,7 @@
 import ping from './ping';
 import poll from './poll';
 import { mute, unmute } from './mute';
-import { course } from './course';
+import course from './course';
 
 const commands = {
   ping,
