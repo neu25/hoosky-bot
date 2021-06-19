@@ -2,7 +2,7 @@ import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
 import { CommandOptionType } from '../../../Discord';
-import { courseExists, courseNumberExists, createCourse } from '../_common';
+import { courseNumberExists, createCourse } from '../_common';
 
 export const create = new SubCommand({
   name: 'create',
