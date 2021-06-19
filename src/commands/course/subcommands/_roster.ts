@@ -5,7 +5,7 @@ import { getCourse, getCourseMembers } from '../_common';
 
 export const roster = new SubCommand({
   name: 'roster',
-  displayName: 'Returns a roster of members in a course',
+  displayName: 'Course Roster',
   description: 'Returns a roster of members in a course',
   requiredPermissions: [],
   options: [
