@@ -20,7 +20,13 @@ export const create = new SubCommand({
     options: [
       new CommandOption({
         name: 'name',
-        description: 'The course name/code',
+        description: 'The course name',
+        required: true,
+        type: CommandOptionType.STRING,
+      }),
+      new CommandOption({
+        name: 'crn',
+        description: 'The course reference number (CRN)',
         required: true,
         type: CommandOptionType.STRING,
       }),
@@ -34,13 +40,14 @@ export const create = new SubCommand({
     handler: async ctx => {
       const guildId = ctx.mustGetGuildId();
       const name = ctx.getArgument<string>('name')?.trim() as string;
+      const crn = ctx.getArgument<string>('crn')?.trim() as string;
       const description = ctx.getArgument<string>('description') as string;
 
       if (await courseExists(ctx, guildId, name)) {
         ctx.respondWithError(`That course already exists`);
       } else {
         const roleParams = {
-          name: name,
+          name: crn,
           permissions: '0',
           mentionable: true,
         };
@@ -50,11 +57,11 @@ export const create = new SubCommand({
         const roleId = courseRole.id;
         // Create course in database
         const members: string[] = [];
-        const courseObj = { name, description, roleId, members };
+        const courseObj = { name, crn, description, roleId, members };
         createCourse(ctx, guildId, courseObj);
 
         // Notify of successful course creation
-        return ctx.respondWithMessage(`Created role for course **${name}**`);
+        return ctx.respondWithMessage(`Created role for course **${crn} - ${name}**`);
       }
     },
 });

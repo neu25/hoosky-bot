@@ -4,6 +4,7 @@ import { Collection } from '../../database';
 
 export type courseObject = {
   name: string;
+  crn: string;
   description: string;
   roleId: string;
   members: string[];
