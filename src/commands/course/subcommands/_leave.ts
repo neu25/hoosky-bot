@@ -39,7 +39,7 @@ export const leave = new SubCommand({
     await removeUserFromCourse(ctx, guildId, userId, roleId);
 
     return ctx.respondWithMessage(
-      `Left course **${course.crn} - ${course.name}**`,
+      `Left course **${course._id} - ${course.name}**`,
     );
   },
 });

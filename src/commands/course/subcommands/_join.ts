@@ -39,7 +39,7 @@ export const join = new SubCommand({
     await addUserToCourse(ctx, guildId, userId, roleId);
 
     return ctx.respondWithMessage(
-      `Joined course **${course.crn} - ${course.name}**`,
+      `Joined course **${course._id} - ${course.name}**`,
     );
   },
 });

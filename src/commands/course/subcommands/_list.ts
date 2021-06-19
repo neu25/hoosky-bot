@@ -17,7 +17,7 @@ export const list = new SubCommand({
 
     let nextCourse = await courses.next();
     while (nextCourse !== null) {
-      coursesList += `${nextCourse.crn} - ${nextCourse.name}: ${nextCourse.description} \n`;
+      coursesList += `${nextCourse._id} - ${nextCourse.name}: ${nextCourse.description} \n`;
       nextCourse = await courses.next();
     }
 

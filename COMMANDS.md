@@ -6,14 +6,14 @@ This is a list of commands currently implemented in Hoosky Bot.
 
 ## `/course`
 
-| Command                                     | Returns                                                                                                     | Description                                                                             |
-| ------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| `/course create [name] [crn] [description]` | `Created role for course **[crn] - [name]**` OR `That course already exists`                                | Creates a new course and associated server role. Requires the `MANAGE_ROLES` permission |
-| `/course join [@role]`                      | `Joined course **[crn] - [name]**` OR `You are already in that course` OR `That course does not exist`      | Joins a course and assigns the appropriate course role to the user                      |
-| `/course leave [@role]`                     | `Left course **[crn] - [name]**` OR `You aren't in that course` OR `That course does not exist`             | Leaves a course and removes the course role from the user                               |
-| `/course list`                              | `Here is a list of courses: \n [crn] - [name]: [description]`                                               | Silently lists all available courses                                                    |
-| `/course remove [@role]`                    | `Removed course **[crn] - [name]**` OR `That course does not exist`                                         | Removes a course and associated server role. Requires the `MANAGE_ROLES` permission     |
-| `/course roster [@role]`                    | `Here is a list of all [count] members in **[crn] - [name]**: \n [members]` OR `That course does not exist` | Silently lists all members currently in the course                                      |
+| Command                                        | Returns                                                                                                        | Description                                                                             |
+| ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `/course create [name] [number] [description]` | `Created role for course **[number] - [name]**` OR `That course already exists`                                | Creates a new course and associated server role. Requires the `MANAGE_ROLES` permission |
+| `/course join [@role]`                         | `Joined course **[number] - [name]**` OR `You are already in that course` OR `That course does not exist`      | Joins a course and assigns the appropriate course role to the user                      |
+| `/course leave [@role]`                        | `Left course **[number] - [name]**` OR `You aren't in that course` OR `That course does not exist`             | Leaves a course and removes the course role from the user                               |
+| `/course list`                                 | `Here is a list of courses: \n [number] - [name]: [description]`                                               | Silently lists all available courses                                                    |
+| `/course remove [@role]`                       | `Removed course **[number] - [name]**` OR `That course does not exist`                                         | Removes a course and associated server role. Requires the `MANAGE_ROLES` permission     |
+| `/course roster [@role]`                       | `Here is a list of all [count] members in **[number] - [name]**: \n [members]` OR `That course does not exist` | Silently lists all members currently in the course                                      |
 
 ## `/mute`
 
