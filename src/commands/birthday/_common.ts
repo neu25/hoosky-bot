@@ -1,10 +1,11 @@
+import { Cursor, Collection as MongoCollection } from 'mongodb';
 import ExecutionContext from '../../ExecutionContext';
 import * as Discord from '../../Discord';
 import { Collection } from '../../database';
 
-export type dbClass = {
+export type Birthday = {
   userId: string;
-  birthday: number;
+  day: number;
 };
 
 export const calculateDayOfYear = async (date: string): Promise<number> => {
@@ -41,6 +42,16 @@ export const getTargetUser = async (
   }
 };
 
+export const dayExists = async (
+  ctx: ExecutionContext,
+  guildId: string,
+  day: number,
+): Promise<any> => {
+  const db = await ctx.db.getDb(guildId);
+
+  return await db.collection(Collection.BIRTHDAYS).findOne({ day });
+};
+
 export const userHasBirthday = async (
   ctx: ExecutionContext,
   guildId: string,
@@ -48,24 +59,29 @@ export const userHasBirthday = async (
 ): Promise<boolean> => {
   const db = await ctx.db.getDb(guildId);
 
-  const birthdayObj = await db
-    .collection(Collection.BIRTHDAYS)
-    .findOne({ userId });
-
-  return birthdayObj != null;
+  return (
+    (await db.collection(Collection.BIRTHDAYS).findOne({ userId })) !== null
+  );
 };
 
 export const setBirthday = async (
   ctx: ExecutionContext,
   guildId: string,
-  birthdayObject: dbClass,
+  birthdayInfo: Birthday,
 ): Promise<any> => {
   const db = await ctx.db.getDb(guildId);
 
-  const birthdayObj = await db
-    .collection(Collection.BIRTHDAYS)
-    .insertOne(birthdayObject);
-  return birthdayObj;
+  const day = await dayExists(ctx, guildId, birthdayInfo.day);
+
+  if (day) {
+    return await db
+      .collection(Collection.BIRTHDAYS)
+      .insertOne({ _id: day._id, members: birthdayInfo.userId });
+  } else {
+    return await db
+      .collection(Collection.BIRTHDAYS)
+      .updateOne({ _id: day._id }, { $push: { members: birthdayInfo.userId } });
+  }
 };
 
 export const getBirthday = async (
@@ -75,10 +91,14 @@ export const getBirthday = async (
 ): Promise<any> => {
   const db = await ctx.db.getDb(guildId);
 
-  const birthdayObj = await db
-    .collection(Collection.BIRTHDAYS)
-    .findOne({ userId });
-  return birthdayObj;
+  return await db.collection(Collection.BIRTHDAYS).findOne({ userId });
+};
+
+export const scanBirthdays = async (
+  ctx: ExecutionContext,
+  guildId: string,
+): Promise<Cursor<Birthday>> => {
+  return birthdaysCollection(ctx, guildId).find();
 };
 
 export const unsetBirthday = async (
@@ -88,8 +108,18 @@ export const unsetBirthday = async (
 ): Promise<any> => {
   const db = await ctx.db.getDb(guildId);
 
-  const birthdayObj = await db
-    .collection(Collection.BIRTHDAYS)
-    .deleteOne({ userId });
-  return birthdayObj;
+  return await db.collection(Collection.BIRTHDAYS).deleteOne({ userId });
+};
+
+/**
+ * Returns the `birthdays` collection for the specified guild.
+ *
+ * @param ctx The relevant execution context.
+ * @param guildId The ID of the guild.
+ */
+const birthdaysCollection = (
+  ctx: ExecutionContext,
+  guildId: string,
+): MongoCollection<Birthday> => {
+  return ctx.db.getDb(guildId).collection(Collection.BIRTHDAYS);
 };

@@ -177,14 +177,6 @@ class ExecutionContext {
   }
 
   /**
-   * Responds to the command execution with an message only visible to the executor.
-   * @param content The content of the message.
-   */
-  respondSilently(content: string): Promise<void> {
-    return this.respondSilently(content);
-  }
-
-  /**
    * Responds to the command execution with a message only visible to the executor.
    * @param content The content of the message.
    */

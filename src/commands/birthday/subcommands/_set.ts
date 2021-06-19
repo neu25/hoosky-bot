@@ -41,7 +41,7 @@ export const set = new SubCommand({
       if (!(await userHasBirthday(ctx, guildId, targetUser.id))) {
         const birthday = await setBirthday(ctx, guildId, {
           userId: targetUser.id,
-          birthday: dayOfYear,
+          day: dayOfYear,
         });
 
         if (birthday) {
