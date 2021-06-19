@@ -36,26 +36,26 @@ export const create = new SubCommand({
     const description = ctx.getArgument<string>('description') as string;
 
     if (await courseExists(ctx, guildId, name)) {
-      ctx.respondWithError(`That course already exists`);
-    } else {
-      const roleParams = {
-        name: crn,
-        permissions: '0',
-        mentionable: true,
-      };
-
-      // Create the course role
-      const courseRole = await ctx.api.createGuildRole(guildId, roleParams);
-      const roleId = courseRole.id;
-      // Create course in database
-      const members: string[] = [];
-      const courseObj = { name, crn, description, roleId, members };
-      createCourse(ctx, guildId, courseObj);
-
-      // Notify of successful course creation
-      return ctx.respondWithMessage(
-        `Created role for course **${crn} - ${name}**`,
-      );
+      return ctx.respondWithError(`That course already exists`);
     }
+
+    const roleParams = {
+      name: crn,
+      permissions: '0',
+      mentionable: true,
+    };
+
+    // Create the course role
+    const courseRole = await ctx.api.createGuildRole(guildId, roleParams);
+    const roleId = courseRole.id;
+    // Create course in database
+    const members: string[] = [];
+    const courseObj = { name, crn, description, roleId, members };
+    await createCourse(ctx, guildId, courseObj);
+
+    // Notify of successful course creation
+    return ctx.respondWithMessage(
+      `Created role for course **${crn} - ${name}**`,
+    );
   },
 });

@@ -67,7 +67,7 @@ class Database {
   async updateConfigValue(
     guildId: string,
     docId: string,
-    value: any,
+    value: unknown,
   ): Promise<void> {
     await this.getDb(guildId)
       .collection(Collection.CONFIG)
@@ -94,7 +94,7 @@ class Database {
   async insertDefaultConfigValue(
     guildId: string,
     docId: string,
-    value: any,
+    value: unknown,
   ): Promise<void> {
     await this.getDb(guildId)
       .collection(Collection.CONFIG)

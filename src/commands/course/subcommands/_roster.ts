@@ -1,8 +1,7 @@
-import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
 import { CommandOptionType } from '../../../Discord';
-import { courseExists, getCourse, getCourseMembers } from '../_common';
+import { getCourse, getCourseMembers } from '../_common';
 
 export const roster = new SubCommand({
   name: 'roster',
@@ -19,23 +18,20 @@ export const roster = new SubCommand({
   ],
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
-    const roleId = ctx.getArgument<Discord.CommandOptionType.ROLE>(
-      'role',
-    ) as unknown as string;
-    if (!(await courseExists(ctx, guildId, roleId))) {
-      ctx.respondWithError(`That course does not exist`);
-    } else {
-      const guildId = ctx.mustGetGuildId();
-      const course = await getCourse(ctx, guildId, roleId);
-      const members = await getCourseMembers(ctx, guildId, roleId);
+    const roleId = ctx.getArgument<string>('role') as string;
 
-      let membersList = `Here is a list of all ${members.length} members in **${course.crn} - ${course.name}**: \n`;
-
-      for (let i = 0; i < members.length; i++) {
-        membersList += `<@${members[i]}> \n`;
-      }
-
-      ctx.respondSilently(membersList);
+    const course = await getCourse(ctx, guildId, roleId);
+    if (!course) {
+      return ctx.respondWithError(`That course does not exist`);
     }
+
+    const members = (await getCourseMembers(ctx, guildId, roleId)) ?? [];
+
+    let membersList = `Here is a list of all ${members.length} members in **${course.crn} - ${course.name}**: \n`;
+    for (let i = 0; i < members.length; i++) {
+      membersList += `<@${members[i]}> \n`;
+    }
+
+    return ctx.respondSilently(membersList);
   },
 });
