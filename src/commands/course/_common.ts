@@ -5,32 +5,32 @@ import { Collection } from '../../database';
 export type courseObject = {
   name: string;
   description: string;
-  id: string;
+  roleId: string;
   members: string[];
 };
 
 export const courseExists = async (
   ctx: ExecutionContext,
   guildId: string,
-  name: string,
+  roleId: string,
 ): Promise<boolean> => {
   const db = await ctx.db.getDb(guildId);
 
-  const course = await db.collection(Collection.COURSES).findOne({ name: name });
+  const course = await db.collection(Collection.COURSES).findOne({ roleId: roleId });
 
   return course != null;
 };
 
-export const getRole = async (
+export const getCourse = async (
   ctx: ExecutionContext,
   guildId: string,
-  name: string,
-): Promise<Discord.Role> => {
+  roleId: string,
+): Promise<courseObject> => {
   const db = await ctx.db.getDb(guildId);
 
-  const role = await db.collection(Collection.COURSES).findOne({ name: name });
+  const course = await db.collection(Collection.COURSES).findOne({ roleId: roleId });
 
-  return role;
+  return course;
 };
 
 export const createCourse = async (
@@ -48,13 +48,13 @@ export const addUserToCourse = async (
   ctx: ExecutionContext,
   guildId: string,
   userId: string,
-  name: string,
+  roleId: string,
 ) => {
   const db = await ctx.db.getDb(guildId);
 
   await db.collection(Collection.COURSES).updateOne(
     {
-      name: name,
+      roleId: roleId,
     },
     {
       $push: {
@@ -67,13 +67,13 @@ export const addUserToCourse = async (
 export const getCourseMembers = async (
   ctx: ExecutionContext,
   guildId: string,
-  name: string,
+  roleId: string,
 ): Promise<string[]> => {
   const db = await ctx.db.getDb(guildId);
 
   const course = await db
     .collection(Collection.COURSES)
-    .findOne({ name: name });
+    .findOne({ roleId: roleId });
 
   return course.members;
 };
