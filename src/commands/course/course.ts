@@ -1,11 +1,11 @@
 import Command from '../../Command';
 
-import { create } from './_create';
-import { join } from './_join';
-import { list } from './_list';
-import { roster } from './_roster';
-import { leave } from './_leave';
-import { remove } from './_remove';
+import { create } from './subcommands/_create';
+import { join } from './subcommands/_join';
+import { list } from './subcommands/_list';
+import { roster } from './subcommands/_roster';
+import { leave } from './subcommands/_leave';
+import { remove } from './subcommands/_remove';
 
 const course = new Command({
   name: 'course',
