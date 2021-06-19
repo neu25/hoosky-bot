@@ -11,7 +11,7 @@ export const list = new SubCommand({
     let coursesList = 'Here is a list of courses: \n';
     coursesList += '```';
 
-    const courses = await scanCourses(ctx, guildId);
+    const courses = (await scanCourses(ctx, guildId)).sort({ _id: 1 });
 
     let nextCourse = await courses.next();
     while (nextCourse !== null) {
