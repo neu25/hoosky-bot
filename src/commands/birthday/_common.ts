@@ -20,7 +20,9 @@ export const calculateDayOfYear = async (date: string): Promise<number> => {
   return dayOfYear;
 };
 
-export const calculateDate = async (day: number): Promise<number> => {
+export const calculateDate = async (day: number): Promise<string> => {
+  return ''; // TEMPORARY
+
   // TODO: calculate date from day of the year
   // const oneDay = 1000 * 60 * 60 * 24;
   // const date = ;
