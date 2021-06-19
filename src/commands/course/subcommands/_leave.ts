@@ -1,8 +1,8 @@
-import * as Discord from '../../Discord';
-import Command from '../../Command';
-import SubCommand from '../../SubCommand';
-import CommandOption from '../../CommandOption';
-import { CommandOptionType } from '../../Discord';
+import * as Discord from '../../../Discord';
+import Command from '../../../Command';
+import SubCommand from '../../../SubCommand';
+import CommandOption from '../../../CommandOption';
+import { CommandOptionType } from '../../../Discord';
 import {
   courseExists,
   createCourse,
@@ -10,12 +10,13 @@ import {
   addUserToCourse,
   getCourseMembers,
   getCourses,
-} from './_common';
+  removeUserFromCourse
+} from '../_common';
 
-export const join = new SubCommand({
-    name: 'join',
-    displayName: 'Join Course',
-    description: 'Joins a course',
+export const leave = new SubCommand({
+    name: 'leave',
+    displayName: 'Leave Course',
+    description: 'Leaves a course',
     requiredPermissions: [],
     options: [
       new CommandOption({
@@ -35,20 +36,20 @@ export const join = new SubCommand({
 
         if (userId) {
           if (
-            !(await (
+            (await (
               await getCourseMembers(ctx, guildId, roleId)
             ).includes(userId))
           ) {
-            await ctx.api.addRoleToMember(guildId, userId, roleId);
+            await ctx.api.removeRoleFromMember(guildId, userId, roleId);
 
-            await addUserToCourse(ctx, guildId, userId, roleId);
+            await removeUserFromCourse(ctx, guildId, userId, roleId);
 
             const course = await getCourse(ctx, guildId, roleId);
 
             // Notify of successful course creation
-            return ctx.respondWithMessage(`Joined course **${course.crn} - ${course.name}**`);
+            return ctx.respondWithMessage(`Left course **${course.crn} - ${course.name}**`);
           } else {
-            ctx.respondWithError(`You are already in that course`);
+            ctx.respondWithError(`You aren't in that course`);
           }
         }
       }

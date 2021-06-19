@@ -1,8 +1,8 @@
-import * as Discord from '../../Discord';
-import Command from '../../Command';
-import SubCommand from '../../SubCommand';
-import CommandOption from '../../CommandOption';
-import { CommandOptionType } from '../../Discord';
+import * as Discord from '../../../Discord';
+import Command from '../../../Command';
+import SubCommand from '../../../SubCommand';
+import CommandOption from '../../../CommandOption';
+import { CommandOptionType } from '../../../Discord';
 import {
   courseExists,
   createCourse,
@@ -10,14 +10,12 @@ import {
   addUserToCourse,
   getCourseMembers,
   getCourses,
-  deleteCourse,
-} from './_common';
-
-export const remove = new SubCommand({
-    name: 'remove',
-    displayName: 'Remove Course',
-    description: 'Remove a course role',
-    requiredPermissions: [Discord.Permission.MANAGE_ROLES],
+} from '../_common';
+export const roster = new SubCommand({
+    name: 'roster',
+    displayName: 'Returns a roster of members in a course',
+    description: 'Returns a roster of members in a course',
+    requiredPermissions: [],
     options: [
       new CommandOption({
         name: 'role',
@@ -36,10 +34,13 @@ export const remove = new SubCommand({
         const course = await getCourse(ctx, guildId, roleId);
         const members = await getCourseMembers(ctx, guildId, roleId);
 
-        await ctx.api.deleteGuildRole(guildId, course.roleId);
-        await deleteCourse(ctx, guildId, course);
+        let membersList = `Here is a list of all ${members.length} members in **${course.crn} - ${course.name}**: \n`;
+        
+        for (let i = 0; i < members.length; i++) {
+          membersList += `<@${members[i]}> \n`;
+        }
 
-        ctx.respondWithMessage(`Removed course **${course.crn} - ${course.name}**`)
+        ctx.respondSilently(membersList);
       }
     },
 });

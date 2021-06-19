@@ -1,16 +1,16 @@
-import * as Discord from '../../Discord';
-import Command from '../../Command';
-import SubCommand from '../../SubCommand';
-import CommandOption from '../../CommandOption';
-import { CommandOptionType } from '../../Discord';
+import * as Discord from '../../../Discord';
+import Command from '../../../Command';
+import SubCommand from '../../../SubCommand';
+import CommandOption from '../../../CommandOption';
+import { CommandOptionType } from '../../../Discord';
 import {
-    courseExists,
-    createCourse,
-    getCourse,
-    addUserToCourse,
-    getCourseMembers,
-    getCourses,
-} from './_common';
+  courseExists,
+  createCourse,
+  getCourse,
+  addUserToCourse,
+  getCourseMembers,
+  getCourses,
+} from '../_common';
 
 export const list = new SubCommand({
     name: 'list',

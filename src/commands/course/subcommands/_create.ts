@@ -1,8 +1,8 @@
-import * as Discord from '../../Discord';
-import Command from '../../Command';
-import SubCommand from '../../SubCommand';
-import CommandOption from '../../CommandOption';
-import { CommandOptionType } from '../../Discord';
+import * as Discord from '../../../Discord';
+import Command from '../../../Command';
+import SubCommand from '../../../SubCommand';
+import CommandOption from '../../../CommandOption';
+import { CommandOptionType } from '../../../Discord';
 import {
   courseExists,
   createCourse,
@@ -10,7 +10,7 @@ import {
   addUserToCourse,
   getCourseMembers,
   getCourses,
-} from './_common';
+} from '../_common';
 
 export const create = new SubCommand({
     name: 'create',
