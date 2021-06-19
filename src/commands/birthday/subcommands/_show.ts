@@ -5,7 +5,7 @@ import { getTargetUser, userHasBirthday, getBirthday } from '../_common';
 
 export const show = new SubCommand({
   name: 'show',
-  displayName: 'Show',
+  displayName: 'Show Birthday',
   description: "Show a user's birthday",
   options: [
     new CommandOption({

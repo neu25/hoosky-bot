@@ -10,7 +10,7 @@ import {
 
 export const set = new SubCommand({
   name: 'set',
-  displayName: 'Set',
+  displayName: 'Set Birthday',
   description: "Set a user's birthday",
   options: [
     new CommandOption({

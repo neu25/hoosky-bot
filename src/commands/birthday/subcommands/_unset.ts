@@ -5,7 +5,7 @@ import { getTargetUser, userHasBirthday, unsetBirthday } from '../_common';
 
 export const unset = new SubCommand({
   name: 'unset',
-  displayName: 'Unset',
+  displayName: 'Unset Birthday',
   description: "Unset a user's birthday",
   options: [
     new CommandOption({

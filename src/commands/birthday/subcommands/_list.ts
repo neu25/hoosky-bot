@@ -1,23 +1,27 @@
 import SubCommand from '../../../SubCommand';
-// import CommandOption from '../../../CommandOption';
-// import { CommandOptionType } from '../../../Discord';
-// import {
-//   calculateDayOfYear,
-//   getTargetUser,
-//   userHasBirthday,
-//   setBirthday,
-//   getBirthday,
-//   unsetBirthday,
-// } from '../_common';
+import { scanBirthdays } from '../_common';
 
 export const list = new SubCommand({
   name: 'list',
-  displayName: 'List',
+  displayName: 'List Birthdays',
   description: 'List all stored birthdays',
   handler: async ctx => {
-    // TODO: fetch birthdays from database
+    const guildId = ctx.mustGetGuildId();
 
-    return ctx.respondWithError(`This command is not yet implemented`);
+    let birthdaysList = 'Here is a list of birthdays: \n';
+    birthdaysList += '```';
+
+    const courses = await scanBirthdays(ctx, guildId);
+
+    let nextBirthday = await courses.next();
+    while (nextBirthday !== null) {
+      // birthdaysList += `${nextBirthday._id} - ${nextBirthday.name}: ${nextBirthday.description} \n`;
+      nextBirthday = await courses.next();
+    }
+
+    birthdaysList += '```';
+
+    await ctx.respondSilently(birthdaysList);
   },
 });
 
