@@ -5,8 +5,6 @@ export const list = new SubCommand({
   name: 'list',
   displayName: 'List Courses',
   description: 'Lists all available courses',
-  requiredPermissions: [],
-  options: [],
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
 

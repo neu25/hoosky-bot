@@ -10,14 +10,6 @@ export type Course = {
   members: string[];
 };
 
-export const courseExists = async (
-  ctx: ExecutionContext,
-  guildId: string,
-  roleId: string,
-): Promise<boolean> => {
-  return (await getCourse(ctx, guildId, roleId)) !== null;
-};
-
 export const courseNumberExists = async (
   ctx: ExecutionContext,
   guildId: string,
@@ -33,7 +25,7 @@ export const getCourse = async (
   guildId: string,
   roleId: string,
 ): Promise<Course | null> => {
-  return coursesCollection(ctx, guildId).findOne({ roleId: roleId });
+  return coursesCollection(ctx, guildId).findOne({ roleId });
 };
 
 export const scanCourses = async (
