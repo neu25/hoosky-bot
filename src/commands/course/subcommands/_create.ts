@@ -28,6 +28,9 @@ export const create = new SubCommand({
     const name = ctx.getArgument<string>('name')?.trim() as string;
     const number = ctx.getArgument<string>('number')?.trim() as string;
 
+    if (!/^[A-Z]{2,4} [0-9]{4}$/.test(number)) {
+      return ctx.respondWithError(`Invalid course number`);
+    }
     if (await courseNumberExists(ctx, guildId, number)) {
       return ctx.respondWithError(`That course already exists`);
     }
