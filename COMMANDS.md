@@ -2,7 +2,21 @@
 
 This is a list of commands currently implemented in Hoosky Bot.
 
-> Note: `[]` indicates a variable argument.
+> Note: `[]` indicates a variable returned in the response. | `*` indicates an optional parameter.
+
+## `/birtthday`
+
+| Command                        | Returns                                      | Description                                     |
+| ------------------------------ | -------------------------------------------- | ----------------------------------------------- |
+| `/birthday set [date] [*user]` | `Birthday set for **[user]**`                | Set a user's birthday. Defaults to requestor.   |
+| `/birthday unset [*user]`      | `Birthday unset for **[user]**`              | Unset a user's birthday. Defaults to requestor. |
+| `/birthday list`               | `Here's a list of birthdays: \n [birthdays]` | Lists all stored birthdays.                     |
+
+## `/mute`
+
+| Command             | Returns            | Description                                          |
+| ------------------- | ------------------ | ---------------------------------------------------- |
+| `/mute user [user]` | `Muted **[user]**` | Mutes a user. Requires the `KICK_MEMBERS` permission |
 
 ## `/ping`
 
