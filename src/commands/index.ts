@@ -1,12 +1,15 @@
 import ping from './ping';
 import poll from './poll';
-import mute from './mute';
 import course from './course';
-import setstarboard from './starboard/setstarboard';
+import mute from './mute';
+import unmute from './mute'
+import { setstarboard } from './starboard';
+
 const commands = {
   ping,
-  mute,
   poll,
+  mute,
+  unmute,
   course,
   setstarboard,
 };
