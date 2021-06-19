@@ -1,5 +1,4 @@
 import ExecutionContext from '../../ExecutionContext';
-import * as Discord from '../../Discord';
 import { Collection } from '../../database';
 
 export type courseObject = {
@@ -17,7 +16,9 @@ export const courseExists = async (
 ): Promise<boolean> => {
   const db = await ctx.db.getDb(guildId);
 
-  const course = await db.collection(Collection.COURSES).findOne({ roleId: roleId });
+  const course = await db
+    .collection(Collection.COURSES)
+    .findOne({ roleId: roleId });
 
   return course != null;
 };
@@ -29,7 +30,9 @@ export const getCourse = async (
 ): Promise<courseObject> => {
   const db = await ctx.db.getDb(guildId);
 
-  const course = await db.collection(Collection.COURSES).findOne({ roleId: roleId });
+  const course = await db
+    .collection(Collection.COURSES)
+    .findOne({ roleId: roleId });
 
   return course;
 };
@@ -49,11 +52,13 @@ export const deleteCourse = async (
   ctx: ExecutionContext,
   guildId: string,
   courseInfo: courseObject,
-): Promise<void> => {
+): Promise<any> => {
   const db = await ctx.db.getDb(guildId);
 
-  const course = await db.collection(Collection.COURSES).deleteOne({roleId: courseInfo.roleId});
-  return;
+  const course = await db
+    .collection(Collection.COURSES)
+    .deleteOne({ roleId: courseInfo.roleId });
+  return course;
 };
 
 export const addUserToCourse = async (
