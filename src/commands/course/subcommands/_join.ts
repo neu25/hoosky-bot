@@ -7,7 +7,6 @@ export const join = new SubCommand({
   name: 'join',
   displayName: 'Join Course',
   description: 'Joins a course',
-  requiredPermissions: [],
   options: [
     new CommandOption({
       name: 'role',

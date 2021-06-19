@@ -7,7 +7,6 @@ export const roster = new SubCommand({
   name: 'roster',
   displayName: 'Course Roster',
   description: 'Returns a roster of members in a course',
-  requiredPermissions: [],
   options: [
     new CommandOption({
       name: 'role',

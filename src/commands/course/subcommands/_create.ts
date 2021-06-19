@@ -18,7 +18,7 @@ export const create = new SubCommand({
     }),
     new CommandOption({
       name: 'number',
-      description: 'The course number (eg 1111)',
+      description: 'The course number (eg ENGW 1111)',
       required: true,
       type: CommandOptionType.STRING,
     }),

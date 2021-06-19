@@ -7,7 +7,6 @@ export const leave = new SubCommand({
   name: 'leave',
   displayName: 'Leave Course',
   description: 'Leaves a course',
-  requiredPermissions: [],
   options: [
     new CommandOption({
       name: 'role',
