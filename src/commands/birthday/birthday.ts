@@ -3,10 +3,12 @@ import SubCommand from '../../SubCommand';
 import CommandOption from '../../CommandOption';
 import { CommandOptionType } from '../../Discord';
 import {
+  calculateDayOfYear,
   getTargetUser,
-  setBirthday,
-  unsetBirthday,
   userHasBirthday,
+  setBirthday,
+  getBirthday,
+  unsetBirthday,
 } from './_common';
 
 const birthday = new Command({
@@ -40,11 +42,13 @@ const birthday = new Command({
 
         const targetUser = await getTargetUser(ctx, requestorId, targetUserId);
 
+        const dayOfYear = await calculateDayOfYear(targetBirthday);
+
         if (targetUser) {
-          if (await userHasBirthday(ctx, guildId, targetUser.id)) {
+          if (!(await userHasBirthday(ctx, guildId, targetUser.id))) {
             const birthday = await setBirthday(ctx, guildId, {
               userId: targetUser.id,
-              birthday: targetBirthday,
+              birthday: dayOfYear,
             });
 
             if (birthday) {
@@ -53,16 +57,16 @@ const birthday = new Command({
               );
             }
 
-            return ctx.respondWithMessage(`Unable to set birthday`, true);
+            return ctx.respondWithError(`Unable to set birthday`);
           }
 
-          return ctx.respondWithMessage(
+          return ctx.respondWithError(
             `A birthday is already set for ${targetUser.username}#${targetUser.discriminator}`,
-            true,
           );
         }
       },
     }),
+
     new SubCommand({
       name: 'unset',
       displayName: 'Unset',
@@ -84,24 +88,65 @@ const birthday = new Command({
         const targetUser = await getTargetUser(ctx, requestorId, targetUserId);
 
         if (targetUser) {
-          // TODO: Remove birthday from database
-
           if (await userHasBirthday(ctx, guildId, targetUser.id)) {
-            // TODO: remove from db
-            unsetBirthday(ctx, guildId, targetUser.id);
+            const birthday = await unsetBirthday(ctx, guildId, targetUser.id);
 
-            return ctx.respondWithMessage(
-              `Birthday unset for ${targetUser.username}#${targetUser.discriminator}`,
-            );
+            if (birthday) {
+              return ctx.respondWithMessage(
+                `Birthday unset for ${targetUser.username}#${targetUser.discriminator}`,
+              );
+            }
+
+            return ctx.respondWithError(`Error unsetting birthday`);
           }
 
-          return ctx.respondWithMessage(
+          return ctx.respondWithError(
             `No birthday is set for ${targetUser.username}#${targetUser.discriminator}`,
-            true,
           );
         }
       },
     }),
+
+    new SubCommand({
+      name: 'show',
+      displayName: 'Show',
+      description: "Show a user's birthday",
+      options: [
+        new CommandOption({
+          name: 'user',
+          description: 'User',
+          required: false,
+          type: CommandOptionType.USER,
+        }),
+      ],
+      handler: async ctx => {
+        const guildId = ctx.mustGetGuildId();
+        const requestor = ctx.interaction.member?.user;
+        const requestorId = requestor?.id;
+        const targetUserId = ctx.getArgument<string>('user') as string;
+
+        const targetUser = await getTargetUser(ctx, requestorId, targetUserId);
+
+        if (targetUser) {
+          if (await userHasBirthday(ctx, guildId, targetUser.id)) {
+            const birthday = await getBirthday(ctx, guildId, targetUser.id);
+
+            if (birthday) {
+              return ctx.respondWithMessage(
+                `Birthday for ${targetUser.username}#${targetUser.discriminator} is set to day ${birthday.birthday}`,
+              );
+            }
+
+            return ctx.respondWithError(`Error fetching birthday`);
+          }
+
+          return ctx.respondWithError(
+            `No birthday is set for ${targetUser.username}#${targetUser.discriminator}`,
+          );
+        }
+      },
+    }),
+
     new SubCommand({
       name: 'list',
       displayName: 'List',
@@ -109,7 +154,10 @@ const birthday = new Command({
       handler: async ctx => {
         // TODO: fetch birthdays from database
 
-        return ctx.respondWithMessage(`This is not yet implemented`);
+        return ctx.respondWithMessage(
+          `This command is not yet implemented`,
+          true,
+        );
       },
     }),
   ],

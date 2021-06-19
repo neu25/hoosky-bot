@@ -4,12 +4,13 @@ This is a list of commands currently implemented in Hoosky Bot.
 
 > Note: `[]` indicates a variable returned in the response. | `*` indicates an optional parameter.
 
-## `/birtthday`
+## `/birthday` [WIP]
 
-| Command                        | Returns                                      | Description                                     |
+| Command                        | Returns [DRAFT - subject to change]          | Description                                     |
 | ------------------------------ | -------------------------------------------- | ----------------------------------------------- |
-| `/birthday set [date] [*user]` | `Birthday set for **[user]**`                | Set a user's birthday. Defaults to requestor.   |
-| `/birthday unset [*user]`      | `Birthday unset for **[user]**`              | Unset a user's birthday. Defaults to requestor. |
+| `/birthday set [date] [*user]` | `Birthday ([birthday]) set for **[user]**`   | Set a user's birthday. Defaults to requestor.   |
+| `/birthday unset [*user]`      | `Birthday ([birthday]) unset for **[user]**` | Unset a user's birthday. Defaults to requestor. |
+| `/birthday show [*user]`       | `Birthday for **[user]**` is [birthday]`     | Show a user's birthday. Defaults to requestor.  |
 | `/birthday list`               | `Here's a list of birthdays: \n [birthdays]` | Lists all stored birthdays.                     |
 
 ## `/mute`
