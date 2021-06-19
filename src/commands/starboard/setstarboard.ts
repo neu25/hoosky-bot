@@ -27,7 +27,7 @@ const setstarboard = new Command({
         }),
         new CommandOption({
           name: 'minstars',
-          description: "Minimum stars required to get on the board",
+          description: 'Minimum stars required to get on the board',
           required: true,
           type: Discord.CommandOptionType.INTEGER,
         }),
@@ -39,18 +39,25 @@ const setstarboard = new Command({
         //
         const minstars = ctx.getArgument('minstars') as number;
 
-        await ctx.respondWithMessage('Starboard created in ' + channel + 'with ' +minstars + " " + emoji + "required");
-        
-      /*
+        await ctx.respondWithMessage(
+          'Starboard created in ' +
+            channel +
+            'with ' +
+            minstars +
+            ' ' +
+            emoji +
+            ' required',
+        );
+
+        /*
         Use response system to extract variables from parameters
-        Use database as a means to communicate with starboard.ts and as a means to store afformentioned variables
+        Use database as a means to communicate with starboard.ts and as a means to store aformentioned variables
         Implement/Utilize a listening system to recognize when the number of stars has been reached
           Once code works, revamp setstarboard to include self-star:(boolean), starring a bot(boolean), and emoji(STRING)
       */
-
       },
-      
     }),
   ],
 });
+
 export default setstarboard;
