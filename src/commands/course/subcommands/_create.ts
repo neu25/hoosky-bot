@@ -22,18 +22,11 @@ export const create = new SubCommand({
       required: true,
       type: CommandOptionType.STRING,
     }),
-    new CommandOption({
-      name: 'description',
-      description: 'The description of the course',
-      required: true,
-      type: CommandOptionType.STRING,
-    }),
   ],
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
     const name = ctx.getArgument<string>('name')?.trim() as string;
     const number = ctx.getArgument<string>('number')?.trim() as string;
-    const description = ctx.getArgument<string>('description') as string;
 
     if (await courseNumberExists(ctx, guildId, number)) {
       return ctx.respondWithError(`That course already exists`);
@@ -50,7 +43,7 @@ export const create = new SubCommand({
     const roleId = courseRole.id;
     // Create course in database
     const members: string[] = [];
-    const courseObj = { _id: number, name, description, roleId, members };
+    const courseObj = { _id: number, name, roleId, members };
     await createCourse(ctx, guildId, courseObj);
 
     // Notify of successful course creation
