@@ -46,7 +46,7 @@ export const join = new SubCommand({
             const course = await getCourse(ctx, guildId, roleId);
 
             // Notify of successful course creation
-            return ctx.respondWithMessage(`Joined course **${course.name}**`);
+            return ctx.respondWithMessage(`Joined course **${course.crn} - ${course.name}**`);
           } else {
             ctx.respondWithError(`You are already in that course`);
           }

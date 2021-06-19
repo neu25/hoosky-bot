@@ -25,7 +25,7 @@ export const list = new SubCommand({
       const courses = await getCourses(ctx, guildId);
       while (await courses.hasNext()) {
         const nextCourse = await courses.next();
-        coursesList += `${nextCourse.name} - ${nextCourse.description} \n`;
+        coursesList += `${nextCourse.crn} - ${nextCourse.name}: ${nextCourse.description} \n`;
       }
       coursesList += '```';
       ctx.respondSilently(coursesList);

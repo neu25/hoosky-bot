@@ -33,10 +33,10 @@ export const roster = new SubCommand({
       } else {
         const guildId = ctx.mustGetGuildId();
         const course = await getCourse(ctx, guildId, roleId);
-
-        let membersList = `Here is a list of members in ${course.name}: \n`;
-
         const members = await getCourseMembers(ctx, guildId, roleId);
+
+        let membersList = `Here is a list of all ${members.length} members in **${course.crn} - ${course.name}**: \n`;
+        
         for (let i = 0; i < members.length; i++) {
           membersList += `<@${members[i]}> \n`;
         }
