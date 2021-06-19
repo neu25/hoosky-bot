@@ -173,7 +173,15 @@ class ExecutionContext {
    * @param content The error message.
    */
   respondWithError(content: string): Promise<void> {
-    return this.respondWithMessage(`Unable to run command: ${content}`, true);
+    return this.respondSilently(`Unable to run command: ${content}`);
+  }
+
+  /**
+   * Responds to the command execution with an message only visible to the executor.
+   * @param content The content of the message.
+   */
+  respondSilently(content: string): Promise<void> {
+    return this.respondSilently(content);
   }
 
   /**

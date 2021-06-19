@@ -17,7 +17,7 @@ export const list = new SubCommand({
   handler: async ctx => {
     // TODO: fetch birthdays from database
 
-    return ctx.respondWithMessage(`This command is not yet implemented`, true);
+    return ctx.respondWithError(`This command is not yet implemented`);
   },
 });
 
