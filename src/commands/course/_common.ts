@@ -18,6 +18,16 @@ export const courseExists = async (
   return (await getCourse(ctx, guildId, roleId)) !== null;
 };
 
+export const courseNumberExists = async (
+  ctx: ExecutionContext,
+  guildId: string,
+  number: string,
+): Promise<boolean> => {
+  return (
+    (await coursesCollection(ctx, guildId).findOne({ _id: number })) !== null
+  );
+};
+
 export const getCourse = async (
   ctx: ExecutionContext,
   guildId: string,
