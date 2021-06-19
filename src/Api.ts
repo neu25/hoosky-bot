@@ -200,7 +200,7 @@ class Api {
     channelId: string,
     overwriteId: string,
     overwrite: Omit<Discord.Overwrite, 'id'>,
-  ) {
+  ): Promise<void> {
     return performRequest(async () => {
       await this._client.put(
         `/channels/${channelId}/permissions/${overwriteId}`,

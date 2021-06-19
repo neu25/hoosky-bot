@@ -1,7 +1,8 @@
-import ExecutionContext from '../../ExecutionContext';
+import { Cursor, Collection as MongoCollection } from 'mongodb';
 import { Collection } from '../../database';
+import ExecutionContext from '../../ExecutionContext';
 
-export type courseObject = {
+export type Course = {
   name: string;
   crn: string;
   description: string;
@@ -14,51 +15,42 @@ export const courseExists = async (
   guildId: string,
   roleId: string,
 ): Promise<boolean> => {
-  const db = await ctx.db.getDb(guildId);
-
-  const course = await db
-    .collection(Collection.COURSES)
-    .findOne({ roleId: roleId });
-
-  return course != null;
+  return (await getCourse(ctx, guildId, roleId)) !== null;
 };
 
 export const getCourse = async (
   ctx: ExecutionContext,
   guildId: string,
   roleId: string,
-): Promise<courseObject> => {
-  const db = await ctx.db.getDb(guildId);
+): Promise<Course | null> => {
+  return coursesCollection(ctx, guildId).findOne({ roleId: roleId });
+};
 
-  const course = await db
-    .collection(Collection.COURSES)
-    .findOne({ roleId: roleId });
-
-  return course;
+export const scanCourses = async (
+  ctx: ExecutionContext,
+  guildId: string,
+): Promise<Cursor<Course>> => {
+  return coursesCollection(ctx, guildId).find();
 };
 
 export const createCourse = async (
   ctx: ExecutionContext,
   guildId: string,
-  courseInfo: courseObject,
-): Promise<any> => {
-  const db = await ctx.db.getDb(guildId);
-
-  const course = await db.collection(Collection.COURSES).insertOne(courseInfo);
-  return course;
+  courseInfo: Course,
+): Promise<void> => {
+  await coursesCollection(ctx, guildId).insertOne(courseInfo);
 };
 
 export const deleteCourse = async (
   ctx: ExecutionContext,
   guildId: string,
-  courseInfo: courseObject,
-): Promise<any> => {
+  courseInfo: Course,
+): Promise<void> => {
   const db = await ctx.db.getDb(guildId);
 
-  const course = await db
+  await db
     .collection(Collection.COURSES)
     .deleteOne({ roleId: courseInfo.roleId });
-  return course;
 };
 
 export const addUserToCourse = async (
@@ -66,10 +58,8 @@ export const addUserToCourse = async (
   guildId: string,
   userId: string,
   roleId: string,
-) => {
-  const db = await ctx.db.getDb(guildId);
-
-  await db.collection(Collection.COURSES).updateOne(
+): Promise<void> => {
+  await coursesCollection(ctx, guildId).updateOne(
     {
       roleId: roleId,
     },
@@ -86,10 +76,8 @@ export const removeUserFromCourse = async (
   guildId: string,
   userId: string,
   roleId: string,
-) => {
-  const db = await ctx.db.getDb(guildId);
-
-  await db.collection(Collection.COURSES).updateOne(
+): Promise<void> => {
+  await coursesCollection(ctx, guildId).updateOne(
     {
       roleId: roleId,
     },
@@ -105,23 +93,19 @@ export const getCourseMembers = async (
   ctx: ExecutionContext,
   guildId: string,
   roleId: string,
-): Promise<string[]> => {
-  const db = await ctx.db.getDb(guildId);
-
-  const course = await db
-    .collection(Collection.COURSES)
-    .findOne({ roleId: roleId });
-
-  return course.members;
+): Promise<string[] | undefined> => {
+  return (await getCourse(ctx, guildId, roleId))?.members;
 };
 
-export const getCourses = async (
+/**
+ * Returns the `courses` collection for the specified guild.
+ *
+ * @param ctx The relevant execution context.
+ * @param guildId The ID of the guild.
+ */
+const coursesCollection = (
   ctx: ExecutionContext,
   guildId: string,
-): Promise<any> => {
-  const db = await ctx.db.getDb(guildId);
-
-  const courses = await db.collection(Collection.COURSES).find();
-
-  return courses;
+): MongoCollection<Course> => {
+  return ctx.db.getDb(guildId).collection(Collection.COURSES);
 };
