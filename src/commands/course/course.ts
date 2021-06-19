@@ -10,14 +10,7 @@ import { remove } from './subcommands/_remove';
 const course = new Command({
   name: 'course',
   description: 'Manage server courses',
-  options: [
-    create,
-    join,
-    list,
-    roster,
-    leave,
-    remove
-  ],
+  options: [create, join, list, roster, leave, remove],
 });
 
 export default course;
