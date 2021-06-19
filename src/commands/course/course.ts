@@ -4,6 +4,8 @@ import { create } from './_create';
 import { join } from './_join';
 import { list } from './_list';
 import { roster } from './_roster';
+import { leave } from './_leave';
+import { remove } from './_remove';
 
 const course = new Command({
   name: 'course',
@@ -13,6 +15,8 @@ const course = new Command({
     join,
     list,
     roster,
+    leave,
+    remove
   ],
 });
 
