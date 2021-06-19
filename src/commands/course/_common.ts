@@ -45,6 +45,17 @@ export const createCourse = async (
   return course;
 };
 
+export const deleteCourse = async (
+  ctx: ExecutionContext,
+  guildId: string,
+  courseInfo: courseObject,
+): Promise<void> => {
+  const db = await ctx.db.getDb(guildId);
+
+  const course = await db.collection(Collection.COURSES).deleteOne({roleId: courseInfo.roleId});
+  return;
+};
+
 export const addUserToCourse = async (
   ctx: ExecutionContext,
   guildId: string,
@@ -59,6 +70,26 @@ export const addUserToCourse = async (
     },
     {
       $push: {
+        members: userId,
+      },
+    },
+  );
+};
+
+export const removeUserFromCourse = async (
+  ctx: ExecutionContext,
+  guildId: string,
+  userId: string,
+  roleId: string,
+) => {
+  const db = await ctx.db.getDb(guildId);
+
+  await db.collection(Collection.COURSES).updateOne(
+    {
+      roleId: roleId,
+    },
+    {
+      $pull: {
         members: userId,
       },
     },
