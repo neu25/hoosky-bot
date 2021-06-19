@@ -26,7 +26,15 @@ export const roster = new SubCommand({
 
     const members = (await getCourseMembers(ctx, guildId, roleId)) ?? [];
 
-    let membersList = `Here is a list of all ${members.length} members in **${course._id} - ${course.name}**: \n`;
+    if (members.length === 0) {
+      return ctx.respondSilently(
+        `There are no members in **${course._id} - ${course.name}**`,
+      );
+    }
+
+    let membersList = `Here is a list of ${
+      members.length > 1 ? `all ${members.length} members` : 'the 1 member'
+    } in **${course._id} - ${course.name}**: \n`;
     for (let i = 0; i < members.length; i++) {
       membersList += `<@${members[i]}> \n`;
     }
