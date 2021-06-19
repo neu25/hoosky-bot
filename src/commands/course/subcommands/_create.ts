@@ -12,13 +12,13 @@ export const create = new SubCommand({
   options: [
     new CommandOption({
       name: 'name',
-      description: 'The course name',
+      description: 'The course name (eg First Year Writing)',
       required: true,
       type: CommandOptionType.STRING,
     }),
     new CommandOption({
-      name: 'crn',
-      description: 'The course reference number (CRN)',
+      name: 'number',
+      description: 'The course number (eg 1111)',
       required: true,
       type: CommandOptionType.STRING,
     }),
@@ -32,7 +32,7 @@ export const create = new SubCommand({
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
     const name = ctx.getArgument<string>('name')?.trim() as string;
-    const crn = ctx.getArgument<string>('crn')?.trim() as string;
+    const number = ctx.getArgument<string>('number')?.trim() as string;
     const description = ctx.getArgument<string>('description') as string;
 
     if (await courseExists(ctx, guildId, name)) {
@@ -40,7 +40,7 @@ export const create = new SubCommand({
     }
 
     const roleParams = {
-      name: crn,
+      name: number,
       permissions: '0',
       mentionable: true,
     };
@@ -50,12 +50,12 @@ export const create = new SubCommand({
     const roleId = courseRole.id;
     // Create course in database
     const members: string[] = [];
-    const courseObj = { name, crn, description, roleId, members };
+    const courseObj = { _id: number, name, description, roleId, members };
     await createCourse(ctx, guildId, courseObj);
 
     // Notify of successful course creation
     return ctx.respondWithMessage(
-      `Created role for course **${crn} - ${name}**`,
+      `Created role for course **${number} - ${name}**`,
     );
   },
 });

@@ -3,8 +3,8 @@ import { Collection } from '../../database';
 import ExecutionContext from '../../ExecutionContext';
 
 export type Course = {
+  _id: string;
   name: string;
-  crn: string;
   description: string;
   roleId: string;
   members: string[];

@@ -30,7 +30,7 @@ export const remove = new SubCommand({
     await deleteCourse(ctx, guildId, course);
 
     return ctx.respondWithMessage(
-      `Removed course **${course.crn} - ${course.name}**`,
+      `Removed course **${course._id} - ${course.name}**`,
     );
   },
 });
