@@ -5,7 +5,6 @@ import Client from './Client';
 import { loadConfig } from './config';
 import commands from './commands';
 import triggers from './triggers';
-import CommandManager from './CommandManager';
 import { Database } from './database';
 import Api from './Api';
 
@@ -33,9 +32,9 @@ import Api from './Api';
   await database.connect();
   await database.initializeConfig(guildIds);
 
-  console.log('Synchronizing guild commands...');
-  const commandManager = new CommandManager(config.discord.appId, reqClient);
-  await commandManager.syncGuildCommands(guildIds, commands);
+  // console.log('Synchronizing guild commands...');
+  // const commandManager = new CommandManager(config.discord.appId, reqClient);
+  // await commandManager.syncGuildCommands(guildIds, commands);
 
   console.log('Connecting to gateway...');
   const client = new Client(

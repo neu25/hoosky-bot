@@ -320,6 +320,112 @@ class Api {
       ),
     );
   }
+
+  /**
+   * Gets a list of all global commandManager.
+   */
+  getGlobalCommands(): Promise<Discord.Command[]> {
+    return performRequest(async () => {
+      const res = await this._client.get(
+        `/applications/${this._appId}/commandManager`,
+      );
+      return res.data;
+    });
+  }
+
+  /**
+   * Creates a new global command, overwriting any existing command with the
+   * same name.
+   *
+   * Takes up to 1 hour to propagate to all guilds.
+   *
+   * @param command The command to be created.
+   */
+  createGlobalCommand(command: Discord.NewCommand): Promise<void> {
+    return performRequest(async () => {
+      await this._client.post(
+        `/applications/${this._appId}/commandManager`,
+        command,
+      );
+    });
+  }
+
+  /**
+   * Replaces all global commandManager with the provided list of commandManager.
+   *
+   * Takes up to 1 hour to propagate to all guilds.
+   *
+   * @param commands The commands to use.
+   */
+  bulkOverwriteGlobalCommands(commands: Discord.NewCommand[]): Promise<void> {
+    return performRequest(async () => {
+      await this._client.put(`/applications/${this._appId}/commands`, commands);
+    });
+  }
+
+  /**
+   * Deletes the global command with the given id.
+   *
+   * Takes up to 1 hour to propagate to all guilds.
+   *
+   * @param id The ID of the command.
+   */
+  deleteGlobalCommand(id: string): Promise<void> {
+    return performRequest(async () => {
+      await this._client.delete(`/applications/${this._appId}/commands/${id}`);
+    });
+  }
+
+  /**
+   * Gets a list of all guild commandManager.
+   *
+   * @param guildId The ID of the guild.
+   */
+  getGuildCommands(guildId: string): Promise<Discord.Command[]> {
+    return performRequest(async () => {
+      const res = await this._client.get(
+        `/applications/${this._appId}/guilds/${guildId}/commands`,
+      );
+      return res.data;
+    });
+  }
+
+  /**
+   * Creates a new guild command.
+   *
+   * @param guildId The ID of the guild.
+   * @param command The command to be created.
+   */
+  createGuildCommand(
+    guildId: string,
+    command: Discord.NewCommand,
+  ): Promise<void> {
+    return performRequest(async () => {
+      await this._client.post(
+        `/applications/${this._appId}/guilds/${guildId}/commands`,
+        command,
+      );
+    });
+  }
+
+  /**
+   * Replaces all guild commandManager with the provided list of commandManager.
+   *
+   * @param guildId The ID of the guild.
+   * @param commands The set of commands to use.
+   */
+  bulkOverwriteGuildCommands(
+    guildId: string,
+    commands: Discord.NewCommand[],
+  ): Promise<Discord.Command[]> {
+    return performRequest(async () => {
+      const res = await this._client.put(
+        `/applications/${this._appId}/guilds/${guildId}/commands`,
+        commands,
+      );
+      return res.data as Discord.Command[];
+    });
+  }
 }
 
 export default Api;
