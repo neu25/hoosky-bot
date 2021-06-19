@@ -1,9 +1,13 @@
-// import * as Discord from '../../Discord';
 import Command from '../../Command';
 import SubCommand from '../../SubCommand';
 import CommandOption from '../../CommandOption';
 import { CommandOptionType } from '../../Discord';
-import { getTargetUser } from './_common';
+import {
+  getTargetUser,
+  setBirthday,
+  unsetBirthday,
+  userHasBirthday,
+} from './_common';
 
 const birthday = new Command({
   name: 'birthday',
@@ -28,7 +32,7 @@ const birthday = new Command({
         }),
       ],
       handler: async ctx => {
-        // const guildId = ctx.mustGetGuildId();
+        const guildId = ctx.mustGetGuildId();
         const targetBirthday = ctx.getArgument<string>('date') as string;
         const requestor = ctx.interaction.member?.user;
         const requestorId = requestor?.id;
@@ -37,11 +41,24 @@ const birthday = new Command({
         const targetUser = await getTargetUser(ctx, requestorId, targetUserId);
 
         if (targetUser) {
-          // TODO: Check if user already has a birthday set
-          // -> if so, return an error message
+          if (await userHasBirthday(ctx, guildId, targetUser.id)) {
+            const birthday = await setBirthday(ctx, guildId, {
+              userId: targetUser.id,
+              birthday: targetBirthday,
+            });
+
+            if (birthday) {
+              return ctx.respondWithMessage(
+                `Birthday (${targetBirthday}) set for ${targetUser.username}#${targetUser.discriminator}`,
+              );
+            }
+
+            return ctx.respondWithMessage(`Unable to set birthday`, true);
+          }
 
           return ctx.respondWithMessage(
-            `Birthday (${targetBirthday}) set for ${targetUser.username}#${targetUser.discriminator}`,
+            `A birthday is already set for ${targetUser.username}#${targetUser.discriminator}`,
+            true,
           );
         }
       },
@@ -59,6 +76,7 @@ const birthday = new Command({
         }),
       ],
       handler: async ctx => {
+        const guildId = ctx.mustGetGuildId();
         const requestor = ctx.interaction.member?.user;
         const requestorId = requestor?.id;
         const targetUserId = ctx.getArgument<string>('user') as string;
@@ -67,10 +85,19 @@ const birthday = new Command({
 
         if (targetUser) {
           // TODO: Remove birthday from database
-          // -> if so, return an error message
+
+          if (await userHasBirthday(ctx, guildId, targetUser.id)) {
+            // TODO: remove from db
+            unsetBirthday(ctx, guildId, targetUser.id);
+
+            return ctx.respondWithMessage(
+              `Birthday unset for ${targetUser.username}#${targetUser.discriminator}`,
+            );
+          }
 
           return ctx.respondWithMessage(
-            `Birthday unset for ${targetUser.username}#${targetUser.discriminator}`,
+            `No birthday is set for ${targetUser.username}#${targetUser.discriminator}`,
+            true,
           );
         }
       },

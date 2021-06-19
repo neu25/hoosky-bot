@@ -6,6 +6,7 @@ import { GuildConfig, RolesConfig } from './types';
 export enum Collection {
   CONFIG = 'config',
   COURSES = 'courses',
+  BIRTHDAYS = 'birthdays',
 }
 
 /**
