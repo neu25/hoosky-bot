@@ -2,7 +2,7 @@ import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
 import { CommandOptionType } from '../../../Discord';
-import { courseExists, createCourse } from '../_common';
+import { courseExists, courseNumberExists, createCourse } from '../_common';
 
 export const create = new SubCommand({
   name: 'create',
@@ -35,7 +35,7 @@ export const create = new SubCommand({
     const number = ctx.getArgument<string>('number')?.trim() as string;
     const description = ctx.getArgument<string>('description') as string;
 
-    if (await courseExists(ctx, guildId, name)) {
+    if (await courseNumberExists(ctx, guildId, number)) {
       return ctx.respondWithError(`That course already exists`);
     }
 
