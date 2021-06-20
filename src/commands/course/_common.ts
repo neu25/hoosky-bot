@@ -4,8 +4,9 @@ import ExecutionContext from '../../ExecutionContext';
 import { bold } from '../../format';
 
 export type Course = {
-  _id: number;
+  _id: string;
   subject: string;
+  number: number;
   name: string;
   roleId: string;
   members: string[];
@@ -17,7 +18,7 @@ export type Course = {
  * @param course The course to format.
  */
 export const formatCourse = (course: Course): string => {
-  return `${course.subject} ${course._id} - ${course.name}`;
+  return `${course._id} - ${course.name}`;
 };
 
 /**
@@ -27,7 +28,7 @@ export const formatCourse = (course: Course): string => {
  * @param course The course to format and partially bold.
  */
 export const semiBoldCourse = (course: Course): string => {
-  return bold(`${course.subject} ${course._id}`) + ` - ${course.name}`;
+  return bold(course._id) + ` - ${course.name}`;
 };
 
 /**
@@ -39,17 +40,23 @@ export const boldCourse = (course: Course): string => {
   return bold(formatCourse(course));
 };
 
-export const courseNumberExists = async (
+export const courseExists = async (
   ctx: ExecutionContext,
   guildId: string,
-  number: number,
+  id: string,
 ): Promise<boolean> => {
-  return (
-    (await coursesCollection(ctx, guildId).findOne({ _id: number })) !== null
-  );
+  return !!(await getCourseById(ctx, guildId, id));
 };
 
-export const getCourse = async (
+export const getCourseById = async (
+  ctx: ExecutionContext,
+  guildId: string,
+  id: string,
+): Promise<Course | null> => {
+  return coursesCollection(ctx, guildId).findOne({ _id: id });
+};
+
+export const getCourseByRoleId = async (
   ctx: ExecutionContext,
   guildId: string,
   roleId: string,
@@ -125,7 +132,7 @@ export const getCourseMembers = async (
   guildId: string,
   roleId: string,
 ): Promise<string[] | undefined> => {
-  return (await getCourse(ctx, guildId, roleId))?.members;
+  return (await getCourseByRoleId(ctx, guildId, roleId))?.members;
 };
 
 /**

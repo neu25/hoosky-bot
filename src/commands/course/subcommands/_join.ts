@@ -2,7 +2,7 @@ import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
 import {
-  getCourse,
+  getCourseByRoleId,
   addUserToCourse,
   getCourseMembers,
   boldCourse,
@@ -24,7 +24,7 @@ export const join = new SubCommand({
     const guildId = ctx.mustGetGuildId();
     const roleId = ctx.getArgument<string>('role') as string;
 
-    const course = await getCourse(ctx, guildId, roleId);
+    const course = await getCourseByRoleId(ctx, guildId, roleId);
     if (!course) {
       return ctx.respondWithError('That course does not exist');
     }

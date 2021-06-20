@@ -1,12 +1,7 @@
 import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
-import {
-  boldCourse,
-  Course,
-  courseNumberExists,
-  createCourse,
-} from '../_common';
+import { boldCourse, Course, courseExists, createCourse } from '../_common';
 
 export const create = new SubCommand({
   name: 'create',
@@ -41,7 +36,7 @@ export const create = new SubCommand({
     const subject = id.split(' ')[0];
     const number = parseInt(id.split(' ')[1]);
 
-    if (await courseNumberExists(ctx, guildId, number)) {
+    if (await courseExists(ctx, guildId, id)) {
       return ctx.respondWithError('That course already exists');
     }
 
@@ -54,8 +49,9 @@ export const create = new SubCommand({
     // Create the course role.
     const courseRole = await ctx.api.createGuildRole(guildId, roleParams);
     const course: Course = {
-      _id: number,
+      _id: id,
       subject,
+      number,
       name,
       roleId: courseRole.id,
       members: [],

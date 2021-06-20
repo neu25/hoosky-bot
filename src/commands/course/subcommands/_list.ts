@@ -17,30 +17,31 @@ export const list = new SubCommand({
     const guildId = ctx.mustGetGuildId();
     const courses = (await scanCourses(ctx, guildId)).sort({ _id: 1 });
 
-    // `subGroups` stores a map of subjects and course lists.
-    // E.g., { 'CS': 'CS 2500\n CS 2501', ... }
-    const subGroups: Record<string, SubjectGroup> = {};
+    // Hold an array of subject groups to output.
+    const subGroups: SubjectGroup[] = [];
+    // Record the current subject being written to.
+    let curGroup: SubjectGroup | null = null;
 
+    // Iterate over every course.
     let c = await courses.next();
     while (c !== null) {
-      if (!subGroups[c.subject]) {
-        subGroups[c.subject] = {
+      // If the course's subject is different, then create a new subject group.
+      if (!curGroup || c.subject !== curGroup.subject) {
+        curGroup = {
           subject: c.subject,
           heading: fancyCenter(c.subject, 50),
           list: '',
         };
+        subGroups.push(curGroup);
       }
 
-      subGroups[c.subject].list += semiBoldCourse(c) + '\n';
+      // Write the course to the subject group.
+      curGroup.list += semiBoldCourse(c) + '\n';
       c = await courses.next();
     }
 
-    const subArray = Object.values(subGroups).sort((g1, g2) =>
-      g1.subject.localeCompare(g2.subject),
-    );
-
     // Map subject groups to Discord embed fields.
-    const fields: Discord.EmbedField[] = subArray.map(sub => ({
+    const fields: Discord.EmbedField[] = subGroups.map(sub => ({
       name: sub.heading, // The subject name.
       value: sub.list, // The course list.
     }));
