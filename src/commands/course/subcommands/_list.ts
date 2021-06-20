@@ -51,7 +51,7 @@ export const list = new SubCommand({
         title: 'Course List',
         fields,
       },
-      false,
+      true,
     );
   },
 });
