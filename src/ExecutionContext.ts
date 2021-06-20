@@ -117,10 +117,40 @@ class ExecutionContext {
     });
   }
 
+  /**
+   * Responds to the command execution with an embed.
+   *
+   * This is a convenience method for calling `respondWithEmbeds` with a single
+   * embed.
+   *
+   * @param embed The Discord embed.
+   * @param ephemeral If true, only the user who executed the command can see the
+   * response. The response also disappears after a period of time.
+   */
   respondWithEmbed(embed: Discord.Embed, ephemeral?: boolean): Promise<void> {
     return this.respondWithEmbeds([embed], ephemeral);
   }
 
+  /**
+   * Responds to the command execution with an embed only visible to the message
+   * executor.
+   *
+   * This is a convenience method for calling `respondWithEmbed` with `ephemeral`
+   * set to true.
+   *
+   * @param embed The Discord embed.
+   */
+  respondSilentlyWithEmbed(embed: Discord.Embed): Promise<void> {
+    return this.respondWithEmbed(embed, true);
+  }
+
+  /**
+   * Responds to the command execution with one of more embeds.
+   *
+   * @param embeds An array of Discord embeds.
+   * @param ephemeral If true, only the user who executed the command can see the
+   * response. The response also disappears after a period of time.
+   */
   respondWithEmbeds(
     embeds: Discord.Embed[],
     ephemeral?: boolean,

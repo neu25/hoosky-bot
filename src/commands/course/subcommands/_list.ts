@@ -46,13 +46,10 @@ export const list = new SubCommand({
       value: sub.list, // The course list.
     }));
 
-    await ctx.respondWithEmbed(
-      {
-        type: Discord.EmbedType.RICH,
-        title: 'Course List',
-        fields,
-      },
-      true,
-    );
+    await ctx.respondSilentlyWithEmbed({
+      type: Discord.EmbedType.RICH,
+      title: 'Course List',
+      fields,
+    });
   },
 });

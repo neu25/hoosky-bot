@@ -36,13 +36,10 @@ export const roster = new SubCommand({
       memberList += `${i + 1}. <@${members[i]}>\n`;
     }
 
-    return ctx.respondWithEmbed(
-      {
-        type: Discord.EmbedType.RICH,
-        title: `Members in ${boldCourse(course)}`,
-        description: memberList,
-      },
-      true,
-    );
+    return ctx.respondSilentlyWithEmbed({
+      type: Discord.EmbedType.RICH,
+      title: `Members in ${boldCourse(course)}`,
+      description: memberList,
+    });
   },
 });

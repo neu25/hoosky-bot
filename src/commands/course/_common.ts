@@ -84,11 +84,9 @@ export const deleteCourse = async (
   guildId: string,
   courseInfo: Course,
 ): Promise<void> => {
-  const db = await ctx.db.getDb(guildId);
-
-  await db
-    .collection(Collection.COURSES)
-    .deleteOne({ roleId: courseInfo.roleId });
+  await coursesCollection(ctx, guildId).deleteOne({
+    roleId: courseInfo.roleId,
+  });
 };
 
 export const addUserToCourse = async (
