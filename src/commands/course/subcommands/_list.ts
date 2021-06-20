@@ -1,5 +1,13 @@
+import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
-import { scanCourses } from '../_common';
+import { semiBoldCourse, scanCourses } from '../_common';
+import { fancyCenter } from '../../../format';
+
+type SubjectGroup = {
+  subject: string;
+  heading: string;
+  list: string;
+};
 
 export const list = new SubCommand({
   name: 'list',
@@ -7,20 +15,43 @@ export const list = new SubCommand({
   description: 'Lists all available courses',
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
-
-    let coursesList = 'Here is a list of courses: \n';
-    coursesList += '```';
-
     const courses = (await scanCourses(ctx, guildId)).sort({ _id: 1 });
 
-    let nextCourse = await courses.next();
-    while (nextCourse !== null) {
-      coursesList += `${nextCourse._id} - ${nextCourse.name} \n`;
-      nextCourse = await courses.next();
+    // `subGroups` stores a map of subjects and course lists.
+    // E.g., { 'CS': 'CS 2500\n CS 2501', ... }
+    const subGroups: Record<string, SubjectGroup> = {};
+
+    let c = await courses.next();
+    while (c !== null) {
+      if (!subGroups[c.subject]) {
+        subGroups[c.subject] = {
+          subject: c.subject,
+          heading: fancyCenter(c.subject, 50),
+          list: '',
+        };
+      }
+
+      subGroups[c.subject].list += semiBoldCourse(c) + '\n';
+      c = await courses.next();
     }
 
-    coursesList += '```';
+    const subArray = Object.values(subGroups).sort((g1, g2) =>
+      g1.subject.localeCompare(g2.subject),
+    );
 
-    await ctx.respondSilently(coursesList);
+    // Map subject groups to Discord embed fields.
+    const fields: Discord.EmbedField[] = subArray.map(sub => ({
+      name: sub.heading, // The subject name.
+      value: sub.list, // The course list.
+    }));
+
+    await ctx.respondWithEmbed(
+      {
+        type: Discord.EmbedType.RICH,
+        title: 'Course List',
+        fields,
+      },
+      false,
+    );
   },
 });

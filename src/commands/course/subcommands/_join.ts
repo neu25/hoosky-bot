@@ -1,7 +1,12 @@
+import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
-import { CommandOptionType } from '../../../Discord';
-import { getCourse, addUserToCourse, getCourseMembers } from '../_common';
+import {
+  getCourse,
+  addUserToCourse,
+  getCourseMembers,
+  boldCourse,
+} from '../_common';
 
 export const join = new SubCommand({
   name: 'join',
@@ -12,7 +17,7 @@ export const join = new SubCommand({
       name: 'role',
       description: 'The course role',
       required: true,
-      type: CommandOptionType.ROLE,
+      type: Discord.CommandOptionType.ROLE,
     }),
   ],
   handler: async ctx => {
@@ -21,7 +26,7 @@ export const join = new SubCommand({
 
     const course = await getCourse(ctx, guildId, roleId);
     if (!course) {
-      return ctx.respondWithError(`That course does not exist`);
+      return ctx.respondWithError('That course does not exist');
     }
 
     const userId = ctx.interaction.member?.user?.id;
@@ -31,14 +36,14 @@ export const join = new SubCommand({
 
     const courseMembers = (await getCourseMembers(ctx, guildId, roleId)) ?? [];
     if (courseMembers.includes(userId)) {
-      return ctx.respondWithError(`You are already in that course`);
+      return ctx.respondWithError('You are already in that course');
     }
 
     await ctx.api.addRoleToMember(guildId, userId, roleId);
     await addUserToCourse(ctx, guildId, userId, roleId);
 
     return ctx.respondWithMessage(
-      `Joined course **${course._id} - ${course.name}**`,
+      `You joined the course ${boldCourse(course)}`,
     );
   },
 });

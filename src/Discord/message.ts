@@ -161,6 +161,15 @@ export type Attachment = {
   width?: number;
 };
 
+export enum EmbedType {
+  RICH = 'rich',
+  IMAGE = 'image',
+  VIDEO = 'video',
+  GIFV = 'gifv',
+  ARTICLE = 'article',
+  LINK = 'link',
+}
+
 export type Embed = {
   title?: string;
   type?: string;
@@ -168,8 +177,60 @@ export type Embed = {
   url?: string;
   timestamp?: string;
   color?: number;
+  footer?: EmbedFooter;
+  image?: EmbedImage;
+  thumbnail?: EmbedThumbnail;
+  video?: EmbedVideo;
+  provider?: EmbedProvider;
+  author?: EmbedAuthor;
+  fields?: EmbedField[];
   // ... and several other omitted fields
   // https://discord.com/developers/docs/resources/channel#embed-object
+};
+
+export type EmbedFooter = {
+  text: string;
+  icon_url?: string;
+  proxy_icon_url?: string;
+};
+
+export type EmbedImage = {
+  url?: string;
+  proxy_url?: string;
+  height?: number;
+  width?: number;
+};
+
+export type EmbedThumbnail = {
+  url?: string;
+  proxy_url?: string;
+  height?: number;
+  width?: number;
+};
+
+export type EmbedVideo = {
+  url?: string;
+  proxy_url?: string;
+  height?: number;
+  width?: number;
+};
+
+export type EmbedProvider = {
+  name?: string;
+  url?: string;
+};
+
+export type EmbedAuthor = {
+  url?: string;
+  proxy_url?: string;
+  icon_url?: string;
+  proxy_icon_url?: string;
+};
+
+export type EmbedField = {
+  name: string;
+  value: string;
+  inline?: boolean;
 };
 
 export type Reaction = {

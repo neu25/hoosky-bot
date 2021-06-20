@@ -1,7 +1,12 @@
+import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
-import { CommandOptionType } from '../../../Discord';
-import { getCourse, getCourseMembers, removeUserFromCourse } from '../_common';
+import {
+  getCourse,
+  getCourseMembers,
+  removeUserFromCourse,
+  boldCourse,
+} from '../_common';
 
 export const leave = new SubCommand({
   name: 'leave',
@@ -12,7 +17,7 @@ export const leave = new SubCommand({
       name: 'role',
       description: 'The course role',
       required: true,
-      type: CommandOptionType.ROLE,
+      type: Discord.CommandOptionType.ROLE,
     }),
   ],
   handler: async ctx => {
@@ -21,7 +26,7 @@ export const leave = new SubCommand({
 
     const course = await getCourse(ctx, guildId, roleId);
     if (!course) {
-      return ctx.respondWithError(`That course does not exist`);
+      return ctx.respondWithError('That course does not exist');
     }
 
     const userId = ctx.interaction.member?.user?.id;
@@ -37,8 +42,6 @@ export const leave = new SubCommand({
     await ctx.api.removeRoleFromMember(guildId, userId, roleId);
     await removeUserFromCourse(ctx, guildId, userId, roleId);
 
-    return ctx.respondWithMessage(
-      `Left course **${course._id} - ${course.name}**`,
-    );
+    return ctx.respondWithMessage(`You left the course ${boldCourse(course)}`);
   },
 });

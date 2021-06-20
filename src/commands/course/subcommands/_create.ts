@@ -1,8 +1,12 @@
 import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
-import { CommandOptionType } from '../../../Discord';
-import { courseNumberExists, createCourse } from '../_common';
+import {
+  boldCourse,
+  Course,
+  courseNumberExists,
+  createCourse,
+} from '../_common';
 
 export const create = new SubCommand({
   name: 'create',
@@ -12,46 +16,57 @@ export const create = new SubCommand({
   options: [
     new CommandOption({
       name: 'name',
-      description: 'The course name (eg First Year Writing)',
+      description: 'The course name (e.g., First-Year Writing)',
       required: true,
-      type: CommandOptionType.STRING,
+      type: Discord.CommandOptionType.STRING,
     }),
     new CommandOption({
-      name: 'number',
-      description: 'The course number (eg ENGW 1111)',
+      name: 'id',
+      description: 'The course ID (e.g., ENGW 1111)',
       required: true,
-      type: CommandOptionType.STRING,
+      type: Discord.CommandOptionType.STRING,
     }),
   ],
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
-    const name = ctx.getArgument<string>('name')?.trim() as string;
-    const number = ctx.getArgument<string>('number')?.trim() as string;
 
-    if (!/^[A-Z]{2,4} [0-9]{4}$/.test(number)) {
-      return ctx.respondWithError(`Invalid course number`);
+    const name = ctx.getArgument<string>('name')?.trim() as string;
+    const id = ctx.getArgument<string>('id')?.trim() as string;
+
+    if (!/^[A-Z]{2,4} [0-9]{4}$/.test(id)) {
+      return ctx.respondWithError('Invalid course ID');
     }
+
+    // Extract the subject code. E.g., `ENGW 1111` -> `ENGW`.
+    const subject = id.split(' ')[0];
+    const number = parseInt(id.split(' ')[1]);
+
     if (await courseNumberExists(ctx, guildId, number)) {
-      return ctx.respondWithError(`That course already exists`);
+      return ctx.respondWithError('That course already exists');
     }
 
     const roleParams = {
-      name: number,
+      name: id,
       permissions: '0',
       mentionable: true,
     };
 
-    // Create the course role
+    // Create the course role.
     const courseRole = await ctx.api.createGuildRole(guildId, roleParams);
-    const roleId = courseRole.id;
-    // Create course in database
-    const members: string[] = [];
-    const courseObj = { _id: number, name, roleId, members };
-    await createCourse(ctx, guildId, courseObj);
+    const course: Course = {
+      _id: number,
+      subject,
+      name,
+      roleId: courseRole.id,
+      members: [],
+    };
 
-    // Notify of successful course creation
+    // Create course in database.
+    await createCourse(ctx, guildId, course);
+
+    // Notify of successful course creation.
     return ctx.respondWithMessage(
-      `Created role for course **${number} - ${name}**`,
+      `Created role for course ${boldCourse(course)}`,
     );
   },
 });
