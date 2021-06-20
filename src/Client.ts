@@ -79,7 +79,13 @@ class Client {
    * automatically reconnects and replays missed messages.
    */
   connect(): Promise<Discord.ReadyPayload> {
+    // Close any existing WebSocket connection.
+    this._ws?.close();
     this._ws = new WebSocket('wss://gateway.discord.gg/?v=9&encoding=json');
+
+    this._ws.on('open', () => {
+      console.log('WebSocket connection opened');
+    });
 
     this._ws.on('message', raw => {
       const msg = JSON.parse(String(raw)) as Discord.GatewayMessage;
@@ -92,8 +98,8 @@ class Client {
       console.error(err);
     });
 
-    this._ws.on('close', () => {
-      console.log('Connection closed');
+    this._ws.on('close', (code, reason) => {
+      console.log('WebSocket connection closed', code, reason);
       this.connect().catch(err => {
         console.error(err);
       });

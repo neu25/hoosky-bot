@@ -1,5 +1,5 @@
 import { Db, MongoClient } from 'mongodb';
-import { Collection, Config, guildConfig } from './constants';
+import { Collection, Config, guildConfig, rolesConfig } from './constants';
 
 class Database {
   private readonly _client: MongoClient;
@@ -42,6 +42,7 @@ class Database {
    */
   async initializeConfig(guildIds: string[]): Promise<void> {
     for (const gId of guildIds) {
+      await this.insertDefaultConfigValue(gId, Config.ROLES, rolesConfig);
       await this.insertDefaultConfigValue(gId, Config.GUILD, guildConfig);
     }
   }
@@ -49,7 +50,7 @@ class Database {
   async getConfigValue<T>(
     guildId: string,
     docId: string,
-  ): Promise<T | undefined> {
+  ): Promise<Partial<T> | undefined> {
     const cfg = await this.getDb(guildId)
       .collection(Collection.CONFIG)
       .findOne({ _id: docId });

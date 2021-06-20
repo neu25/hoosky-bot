@@ -1,7 +1,7 @@
 import * as Discord from './Discord';
 import SubCommandGroup, { SubCommandGroupProps } from './SubCommandGroup';
 import ExecutionContext from './ExecutionContext';
-import Permissions from './Permissions';
+import { hasPermission } from './permissions';
 import { bold } from './format';
 
 export type CommandHandler = (ctx: ExecutionContext) => void | Promise<void>;
@@ -47,9 +47,9 @@ class SubCommand extends SubCommandGroup {
       throw new Error('No member found in interaction');
     }
 
-    const executorPerms = new Permissions(interaction.member.permissions);
+    const executorPerms = parseInt(interaction.member.permissions);
     for (const p of this._requiredPerms) {
-      if (!executorPerms.hasPermission(p)) {
+      if (!hasPermission(executorPerms, p)) {
         await ctx.respondWithError(
           `The ${bold(this.displayName)} command requires the ` +
             `${bold(

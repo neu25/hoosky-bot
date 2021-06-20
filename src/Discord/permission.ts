@@ -39,5 +39,19 @@ export enum Permission {
 
 export const PermissionName: Record<Permission, string> = {
   [Permission.KICK_MEMBERS]: 'Kick Members',
+  [Permission.BAN_MEMBERS]: 'Ban Members',
+  [Permission.ADMINISTRATOR]: 'Administrator',
+  [Permission.MANAGE_CHANNELS]: 'Manage Channels',
+  [Permission.MANAGE_GUILD]: 'Manage Guild',
+  [Permission.ADD_REACTIONS]: 'Add Reactions',
+  [Permission.VIEW_CHANNEL]: 'View Channel',
+  [Permission.SEND_MESSAGES]: 'Send Messages',
+  [Permission.SEND_TTS_MESSAGES]: 'Send TTS Messages',
+  [Permission.MANAGE_MESSAGES]: 'Manage Messages',
+  [Permission.SPEAK]: 'Speak',
+  [Permission.MUTE_MEMBERS]: 'Mute Members',
+  [Permission.DEAFEN_MEMBERS]: 'Deafen Members',
   [Permission.MANAGE_ROLES]: 'Manage Roles',
+  [Permission.USE_SLASH_COMMANDS]: 'Use Slash Commands',
+  // ... and more (see list above)
 };
