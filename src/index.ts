@@ -1,6 +1,7 @@
 import yargs from 'yargs';
 import axios from 'axios';
 import { hideBin } from 'yargs/helpers';
+import * as Discord from './Discord';
 import Client from './Client';
 import { loadConfig } from './config';
 import commands from './commands';
@@ -32,16 +33,13 @@ import Api from './Api';
   await database.connect();
   await database.initializeConfig(guildIds);
 
-  // console.log('Synchronizing guild commands...');
-  // const commandManager = new CommandManager(config.discord.appId, reqClient);
-  // await commandManager.syncGuildCommands(guildIds, commands);
-
   console.log('Connecting to gateway...');
   const client = new Client(
     config.discord.appId,
     config.discord.token,
     database,
     reqClient,
+    [Discord.Intent.GUILDS],
   );
 
   // Supply the commands we'd like to handle.
