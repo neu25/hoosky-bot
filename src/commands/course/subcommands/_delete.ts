@@ -3,10 +3,10 @@ import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
 import { getCourse, deleteCourse, boldCourse } from '../_common';
 
-export const remove = new SubCommand({
-  name: 'remove',
-  displayName: 'Remove Course',
-  description: 'Remove a course role',
+export const del = new SubCommand({
+  name: 'delete',
+  displayName: 'Delete Course',
+  description: 'Delete a course role',
   requiredPermissions: [Discord.Permission.MANAGE_ROLES],
   options: [
     new CommandOption({
@@ -28,6 +28,6 @@ export const remove = new SubCommand({
     await ctx.api.deleteGuildRole(guildId, course.roleId);
     await deleteCourse(ctx, guildId, course);
 
-    return ctx.respondWithMessage(`Removed course ${boldCourse(course)}`);
+    return ctx.respondWithMessage(`Deleted course ${boldCourse(course)}`);
   },
 });
