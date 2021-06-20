@@ -2,6 +2,7 @@ import * as Discord from './Discord';
 import SubCommandGroup, { SubCommandGroupProps } from './SubCommandGroup';
 import ExecutionContext from './ExecutionContext';
 import Permissions from './Permissions';
+import { bold } from './format';
 
 export type CommandHandler = (ctx: ExecutionContext) => void | Promise<void>;
 
@@ -50,8 +51,10 @@ class SubCommand extends SubCommandGroup {
     for (const p of this._requiredPerms) {
       if (!executorPerms.hasPermission(p)) {
         await ctx.respondWithError(
-          `The **${this.displayName}** command requires the ` +
-            `**${Discord.PermissionName[p]}** permission, but you don't have it.`,
+          `The ${bold(this.displayName)} command requires the ` +
+            `${bold(
+              Discord.PermissionName[p],
+            )} permission, but you don't have it.`,
         );
         return;
       }

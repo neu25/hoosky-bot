@@ -40,7 +40,6 @@ export {
   MessageComponent,
   MessageType,
   AllowedMentions,
-  Embed,
   AllowedMentionType,
   MessageSticker,
   Emoji,
@@ -51,6 +50,15 @@ export {
   Attachment,
   ButtonStyle,
   FollowUpMessage,
+  Embed,
+  EmbedType,
+  EmbedImage,
+  EmbedAuthor,
+  EmbedField,
+  EmbedProvider,
+  EmbedVideo,
+  EmbedThumbnail,
+  EmbedFooter,
 } from './message';
 export {
   CommandOption,

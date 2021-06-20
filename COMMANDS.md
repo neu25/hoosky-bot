@@ -2,28 +2,39 @@
 
 This is a list of commands currently implemented in Hoosky Bot.
 
-> Note: `[]` indicates a variable returned in the response.
-
-## `/mute`
-
-| Command             | Returns            | Description                                          |
-| ------------------- | ------------------ | ---------------------------------------------------- |
-| `/mute user [user]` | `Muted **[user]**` | Mutes a user. Requires the `KICK_MEMBERS` permission |
+> Note: `[]` indicates a variable argument.
 
 ## `/ping`
 
-| Command | Returns                     | Description                                                        |
-| ------- | --------------------------- | ------------------------------------------------------------------ |
-| `/ping` | `pong (latency: [latency])` | Returns the latency between sending command and receiving response |
+| Command | Description                                                             |
+| ------- | ----------------------------------------------------------------------- |
+| `/ping` | Returns the latency between sending a command and receiving a response. |
 
 ## `/poll`
 
-| Command                            | Returns                              | Description                                                                  |
-| ---------------------------------- | ------------------------------------ | ---------------------------------------------------------------------------- |
-| `/poll create [emojis] [question]` | `[question]` with reactions [emojis] | Sends a message with the user's question and reacts with each supplied emoji |
+| Command                            | Description                                                                   |
+| ---------------------------------- | ----------------------------------------------------------------------------- |
+| `/poll create [emojis] [question]` | Sends a message with the user's question and reacts with each supplied emoji. |
+
+## `/mute`
+
+| Command             | Description                                           |
+| ------------------- | ----------------------------------------------------- |
+| `/mute user [user]` | Mutes a user. Requires the `KICK_MEMBERS` permission. |
 
 ## `/unmute`
 
-| Command               | Returns              | Description                                            |
-| --------------------- | -------------------- | ------------------------------------------------------ |
-| `/unmute user [user]` | `Unmuted **[user]**` | Unmutes a user. Requires the `KICK_MEMBERS` permission |
+| Command               | Description                                             |
+| --------------------- | ------------------------------------------------------- |
+| `/unmute user [user]` | Unmutes a user. Requires the `KICK_MEMBERS` permission. |
+
+## `/course`
+
+| Command                      | Description                                                                              |
+| ---------------------------- | ---------------------------------------------------------------------------------------- |
+| `/course create [name] [id]` | Creates a new course and associated server role. Requires the `MANAGE_ROLES` permission. |
+| `/course delete [@role]`     | Removes a course and associated server role. Requires the `MANAGE_ROLES` permission.     |
+| `/course list`               | Silently lists all available courses.                                                    |
+| `/course join [@role]`       | Joins a course and assigns the appropriate course role to the user.                      |
+| `/course leave [@role]`      | Leaves a course and removes the course role from the user.                               |
+| `/course roster [@role]`     | Silently lists all members currently in the course.                                      |

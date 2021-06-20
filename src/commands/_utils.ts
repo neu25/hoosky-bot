@@ -1,6 +1,8 @@
 import * as Discord from '../Discord';
 
-export const guildRoleListToMap = (roles: Discord.Role[]) => {
+export const guildRoleListToMap = (
+  roles: Discord.Role[],
+): Record<string, Discord.Role> => {
   const map: Record<string, Discord.Role> = {};
   for (const r of roles) {
     map[r.id] = r;
@@ -19,7 +21,7 @@ export const compareRank = (
   return m1Rank - m2Rank;
 };
 
-export const getHighestRank = (roles: Discord.Role[]) => {
+export const getHighestRank = (roles: Discord.Role[]): number => {
   let highest = 0;
   for (const r of roles) {
     if (r.position > highest) {
