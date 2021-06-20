@@ -19,7 +19,7 @@ export const isSubset = (p1: number, p2: number): boolean => {
  * @param p2 the child permissions
  */
 export const isSuperset = (p1: number, p2: number): boolean => {
-  return (p2 | p1) === p1;
+  return isSubset(p2, p1);
 };
 
 /**
