@@ -9,6 +9,7 @@ export {
   VoiceState,
   Overwrite,
   Channel,
+  ChannelType,
   UnavailableGuild,
   GuildRoleCreatePayload,
   GuildRoleUpdatePayload,
