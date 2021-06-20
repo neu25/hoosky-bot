@@ -18,15 +18,11 @@ This is a list of commands currently implemented in Hoosky Bot.
 
 ## `/mute`
 
-| Command             | Description                                           |
-| ------------------- | ----------------------------------------------------- |
-| `/mute user [user]` | Mutes a user. Requires the `KICK_MEMBERS` permission. |
-
-## `/unmute`
-
-| Command               | Description                                             |
-| --------------------- | ------------------------------------------------------- |
-| `/unmute user [user]` | Unmutes a user. Requires the `KICK_MEMBERS` permission. |
+| Command               | Description                                                |
+| --------------------- | ---------------------------------------------------------- |
+| `/mute add [user]`    | Mutes a user. Requires the `KICK_MEMBERS` permission.      |
+| `/mute remove [user]` | Unmutes a user. Requires the `KICK_MEMBERS` permission.    |
+| `/mute setup`         | Sets up the muted role and configures channel permissions. |
 
 ## `/course`
 
