@@ -1,7 +1,22 @@
+/**
+ * Bolds the supplied text using Discord's syntax.
+ *
+ * @param text The text to bold.
+ */
 export const bold = (text: string): string => `**${text}**`;
 
+/**
+ * Italicizes the supplied text using Discord's syntax.
+ *
+ * @param text The text to italicize.
+ */
 export const italics = (text: string): string => `*${text}*`;
 
+/**
+ * Places the supplied text in an inline code block using Discord's syntax.
+ *
+ * @param text The text to place in an inline code block.
+ */
 export const inlineCode = (text: string): string => `\`${text}\``;
 
 /**
