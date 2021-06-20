@@ -4,6 +4,7 @@ import SubCommand from '../../SubCommand';
 import CommandOption from '../../CommandOption';
 import { CommandOptionType } from '../../Discord';
 import { checkMutePermissions, mustGetRolesConfig } from './_common';
+import { bold } from '../../format';
 
 const mute = new Command({
   name: 'mute',
@@ -37,7 +38,7 @@ const mute = new Command({
         // Get info about the user and provide a response message.
         const user = await ctx.api.getUser(targetUserId);
         return ctx.respondWithMessage(
-          `Muted **${user.username}#${user.discriminator}**`,
+          `Muted ${bold(`${user.username}#${user.discriminator}`)}`,
         );
       },
     }),

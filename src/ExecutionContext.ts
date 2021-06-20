@@ -117,6 +117,25 @@ class ExecutionContext {
     });
   }
 
+  respondWithEmbed(embed: Discord.Embed, ephemeral?: boolean): Promise<void> {
+    return this.respondWithEmbeds([embed], ephemeral);
+  }
+
+  respondWithEmbeds(
+    embeds: Discord.Embed[],
+    ephemeral?: boolean,
+  ): Promise<void> {
+    const data: Discord.InteractionCommandCallbackData = { embeds };
+    if (ephemeral) {
+      data.flags = 64;
+    }
+
+    return this.respond({
+      type: Discord.InteractionCallbackType.ChannelMessageWithSource,
+      data,
+    });
+  }
+
   /**
    * Responds to the command execution with an error message only visible to the
    * executor. The error message is prefixed with "Unable to run command: ".

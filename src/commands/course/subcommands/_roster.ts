@@ -1,7 +1,7 @@
+import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
-import { CommandOptionType } from '../../../Discord';
-import { getCourse, getCourseMembers } from '../_common';
+import { getCourse, getCourseMembers, boldCourse } from '../_common';
 
 export const roster = new SubCommand({
   name: 'roster',
@@ -12,7 +12,7 @@ export const roster = new SubCommand({
       name: 'role',
       description: 'The course role',
       required: true,
-      type: CommandOptionType.ROLE,
+      type: Discord.CommandOptionType.ROLE,
     }),
   ],
   handler: async ctx => {
@@ -21,24 +21,28 @@ export const roster = new SubCommand({
 
     const course = await getCourse(ctx, guildId, roleId);
     if (!course) {
-      return ctx.respondWithError(`That course does not exist`);
+      return ctx.respondWithError('That course does not exist');
     }
 
     const members = (await getCourseMembers(ctx, guildId, roleId)) ?? [];
-
     if (members.length === 0) {
       return ctx.respondSilently(
-        `There are no members in **${course._id} - ${course.name}**`,
+        `There are no members in ${boldCourse(course)}`,
       );
     }
 
-    let membersList = `Here is a list of ${
-      members.length > 1 ? `all ${members.length} members` : 'the 1 member'
-    } in **${course._id} - ${course.name}**: \n`;
+    let memberList = '';
     for (let i = 0; i < members.length; i++) {
-      membersList += `<@${members[i]}> \n`;
+      memberList += `${i + 1}. <@${members[i]}>\n`;
     }
 
-    return ctx.respondSilently(membersList);
+    return ctx.respondWithEmbed(
+      {
+        type: Discord.EmbedType.RICH,
+        title: `Members in ${boldCourse(course)}`,
+        description: memberList,
+      },
+      true,
+    );
   },
 });

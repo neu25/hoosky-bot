@@ -4,6 +4,7 @@ import CommandOption from '../../CommandOption';
 import { CommandOptionType } from '../../Discord';
 import * as Discord from '../../Discord';
 import { checkMutePermissions, mustGetRolesConfig } from './_common';
+import { bold } from '../../format';
 
 const unmute = new Command({
   name: 'unmute',
@@ -41,7 +42,7 @@ const unmute = new Command({
         // Get info about the user and provide a response message.
         const user = await ctx.api.getUser(targetUserId);
         return ctx.respondWithMessage(
-          `Unmuted **${user.username}#${user.discriminator}**`,
+          `Unmuted ${bold(`${user.username}#${user.discriminator}`)}`,
         );
       },
     }),

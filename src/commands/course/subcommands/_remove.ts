@@ -1,8 +1,7 @@
 import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
-import { CommandOptionType } from '../../../Discord';
-import { getCourse, deleteCourse } from '../_common';
+import { getCourse, deleteCourse, boldCourse } from '../_common';
 
 export const remove = new SubCommand({
   name: 'remove',
@@ -14,7 +13,7 @@ export const remove = new SubCommand({
       name: 'role',
       description: 'The course role',
       required: true,
-      type: CommandOptionType.ROLE,
+      type: Discord.CommandOptionType.ROLE,
     }),
   ],
   handler: async ctx => {
@@ -29,8 +28,6 @@ export const remove = new SubCommand({
     await ctx.api.deleteGuildRole(guildId, course.roleId);
     await deleteCourse(ctx, guildId, course);
 
-    return ctx.respondWithMessage(
-      `Removed course **${course._id} - ${course.name}**`,
-    );
+    return ctx.respondWithMessage(`Removed course ${boldCourse(course)}`);
   },
 });
