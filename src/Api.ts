@@ -153,6 +153,18 @@ class Api {
   }
 
   /**
+   * Gets a list of all the channels in the guild.
+   *
+   * @param guildId The ID of the guild.
+   */
+  getGuildChannels(guildId: string): Promise<Discord.Channel[]> {
+    return performRequest(async () => {
+      const res = await this._client.get(`/guilds/${guildId}/channels`);
+      return res.data;
+    });
+  }
+
+  /**
    * Gets information about the specified guild member.
    *
    * Note: This method differs from `getUser` because it provides guild-specific

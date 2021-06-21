@@ -1,4 +1,4 @@
-import { GuildConfig } from './types';
+import { GuildConfig, RolesConfig } from './types';
 
 /**
  * Collection names
@@ -16,6 +16,10 @@ export enum Config {
   GUILD = 'guild',
   ROLES = 'roles',
 }
+
+export const rolesConfig: RolesConfig = {
+  muted: '',
+};
 
 /**
  * Default value of the `guild` configuration

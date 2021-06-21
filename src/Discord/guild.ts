@@ -107,6 +107,20 @@ export type Overwrite = {
   deny: string;
 };
 
+export enum ChannelType {
+  GUILD_TEXT,
+  DM,
+  GUILD_VOICE,
+  GROUP_DM,
+  GUILD_CATEGORY,
+  GUILD_NEWS,
+  GUILD_STORE,
+  GUILD_NEWS_THREAD = 10,
+  GUILD_PUBLIC_THREAD,
+  GUILD_PRIVATE_THREAD,
+  GUILD_STAGE_VOICE,
+}
+
 export type Channel = {
   id: string;
   type: number;

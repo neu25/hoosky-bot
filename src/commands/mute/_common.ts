@@ -6,7 +6,7 @@ import { Config, RolesConfig } from '../../database';
 export const mustGetRolesConfig = async (
   ctx: ExecutionContext,
   guildId: string,
-): Promise<RolesConfig> => {
+): Promise<Partial<RolesConfig>> => {
   const rolesCfg = await ctx.db.getConfigValue<RolesConfig>(
     guildId,
     Config.ROLES,
