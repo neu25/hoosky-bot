@@ -1,7 +1,5 @@
 import Command from '../../Command';
-
-import { create } from './subcommands/create';
-import { close } from './subcommands/close';
+import subcommands from './subcommands';
 
 /**
  * Basic /poll command.
@@ -13,7 +11,7 @@ import { close } from './subcommands/close';
 const poll = new Command({
   name: 'poll',
   description: 'Manage polls',
-  options: [create, close],
+  options: subcommands,
 });
 
 export default poll;

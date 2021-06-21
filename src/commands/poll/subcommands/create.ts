@@ -1,7 +1,7 @@
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
 import * as Discord from '../../../Discord';
-import { createPoll } from '../_common';
+import { createPoll, Poll } from '../_common';
 
 export const create = new SubCommand({
   name: 'create',
@@ -34,21 +34,29 @@ export const create = new SubCommand({
     const emojis = ctx.getArgument('emojis') as string;
     const customEmojiRegex = /<a:.+?:\d+>|<:.+?:\d+>/g;
     const customEmojis = emojis.match(customEmojiRegex);
+    const reactions = [];
 
     for (const c of emojis) {
       if (/\p{Extended_Pictographic}/u.test(c)) {
         await ctx.api.createReaction(msg.id, msg.channel_id, c);
+        reactions.push(c);
       }
     }
 
     if (customEmojis != null)
       customEmojis.forEach(element => {
         ctx.api.createReaction(msg.id, msg.channel_id, element);
+        reactions.push(element);
       });
 
-    const poll = {
+    const poll: Poll = {
       _id: msg.id,
       userId: userId,
+      channelId: msg.channel_id,
+      content: msg.content,
+      reactions: reactions,
+      reactionCounts: [],
+      closed: false,
     };
 
     createPoll(ctx, guildId, poll);
