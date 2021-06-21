@@ -251,7 +251,7 @@ class Api {
    * @param messageId The message ID of the message.
    * @param channelId The channel ID of the channel.
    * @param emojiString The emoji string of the reaction.
-   * @param userId? The id of the user. If ommitted it will delete the reaction made by the bot.
+   * @param userId The id of the user. (If ommitted deletes the reaction made by the bot)
    */
   async deleteUserReaction(
     messageId: string,
@@ -274,7 +274,7 @@ class Api {
    *
    * @param messageId The message ID of the message.
    * @param channelId The channel ID of the channel.
-   * @param emojiString? The emoji string of the reaction.
+   * @param emojiString The emoji string of the reaction. (if ommitted deletes all emojis)
    */
   async deleteAllReactions(
     messageId: string,
@@ -330,6 +330,60 @@ class Api {
           emojiString,
         )}/@me`,
       ),
+    );
+  }
+
+  /**
+   * Edits a message
+   *
+   * @param messageId The message ID of the message.
+   * @param channelId The channel ID of the channel.
+   * @param content The message contents (up to 2000 characters)
+   * @param embeds Array of embedded rich content (up to 6000 characters total)
+   * @param embed Embedded rich content, deprecated in favor of embeds
+   * @param flags Edit the flags of a message (only SUPPRESS_EMBEDS can currently be set/unset)
+   * @param payload_json JSON encoded body of non-file params (multipart/form-data only)
+   * @param allowed_mentions Allowed mentions for the message
+   * @param attachments Array of attached files to keep
+   * @param components Array of components to include in the message
+   */
+  async editMessage(
+    //https://discord.com/developers/docs/resources/channel#edit-message
+    messageId: string,
+    channelId: string,
+    content?: string,
+    embeds?: Discord.Embed[],
+    embed?: Discord.Embed, // deprecated...
+    flags?: number,
+    /* file?: to be implemented...,*/
+    payload_json?: string,
+    allowed_mentions?: Discord.AllowedMentions,
+    attachments?: Discord.Attachment[],
+    components?: Discord.MessageComponent[],
+  ): Promise<void> {
+    await performRequest(() =>
+      this._client.patch(`/channels/${channelId}/messages/${messageId}`, {
+        content: content,
+        embeds: embeds,
+        embed: embed,
+        flags: flags,
+        payload_json: payload_json,
+        allowed_mentions: allowed_mentions,
+        attachments: attachments,
+        components: components,
+      }),
+    );
+  }
+
+  /**
+   * Deletes a message
+   *
+   * @param messageId The message ID of the message.
+   * @param channelId The channel ID of the channel.
+   */
+  async deleteMessage(messageId: string, channelId: string): Promise<void> {
+    await performRequest(() =>
+      this._client.delete(`/channels/${channelId}/messages/${messageId}`),
     );
   }
 
