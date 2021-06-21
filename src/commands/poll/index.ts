@@ -4,9 +4,10 @@ import subcommands from './subcommands';
 /**
  * Basic /poll command.
  * TODO:
- *  - Delete poll/reactions
  *  - Time based poll
  *  - Reaction-count to close poll
+ *  - List polls
+ *  - Admin controls
  */
 const poll = new Command({
   name: 'poll',
