@@ -59,7 +59,12 @@ class Client {
    * @param commands The commands to use.
    */
   handleCommands(commands: Record<string, Command>): void {
-    this._commands = commands;
+    // Create a map of names and the corresponding commands.
+    const mapping: Record<string, Command> = {};
+    for (const cmd of Object.values(commands)) {
+      mapping[cmd.getName()] = cmd;
+    }
+    this._commands = mapping;
   }
 
   /**
