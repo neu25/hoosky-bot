@@ -1,8 +1,7 @@
 import { Cursor, Collection as MongoCollection } from 'mongodb';
 import ExecutionContext from '../../ExecutionContext';
 import * as Discord from '../../Discord';
-import { BirthdaysConfig, Collection } from '../../database';
-import { Config } from '../../database';
+import { Collection } from '../../database';
 
 export type Birthday = {
   _id: number;
@@ -37,52 +36,6 @@ export const calculateDate = async (day: number): Promise<Date> => {
   const calculatedDate = new Date(startOfCurrentYear.setDate(day)); // Add the number of days.
 
   return calculatedDate;
-};
-
-export const addBirthdayMessage = async (
-  ctx: ExecutionContext,
-  guildId: string,
-  message: string,
-): Promise<void> => {
-  await ctx.db
-    .getDb(guildId)
-    .collection(Collection.CONFIG)
-    .updateOne(
-      { _id: Config.BIRTHDAYS },
-      {
-        $push: {
-          messages: message,
-        },
-      },
-    );
-};
-
-export const deleteBirthdayMessage = async (
-  ctx: ExecutionContext,
-  guildId: string,
-  message: string,
-): Promise<void> => {
-  await ctx.db
-    .getDb(guildId)
-    .collection(Collection.CONFIG)
-    .updateOne(
-      { _id: Config.BIRTHDAYS },
-      {
-        $pull: {
-          messages: message,
-        },
-      },
-    );
-};
-
-export const getBirthdaysConfig = async (
-  ctx: ExecutionContext,
-  guildId: string,
-): Promise<BirthdaysConfig> => {
-  return await ctx.db
-    .getDb(guildId)
-    .collection(Collection.CONFIG)
-    .findOne({ _id: Config.BIRTHDAYS });
 };
 
 export const getTargetUser = async (

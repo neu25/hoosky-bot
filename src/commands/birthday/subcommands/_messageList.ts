@@ -1,6 +1,6 @@
 import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
-import { getBirthdaysConfig } from '../_common';
+import { Config, BirthdaysConfig } from '../../../database';
 
 export const messageList = new SubCommand({
   name: 'message-list',
@@ -9,18 +9,23 @@ export const messageList = new SubCommand({
   requiredPermissions: [Discord.Permission.MANAGE_ROLES],
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
-    const messages = await (await getBirthdaysConfig(ctx, guildId)).messages;
+    const birthdaysCfg = await ctx.db.getConfigValue<BirthdaysConfig>(
+      guildId,
+      Config.BIRTHDAYS,
+    );
 
-    let description = '';
-    messages.map(m => {
-      description += m + '\n';
-    });
+    if (birthdaysCfg && birthdaysCfg.messages) {
+      let description = '';
+      birthdaysCfg.messages.map(m => {
+        description += m + '\n';
+      });
 
-    await ctx.respondSilentlyWithEmbed({
-      type: Discord.EmbedType.RICH,
-      title: 'All Birthday Messages',
-      description,
-    });
+      await ctx.respondSilentlyWithEmbed({
+        type: Discord.EmbedType.RICH,
+        title: 'All Birthday Messages',
+        description,
+      });
+    }
   },
 });
 

@@ -2,7 +2,7 @@ import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
 import { CommandOptionType } from '../../../Discord';
-import { addBirthdayMessage } from '../_common';
+import { Config, BirthdaysConfig } from '../../../database';
 import { bold } from '../../../format';
 
 export const messageAdd = new SubCommand({
@@ -23,11 +23,23 @@ export const messageAdd = new SubCommand({
     const guildId = ctx.mustGetGuildId();
     const message = ctx.getArgument<string>('message') as string;
 
-    await addBirthdayMessage(ctx, guildId, message);
-
-    return ctx.respondWithMessage(
-      `${bold('Birthday message added')}:\n${message}`,
+    // Get birthdays config.
+    const birthdaysCfg = await ctx.db.getConfigValue<BirthdaysConfig>(
+      guildId,
+      Config.BIRTHDAYS,
     );
+
+    if (birthdaysCfg) {
+      // Add message.
+      birthdaysCfg.messages?.push(message);
+
+      // Update database.
+      await ctx.db.updateConfigValue(guildId, Config.BIRTHDAYS, birthdaysCfg);
+
+      return ctx.respondWithMessage(
+        `${bold('Birthday message added')}:\n${message}`,
+      );
+    }
   },
 });
 
