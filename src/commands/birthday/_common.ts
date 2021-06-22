@@ -2,6 +2,7 @@ import { Cursor, Collection as MongoCollection } from 'mongodb';
 import ExecutionContext from '../../ExecutionContext';
 import * as Discord from '../../Discord';
 import { Collection } from '../../database';
+import { Config, BirthdaysConfig } from '../../database';
 
 export type Birthday = {
   _id: number;
@@ -38,6 +39,58 @@ export const calculateDate = async (day: number): Promise<Date> => {
   return calculatedDate;
 };
 
+export const getBirthdaysConfig = async (
+  ctx: ExecutionContext,
+  guildId: string,
+): Promise<Partial<BirthdaysConfig>> => {
+  const birthdaysCfg = await ctx.db.getConfigValue<BirthdaysConfig>(
+    guildId,
+    Config.BIRTHDAYS,
+  );
+
+  if (!birthdaysCfg) {
+    throw new Error('No birthdays configuration found');
+  }
+
+  return birthdaysCfg;
+};
+
+export const addBirthdayMessage = async (
+  ctx: ExecutionContext,
+  guildId: string,
+  message: string,
+): Promise<void> => {
+  await ctx.db
+    .getDb(guildId)
+    .collection(Collection.BIRTHDAYS)
+    .updateOne(
+      { _id: Config.BIRTHDAYS },
+      {
+        $push: {
+          messages: message,
+        },
+      },
+    );
+};
+
+export const deleteBirthdayMessage = async (
+  ctx: ExecutionContext,
+  guildId: string,
+  message: string,
+): Promise<void> => {
+  await ctx.db
+    .getDb(guildId)
+    .collection(Collection.BIRTHDAYS)
+    .updateOne(
+      { _id: Config.BIRTHDAYS },
+      {
+        $pull: {
+          messages: message,
+        },
+      },
+    );
+};
+
 export const getTargetUser = async (
   ctx: ExecutionContext,
   requestorId: string | undefined,
@@ -54,8 +107,10 @@ export const dayExists = async (
   ctx: ExecutionContext,
   guildId: string,
   day: number,
-): Promise<any> => {
-  return await birthdaysCollection(ctx, guildId).findOne({ _id: day });
+): Promise<boolean> => {
+  return (
+    (await birthdaysCollection(ctx, guildId).findOne({ _id: day })) !== null
+  );
 };
 
 export const userHasBirthday = async (
@@ -79,7 +134,7 @@ export const setBirthday = async (
 
   if (day) {
     return await birthdaysCollection(ctx, guildId).updateOne(
-      { _id: day._id },
+      { _id: dayOfYear },
       { $push: { users: userId } },
     );
   } else {
@@ -94,7 +149,7 @@ export const getBirthday = async (
   ctx: ExecutionContext,
   guildId: string,
   userId: string,
-): Promise<any> => {
+): Promise<Birthday | null> => {
   return await birthdaysCollection(ctx, guildId).findOne({ users: userId });
 };
 

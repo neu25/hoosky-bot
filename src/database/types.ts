@@ -5,3 +5,8 @@ export type GuildConfig = {
 export type RolesConfig = {
   muted: string;
 };
+
+export type BirthdaysConfig = {
+  channel: string;
+  messages: string[];
+};
