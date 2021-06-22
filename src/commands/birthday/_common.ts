@@ -4,10 +4,15 @@ import * as Discord from '../../Discord';
 import { Collection } from '../../database';
 
 export type Birthday = {
-  userId: string;
-  day: number;
+  _id: number;
+  users: string[];
 };
 
+/**
+ * Calculate the day of the year from a date.
+ *
+ * @param date The date to convert.
+ */
 export const calculateDayOfYear = async (date: string): Promise<number> => {
   const now = new Date(date);
   const start = new Date(now.getFullYear(), 0, 0);
@@ -21,13 +26,16 @@ export const calculateDayOfYear = async (date: string): Promise<number> => {
   return dayOfYear;
 };
 
-export const calculateDate = async (day: number): Promise<string> => {
-  return ''; // TEMPORARY
+/**
+ * Convert a day of the year to a Date object.
+ *
+ * @param day THe day of the year to convert.
+ */
+export const calculateDate = async (day: number): Promise<Date> => {
+  const startOfCurrentYear = new Date(new Date().getFullYear(), 0); // Initialize a date to Jan. 1 of the current year
+  const calculatedDate = new Date(startOfCurrentYear.setDate(day)); // Add the number of days.
 
-  // TODO: calculate date from day of the year
-  // const oneDay = 1000 * 60 * 60 * 24;
-  // const date = ;
-  // return date;
+  return calculatedDate;
 };
 
 export const getTargetUser = async (
@@ -47,9 +55,7 @@ export const dayExists = async (
   guildId: string,
   day: number,
 ): Promise<any> => {
-  const db = await ctx.db.getDb(guildId);
-
-  return await db.collection(Collection.BIRTHDAYS).findOne({ day });
+  return await birthdaysCollection(ctx, guildId).findOne({ _id: day });
 };
 
 export const userHasBirthday = async (
@@ -57,10 +63,8 @@ export const userHasBirthday = async (
   guildId: string,
   userId: string,
 ): Promise<boolean> => {
-  const db = await ctx.db.getDb(guildId);
-
   return (
-    (await db.collection(Collection.BIRTHDAYS).findOne({ members: userId })) !==
+    (await birthdaysCollection(ctx, guildId).findOne({ users: userId })) !==
     null
   );
 };
@@ -68,29 +72,21 @@ export const userHasBirthday = async (
 export const setBirthday = async (
   ctx: ExecutionContext,
   guildId: string,
-  birthdayInfo: Birthday,
+  dayOfYear: number,
+  userId: string,
 ): Promise<any> => {
-  const db = await ctx.db.getDb(guildId);
-
-  const day = await dayExists(ctx, guildId, birthdayInfo.day);
-
-  console.log(day);
+  const day = await dayExists(ctx, guildId, dayOfYear);
 
   if (day) {
-    return await db
-      .collection(Collection.BIRTHDAYS)
-      .updateOne({ _id: day._id }, { $push: { users: birthdayInfo.userId } });
+    return await birthdaysCollection(ctx, guildId).updateOne(
+      { _id: day._id },
+      { $push: { users: userId } },
+    );
   } else {
-    const birthday = await db
-      .collection(Collection.BIRTHDAYS)
-      .insertOne({ _id: birthdayInfo.day });
-
-    return await db
-      .collection(Collection.BIRTHDAYS)
-      .updateOne(
-        { _id: birthdayInfo.day },
-        { $push: { users: birthdayInfo.userId } },
-      );
+    return await birthdaysCollection(ctx, guildId).insertOne({
+      _id: dayOfYear,
+      users: [userId],
+    });
   }
 };
 
@@ -99,11 +95,7 @@ export const getBirthday = async (
   guildId: string,
   userId: string,
 ): Promise<any> => {
-  const db = await ctx.db.getDb(guildId);
-
-  console.log(db.collection(Collection.BIRTHDAYS).find({ day: 349 }));
-
-  return await db.collection(Collection.BIRTHDAYS).findOne({ members: userId });
+  return await birthdaysCollection(ctx, guildId).findOne({ users: userId });
 };
 
 export const scanBirthdays = async (
@@ -118,9 +110,10 @@ export const unsetBirthday = async (
   guildId: string,
   userId: string,
 ): Promise<any> => {
-  const db = await ctx.db.getDb(guildId);
-
-  return await db.collection(Collection.BIRTHDAYS).deleteOne({ userId });
+  return await birthdaysCollection(ctx, guildId).updateOne(
+    { users: userId },
+    { $pull: { users: userId } },
+  );
 };
 
 /**

@@ -1,7 +1,13 @@
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
 import { CommandOptionType } from '../../../Discord';
-import { getTargetUser, userHasBirthday, getBirthday } from '../_common';
+import {
+  getTargetUser,
+  userHasBirthday,
+  getBirthday,
+  calculateDate,
+} from '../_common';
+import { bold } from '../../../format';
 
 export const show = new SubCommand({
   name: 'show',
@@ -29,7 +35,11 @@ export const show = new SubCommand({
 
         if (birthday) {
           return ctx.respondWithMessage(
-            `Birthday for ${targetUser.username}#${targetUser.discriminator} is set to day ${birthday.birthday}`,
+            `Birthday for ${targetUser.username}#${
+              targetUser.discriminator
+            } is set to ${bold(
+              (await calculateDate(birthday._id)).toDateString(),
+            )}`,
           );
         }
 

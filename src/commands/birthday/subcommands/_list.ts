@@ -1,29 +1,72 @@
 import SubCommand from '../../../SubCommand';
-import { scanBirthdays } from '../_common';
+import * as Discord from '../../../Discord';
+import { calculateDate, scanBirthdays } from '../_common';
+import { bold, fancyCenter } from '../../../format';
+
+type MonthGroup = {
+  month: string;
+  heading: string;
+  list: string;
+};
 
 export const list = new SubCommand({
   name: 'list',
   displayName: 'List Birthdays',
   description: 'List all stored birthdays',
   handler: async ctx => {
-    await ctx.respondWithError('This is not yet implemented');
+    // await ctx.respondWithError('This is not yet implemented');
 
-    // const guildId = ctx.mustGetGuildId();
+    const guildId = ctx.mustGetGuildId();
+    const birthdays = (await scanBirthdays(ctx, guildId)).sort({ _id: 1 });
 
-    // let birthdaysList = 'Here is a list of birthdays: \n';
-    // birthdaysList += '```';
+    // Hold an array of month groups to output.
+    const subGroups: MonthGroup[] = [];
+    // Record the current month being written to.
+    let curGroup: MonthGroup | null = null;
 
-    // const courses = await scanBirthdays(ctx, guildId);
+    // Iterate over every birthday.
+    let c = await birthdays.next();
+    while (c !== null) {
+      // If the birthday's month is different, then create a new month group.
+      const formattedMonth = (await calculateDate(c._id)).toLocaleString(
+        'default',
+        {
+          month: 'long',
+        },
+      );
+      if (!curGroup || formattedMonth !== curGroup.month) {
+        curGroup = {
+          month: formattedMonth,
+          heading: fancyCenter(formattedMonth, 50),
+          list: '',
+        };
+        subGroups.push(curGroup);
+      }
 
-    // let nextBirthday = await courses.next();
-    // while (nextBirthday !== null) {
-    //   // birthdaysList += `${nextBirthday._id} - ${nextBirthday.name}: ${nextBirthday.description} \n`;
-    //   nextBirthday = await courses.next();
-    // }
+      if (c.users.length > 0) {
+        curGroup.list += `${bold(
+          formattedMonth + ' ' + (await calculateDate(c._id)).getDate(),
+        )}: ${c.users
+          .map(user => {
+            return `<@${user}>`;
+          })
+          .join(' • ')}\n`;
+      }
 
-    // birthdaysList += '```';
+      c = await birthdays.next();
+    }
 
-    // await ctx.respondSilently(birthdaysList);
+    // Map month groups to Discord embed fields.
+    const fields: Discord.EmbedField[] = subGroups.map(sub => ({
+      name: sub.heading, // The month.
+      value: sub.list, // The birthday list.
+    }));
+
+    await ctx.respondSilentlyWithEmbed({
+      type: Discord.EmbedType.RICH,
+      title: 'All Birthdays',
+      fields,
+    });
   },
 });
 

@@ -1,10 +1,10 @@
 import Command from '../../Command';
-import { list, set, show, unset } from './subcommands';
+import subcommands from './subcommands';
 
 const birthday = new Command({
   name: 'birthday',
   description: 'Manage server birthdays',
-  options: [list, set, show, unset],
+  options: subcommands,
 });
 
 export default birthday;
