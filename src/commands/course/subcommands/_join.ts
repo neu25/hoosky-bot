@@ -6,6 +6,8 @@ import {
   addUserToCourse,
   getCourseMembers,
   boldCourse,
+  createSection,
+  addUserToSection,
 } from '../_common';
 
 export const join = new SubCommand({
@@ -19,10 +21,19 @@ export const join = new SubCommand({
       required: true,
       type: Discord.CommandOptionType.ROLE,
     }),
+    new CommandOption({
+      name: 'section-number',
+      description: 'The number of your course section',
+      required: false,
+      type: Discord.CommandOptionType.INTEGER,
+    }),
   ],
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
     const roleId = ctx.getArgument<string>('role') as string;
+    const sectionNum = parseInt(
+      ctx.getArgument<string>('section-number') as string,
+    );
 
     const course = await getCourseByRoleId(ctx, guildId, roleId);
     if (!course) {
@@ -41,6 +52,21 @@ export const join = new SubCommand({
 
     await ctx.api.addRoleToMember(guildId, userId, roleId);
     await addUserToCourse(ctx, guildId, userId, roleId);
+
+    // If a valid sectionNum was provided, add the user to the section.
+    // If the section does not exist, create it with the user as a member.
+    if (sectionNum) {
+      const sections = course.sections ?? []
+      if (sections.some(item => item.number === sectionNum)) {
+        addUserToSection(ctx, guildId, userId, roleId, sectionNum);
+      } else {
+        createSection(ctx, guildId, roleId, sectionNum, [userId]);
+      }
+
+      return ctx.respondWithMessage(
+        `You joined the section ${sectionNum} of the course ${boldCourse(course)}`,
+      );
+    }
 
     return ctx.respondWithMessage(
       `You joined the course ${boldCourse(course)}`,

@@ -55,6 +55,7 @@ export const create = new SubCommand({
       name,
       roleId: courseRole.id,
       members: [],
+      sections: [],
     };
 
     // Create course in database.

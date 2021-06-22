@@ -10,6 +10,12 @@ export type Course = {
   name: string;
   roleId: string;
   members: string[];
+  sections: Section[];
+};
+
+export type Section = {
+  number: number;
+  members: string[];
 };
 
 /**
@@ -120,6 +126,48 @@ export const removeUserFromCourse = async (
     {
       $pull: {
         members: userId,
+      },
+    },
+  );
+};
+
+export const createSection = async (
+  ctx: ExecutionContext,
+  guildId: string,
+  roleId: string,
+  sectionNum: number,
+  members: string[] = [],
+): Promise<void> => {
+  await coursesCollection(ctx, guildId).updateOne(
+    {
+      roleId: roleId,
+    },
+    {
+      $push: {
+        sections: {
+          number: sectionNum,
+          members: members,
+        },
+      },
+    },
+  );
+};
+
+export const addUserToSection = async (
+  ctx: ExecutionContext,
+  guildId: string,
+  userId: string,
+  roleId: string,
+  sectionNum: number,
+): Promise<void> => {
+  await coursesCollection(ctx, guildId).updateOne(
+    {
+      roleId: roleId,
+      'sections.number': sectionNum,
+    },
+    {
+      $push: {
+        'sections.$.members': userId,
       },
     },
   );
