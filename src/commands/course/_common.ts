@@ -129,6 +129,17 @@ export const removeUserFromCourse = async (
       },
     },
   );
+  await coursesCollection(ctx, guildId).updateOne(
+    {
+      roleId: roleId,
+      'sections.members': userId,
+    },
+    {
+      $pull: {
+        'sections.$.members': userId,
+      },
+    },
+  );
 };
 
 export const createSection = async (
