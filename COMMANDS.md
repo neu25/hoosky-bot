@@ -2,22 +2,21 @@
 
 This is a list of commands currently implemented in Hoosky Bot.
 
-> Note: `[]` indicates a variable returned in the response. | `*` indicates an optional parameter.
+> Note: `[]` indicates a variable argument.
+> Note: `[?]` indicates an optional argument.
 
 ## `/birthday` [WIP]
 
-| Command                        | Returns [DRAFT - subject to change]          | Description                                     |
-| ------------------------------ | -------------------------------------------- | ----------------------------------------------- |
-| `/birthday set [date] [*user]` | `Birthday ([birthday]) set for **[user]**`   | Set a user's birthday. Defaults to requestor.   |
-| `/birthday unset [*user]`      | `Birthday ([birthday]) unset for **[user]**` | Unset a user's birthday. Defaults to requestor. |
-| `/birthday show [*user]`       | `Birthday for **[user]**` is [birthday]`     | Show a user's birthday. Defaults to requestor.  |
-| `/birthday list`               | `Here's a list of birthdays: \n [birthdays]` | Lists all stored birthdays.                     |
-
-## `/mute`
-
-| Command             | Returns            | Description                                          |
-| ------------------- | ------------------ | ---------------------------------------------------- |
-| `/mute user [user]` | `Muted **[user]**` | Mutes a user. Requires the `KICK_MEMBERS` permission |
+| Command                              | Description                                                          |
+| ------------------------------------ | -------------------------------------------------------------------- |
+| `/birthday list`                     | Lists all stored birthdays.                                          |
+| `/birthday message-add [message]`    | Adds a birthday message. Requires the `MANAGE_ROLES` permission.     |
+| `/birthday message-delete [message]` | Deletes a birthday message. Requires the `MANAGE_ROLES` permission.  |
+| `/birthday message-list`             | Lists all birthday messages. Requires the `MANAGE_ROLES` permission. |
+| `/birthday set [date] [user?]`       | Sets a user's birthday. Defaults to command executor.                |
+| `/birthday setup [channel]`          | Sets the birthdays channel. Requires the `MANAGE_ROLES` permission.  |
+| `/birthday show [user?]`             | Show sa user's birthday. Defaults to command executor.               |
+| `/birthday unset [user?]`            | Unsets a user's birthday. Defaults to command executor.              |
 
 ## `/ping`
 
