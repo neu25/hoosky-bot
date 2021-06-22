@@ -14,8 +14,6 @@ export const list = new SubCommand({
   displayName: 'List Birthdays',
   description: 'List all stored birthdays',
   handler: async ctx => {
-    // await ctx.respondWithError('This is not yet implemented');
-
     const guildId = ctx.mustGetGuildId();
     const birthdays = (await scanBirthdays(ctx, guildId)).sort({ _id: 1 });
 

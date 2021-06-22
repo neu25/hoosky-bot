@@ -31,5 +31,5 @@ export const guildConfig: GuildConfig = {
 
 export const birthdaysConfig: BirthdaysConfig = {
   channel: '',
-  messages: [],
+  messages: ['Happy birthday, @!'],
 };

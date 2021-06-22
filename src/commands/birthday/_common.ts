@@ -2,7 +2,7 @@ import { Cursor, Collection as MongoCollection } from 'mongodb';
 import ExecutionContext from '../../ExecutionContext';
 import * as Discord from '../../Discord';
 import { Collection } from '../../database';
-import { Config, BirthdaysConfig } from '../../database';
+import { Config } from '../../database';
 
 export type Birthday = {
   _id: number;
@@ -37,22 +37,6 @@ export const calculateDate = async (day: number): Promise<Date> => {
   const calculatedDate = new Date(startOfCurrentYear.setDate(day)); // Add the number of days.
 
   return calculatedDate;
-};
-
-export const getBirthdaysConfig = async (
-  ctx: ExecutionContext,
-  guildId: string,
-): Promise<Partial<BirthdaysConfig>> => {
-  const birthdaysCfg = await ctx.db.getConfigValue<BirthdaysConfig>(
-    guildId,
-    Config.BIRTHDAYS,
-  );
-
-  if (!birthdaysCfg) {
-    throw new Error('No birthdays configuration found');
-  }
-
-  return birthdaysCfg;
 };
 
 export const addBirthdayMessage = async (
@@ -169,6 +153,14 @@ export const unsetBirthday = async (
     { users: userId },
     { $pull: { users: userId } },
   );
+};
+
+export const getTodaysBirthdays = async (
+  ctx: ExecutionContext,
+  guildId: string,
+  day: number,
+): Promise<Cursor<Birthday>> => {
+  return await birthdaysCollection(ctx, guildId).find({ _id: day });
 };
 
 /**

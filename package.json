@@ -21,11 +21,13 @@
   "homepage": "https://github.com/nu25/hoosky-bot#readme",
   "dependencies": {
     "axios": "^0.21.1",
+    "cron": "^1.8.2",
     "mongodb": "^3.6.9",
     "ws": "^7.4.6",
     "yargs": "^17.0.1"
   },
   "devDependencies": {
+    "@types/cron": "^1.7.2",
     "@types/mongodb": "^3.6.17",
     "@types/ws": "^7.4.4",
     "@types/yargs": "^17.0.0",
