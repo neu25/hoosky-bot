@@ -7,6 +7,7 @@ export type RolesConfig = {
 };
 
 export type BirthdaysConfig = {
+  schedule: string;
   channel: string;
   messages: string[];
 };

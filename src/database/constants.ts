@@ -30,6 +30,7 @@ export const guildConfig: GuildConfig = {
 };
 
 export const birthdaysConfig: BirthdaysConfig = {
+  schedule: '00 15 10 * * *',
   channel: '',
   messages: ['Happy birthday, @!'],
 };

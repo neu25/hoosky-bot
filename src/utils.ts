@@ -60,3 +60,16 @@ export const prepareEmoji = (emojiString: string): string => {
   //  - to: test2:850478323712131073
   return encodeURI(emojiString.split('<:').join('').split('>').join(''));
 };
+
+/**
+ * Helper method to format a number to have leading zeros
+ *
+ * @param number The number
+ */
+export const padNumber = (number: number, size: number): string => {
+  let num: string = number.toString();
+  while (num.length < size) {
+    num = '0' + num;
+  }
+  return num;
+};
