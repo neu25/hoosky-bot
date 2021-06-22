@@ -1,35 +1,21 @@
 import SubCommand from '../../../SubCommand';
-import CommandOption from '../../../CommandOption';
-import { CommandOptionType } from '../../../Discord';
-import { getTargetUser, userHasBirthday, unsetBirthday } from '../_common';
+import { userHasBirthday, unsetBirthday } from '../_common';
 
 export const unset = new SubCommand({
   name: 'unset',
   displayName: 'Unset Birthday',
-  description: "Unset a user's birthday",
-  options: [
-    new CommandOption({
-      name: 'user',
-      description: 'User',
-      required: false,
-      type: CommandOptionType.USER,
-    }),
-  ],
+  description: 'Unset your birthday',
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
     const requestor = ctx.interaction.member?.user;
-    const requestorId = requestor?.id;
-    const targetUserId = ctx.getArgument<string>('user') as string;
 
-    const targetUser = await getTargetUser(ctx, requestorId, targetUserId);
-
-    if (targetUser) {
-      if (await userHasBirthday(ctx, guildId, targetUser.id)) {
-        const birthday = await unsetBirthday(ctx, guildId, targetUser.id);
+    if (requestor) {
+      if (await userHasBirthday(ctx, guildId, requestor.id)) {
+        const birthday = await unsetBirthday(ctx, guildId, requestor.id);
 
         if (birthday) {
           return ctx.respondWithMessage(
-            `Birthday unset for ${targetUser.username}#${targetUser.discriminator}`,
+            `Birthday unset for ${requestor.username}#${requestor.discriminator}`,
           );
         }
 
@@ -37,9 +23,11 @@ export const unset = new SubCommand({
       }
 
       return ctx.respondWithError(
-        `No birthday is set for ${targetUser.username}#${targetUser.discriminator}`,
+        `No birthday is set for ${requestor.username}#${requestor.discriminator}`,
       );
     }
+
+    return ctx.respondWithError(`Unable to identify you`);
   },
 });
 

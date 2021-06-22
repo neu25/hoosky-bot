@@ -1,12 +1,7 @@
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
 import { CommandOptionType } from '../../../Discord';
-import {
-  calculateDayOfYear,
-  getTargetUser,
-  userHasBirthday,
-  setBirthday,
-} from '../_common';
+import { calculateDayOfYear, userHasBirthday, setBirthday } from '../_common';
 
 export const set = new SubCommand({
   name: 'set',
@@ -19,21 +14,11 @@ export const set = new SubCommand({
       required: true,
       type: CommandOptionType.STRING,
     }),
-    new CommandOption({
-      name: 'user',
-      description: 'User',
-      required: false,
-      type: CommandOptionType.USER,
-    }),
   ],
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
     const targetBirthday = ctx.getArgument<string>('date') as string;
     const requestor = ctx.interaction.member?.user;
-    const requestorId = requestor?.id;
-    const targetUserId = ctx.getArgument<string>('user') as string;
-
-    const targetUser = await getTargetUser(ctx, requestorId, targetUserId);
 
     const dayOfYear = calculateDayOfYear(targetBirthday);
 
@@ -41,18 +26,18 @@ export const set = new SubCommand({
       return ctx.respondWithError(`Invalid birthday`);
     }
 
-    if (targetUser) {
-      if (!(await userHasBirthday(ctx, guildId, targetUser.id))) {
+    if (requestor) {
+      if (!(await userHasBirthday(ctx, guildId, requestor.id))) {
         const birthday = await setBirthday(
           ctx,
           guildId,
           dayOfYear,
-          targetUser.id,
+          requestor.id,
         );
 
         if (birthday) {
           return ctx.respondWithMessage(
-            `Birthday (${targetBirthday}) set for ${targetUser.username}#${targetUser.discriminator}`,
+            `Birthday (${targetBirthday}) set for ${requestor.username}#${requestor.discriminator}`,
           );
         }
 
@@ -60,9 +45,11 @@ export const set = new SubCommand({
       }
 
       return ctx.respondWithError(
-        `A birthday is already set for ${targetUser.username}#${targetUser.discriminator}`,
+        `A birthday is already set for ${requestor.username}#${requestor.discriminator}`,
       );
     }
+
+    return ctx.respondWithError(`Unable to identify you`);
   },
 });
 

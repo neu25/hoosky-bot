@@ -19,7 +19,7 @@ export const scheduleGet = new SubCommand({
 
     if (birthdaysCfg) {
       return ctx.respondWithMessage(
-        `${bold('Birthdays schedule updated:')} \`${birthdaysCfg.schedule}\``,
+        `${bold('Current birthdays schedule:')} \`${birthdaysCfg.schedule}\``,
       );
     }
 
