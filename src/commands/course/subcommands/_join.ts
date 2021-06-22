@@ -56,7 +56,7 @@ export const join = new SubCommand({
     // If a valid sectionNum was provided, add the user to the section.
     // If the section does not exist, create it with the user as a member.
     if (sectionNum) {
-      const sections = course.sections ?? []
+      const sections = course.sections ?? [];
       if (sections.some(item => item.number === sectionNum)) {
         addUserToSection(ctx, guildId, userId, roleId, sectionNum);
       } else {
@@ -64,7 +64,9 @@ export const join = new SubCommand({
       }
 
       return ctx.respondWithMessage(
-        `You joined the section ${sectionNum} of the course ${boldCourse(course)}`,
+        `You joined the section ${sectionNum} of the course ${boldCourse(
+          course,
+        )}`,
       );
     }
 
