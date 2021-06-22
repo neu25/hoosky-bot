@@ -1,7 +1,7 @@
 import { Cursor, Collection as MongoCollection } from 'mongodb';
 import ExecutionContext from '../../ExecutionContext';
 import * as Discord from '../../Discord';
-import { Collection } from '../../database';
+import { BirthdaysConfig, Collection } from '../../database';
 import { Config } from '../../database';
 
 export type Birthday = {
@@ -46,7 +46,7 @@ export const addBirthdayMessage = async (
 ): Promise<void> => {
   await ctx.db
     .getDb(guildId)
-    .collection(Collection.BIRTHDAYS)
+    .collection(Collection.CONFIG)
     .updateOne(
       { _id: Config.BIRTHDAYS },
       {
@@ -64,7 +64,7 @@ export const deleteBirthdayMessage = async (
 ): Promise<void> => {
   await ctx.db
     .getDb(guildId)
-    .collection(Collection.BIRTHDAYS)
+    .collection(Collection.CONFIG)
     .updateOne(
       { _id: Config.BIRTHDAYS },
       {
@@ -73,6 +73,16 @@ export const deleteBirthdayMessage = async (
         },
       },
     );
+};
+
+export const getBirthdaysConfig = async (
+  ctx: ExecutionContext,
+  guildId: string,
+): Promise<BirthdaysConfig> => {
+  return await ctx.db
+    .getDb(guildId)
+    .collection(Collection.CONFIG)
+    .findOne({ _id: Config.BIRTHDAYS });
 };
 
 export const getTargetUser = async (

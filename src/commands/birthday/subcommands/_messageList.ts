@@ -1,9 +1,6 @@
 import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
-// import CommandOption from '../../../CommandOption';
-// import { CommandOptionType } from '../../../Discord';
-// import { scanBirthdayMessages } from '../_common';
-// import { bold } from '../../../format';
+import { getBirthdaysConfig } from '../_common';
 
 export const messageList = new SubCommand({
   name: 'message-list',
@@ -11,14 +8,19 @@ export const messageList = new SubCommand({
   description: 'List all server birthday messages',
   requiredPermissions: [Discord.Permission.MANAGE_ROLES],
   handler: async ctx => {
-    // TODO: implement
+    const guildId = ctx.mustGetGuildId();
+    const messages = await (await getBirthdaysConfig(ctx, guildId)).messages;
 
-    // const guildId = ctx.mustGetGuildId();
-    // const message = ctx.getArgument<string>('message') as string;
+    let description = '';
+    messages.map(m => {
+      description += m + '\n';
+    });
 
-    // await scanBirthdayMessages(ctx, guildId, message);
-
-    return ctx.respondWithError(`This is not yet implemented.`);
+    await ctx.respondSilentlyWithEmbed({
+      type: Discord.EmbedType.RICH,
+      title: 'All Birthday Messages',
+      description,
+    });
   },
 });
 

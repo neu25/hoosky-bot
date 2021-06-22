@@ -30,10 +30,10 @@ export enum MessageType {
 
 // https://discord.com/developers/docs/resources/channel#create-message
 export type CreateMessage = {
-  content: string;
+  content?: string;
   tts?: boolean;
   // file: fileContents;
-  embeds?: [];
+  embeds?: [Embed];
   // payload_json?: string;
   // allowed_mentions?: [];
   // message_reference?: ;

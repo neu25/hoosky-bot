@@ -3,14 +3,12 @@ import * as Discord from '../../Discord';
 import Trigger from '../../Trigger';
 import { Collection, Config, BirthdaysConfig } from '../../database';
 import { calculateDayOfYear } from '../../commands/birthday/_common';
-import Api from '../../Api';
 import { CreateMessage } from '../../Discord/message';
 
 const scheduler = new Trigger<Discord.Event.CHANNEL_UPDATE>({
   event: Discord.Event.CHANNEL_UPDATE,
   handler: async ctx => {
     const guildId = ctx.getData().id;
-    // const api = new Api(config.discord.appId, reqClient);
 
     const birthdaysCfg = await ctx.db.getConfigValue<BirthdaysConfig>(
       guildId,
@@ -29,7 +27,7 @@ const scheduler = new Trigger<Discord.Event.CHANNEL_UPDATE>({
     }
 
     // Run cron at 10:15 am every day.
-    const test = new cron.CronJob('00 * * * * *', async () => {
+    const test = new cron.CronJob('00 15 10 * * *', async () => {
       const dayOfYear = await calculateDayOfYear(new Date().toDateString());
       const birthdays = await ctx.db
         .getDb(guildId)
@@ -45,18 +43,6 @@ const scheduler = new Trigger<Discord.Event.CHANNEL_UPDATE>({
             greeting += ' • ';
           }
         });
-
-        // // Map month groups to Discord embed fields.
-        // const fields: Discord.EmbedField[] = subGroups.map(sub => ({
-        //   name: sub.heading, // The month.
-        //   value: sub.list, // The birthday list.
-        // }));
-
-        // await ctx.respondSilentlyWithEmbed({
-        //   type: Discord.EmbedType.RICH,
-        //   title: 'All Birthdays',
-        //   fields,
-        // });
 
         let randomMessage =
           messages[Math.floor(Math.random() * messages.length)]; // Pick a random message.
