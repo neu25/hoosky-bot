@@ -35,7 +35,7 @@ export const set = new SubCommand({
 
     const targetUser = await getTargetUser(ctx, requestorId, targetUserId);
 
-    const dayOfYear = await calculateDayOfYear(targetBirthday);
+    const dayOfYear = calculateDayOfYear(targetBirthday);
 
     if (!dayOfYear || typeof dayOfYear !== 'number') {
       return ctx.respondWithError(`Invalid birthday`);

@@ -26,12 +26,9 @@ export const list = new SubCommand({
     let c = await birthdays.next();
     while (c !== null) {
       // If the birthday's month is different, then create a new month group.
-      const formattedMonth = (await calculateDate(c._id)).toLocaleString(
-        'default',
-        {
-          month: 'long',
-        },
-      );
+      const formattedMonth = calculateDate(c._id).toLocaleString('default', {
+        month: 'long',
+      });
       if (!curGroup || formattedMonth !== curGroup.month) {
         curGroup = {
           month: formattedMonth,
@@ -43,7 +40,7 @@ export const list = new SubCommand({
 
       if (c.users.length > 0) {
         curGroup.list += `${bold(
-          formattedMonth + ' ' + (await calculateDate(c._id)).getDate(),
+          formattedMonth + ' ' + calculateDate(c._id).getDate(),
         )}: ${c.users
           .map(user => {
             return `<@${user}>`;

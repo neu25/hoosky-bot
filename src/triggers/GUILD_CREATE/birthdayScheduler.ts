@@ -28,7 +28,7 @@ const scheduler = new Trigger<Discord.Event.CHANNEL_UPDATE>({
 
     // Run cron at 10:15 am every day.
     const test = new cron.CronJob('00 15 10 * * *', async () => {
-      const dayOfYear = await calculateDayOfYear(new Date().toDateString());
+      const dayOfYear = calculateDayOfYear(new Date().toDateString());
       const birthdays = await ctx.db
         .getDb(guildId)
         .collection(Collection.BIRTHDAYS)

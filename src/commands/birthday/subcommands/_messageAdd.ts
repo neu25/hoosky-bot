@@ -23,6 +23,13 @@ export const messageAdd = new SubCommand({
     const guildId = ctx.mustGetGuildId();
     const message = ctx.getArgument<string>('message') as string;
 
+    // Ensure message includes one "@"
+    if (!message.includes('@') || (message.match(/@/g) || []).length > 1) {
+      return ctx.respondWithError(
+        'Invalid message. Make sure to include one `@`.',
+      );
+    }
+
     // Get birthdays config.
     const birthdaysCfg = await ctx.db.getConfigValue<BirthdaysConfig>(
       guildId,

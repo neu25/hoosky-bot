@@ -13,7 +13,7 @@ export type Birthday = {
  *
  * @param date The date to convert.
  */
-export const calculateDayOfYear = async (date: string): Promise<number> => {
+export const calculateDayOfYear = (date: string): number => {
   const now = new Date(date);
   const start = new Date(now.getFullYear(), 0, 0);
   const diff =
@@ -31,7 +31,7 @@ export const calculateDayOfYear = async (date: string): Promise<number> => {
  *
  * @param day THe day of year to convert.
  */
-export const calculateDate = async (day: number): Promise<Date> => {
+export const calculateDate = (day: number): Date => {
   const startOfCurrentYear = new Date(new Date().getFullYear(), 0); // Initialize a date to Jan. 1 of the current year
   const calculatedDate = new Date(startOfCurrentYear.setDate(day)); // Add the number of days.
 
