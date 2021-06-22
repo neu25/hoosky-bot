@@ -192,6 +192,17 @@ export const getCourseMembers = async (
   return (await getCourseByRoleId(ctx, guildId, roleId))?.members;
 };
 
+export const getSectionMembers = async (
+  ctx: ExecutionContext,
+  guildId: string,
+  roleId: string,
+  sectionNum: number,
+): Promise<string[] | undefined> => {
+  return (await getCourseByRoleId(ctx, guildId, roleId))?.sections.find(
+    item => item.number === sectionNum,
+  )?.members;
+};
+
 /**
  * Returns the `courses` collection for the specified guild.
  *
