@@ -2,7 +2,8 @@ import { list } from './_list';
 import { messageAdd } from './_messageAdd';
 import { messageDelete } from './_messageDelete';
 import { messageList } from './_messageList';
-import { schedule } from './_schedule';
+import { scheduleGet } from './_scheduleGet';
+import { scheduleSet } from './_scheduleSet';
 import { set } from './_set';
 import { setup } from './_setup';
 import { show } from './_show';
@@ -13,7 +14,8 @@ export const subcommands = [
   messageAdd,
   messageDelete,
   messageList,
-  schedule,
+  scheduleGet,
+  scheduleSet,
   set,
   setup,
   show,

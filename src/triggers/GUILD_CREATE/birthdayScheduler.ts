@@ -32,35 +32,41 @@ const birthdayScheduler = new Trigger<Discord.Event.CHANNEL_UPDATE>({
     }
 
     // Run cron at configured time every day.
-    const scheduler = new cron.CronJob(schedule, async () => {
-      const dayOfYear = calculateDayOfYear(new Date().toDateString());
-      const birthdays = await ctx.db
-        .getDb(guildId)
-        .collection(Collection.BIRTHDAYS)
-        .findOne({ _id: dayOfYear });
+    const scheduler = new cron.CronJob(
+      schedule,
+      async () => {
+        const dayOfYear = calculateDayOfYear(new Date().toDateString());
+        const birthdays = await ctx.db
+          .getDb(guildId)
+          .collection(Collection.BIRTHDAYS)
+          .findOne({ _id: dayOfYear });
 
-      if (channel && birthdays && birthdays.users.length > 0) {
-        let greeting = '';
-        birthdays.users.map((user: string, i: number) => {
-          greeting += `<@${user}>`;
+        if (channel && birthdays && birthdays.users.length > 0) {
+          let greeting = '';
+          birthdays.users.map((user: string, i: number) => {
+            greeting += `<@${user}>`;
 
-          if (i !== birthdays.users.length - 1) {
-            greeting += ' • ';
-          }
-        });
+            if (i !== birthdays.users.length - 1) {
+              greeting += ' • ';
+            }
+          });
 
-        let randomMessage =
-          messages[Math.floor(Math.random() * messages.length)]; // Pick a random message.
-        randomMessage = randomMessage.replace('@', greeting); // Replace template with user mention(s)
+          let randomMessage =
+            messages[Math.floor(Math.random() * messages.length)]; // Pick a random message.
+          randomMessage = randomMessage.replace('@', greeting); // Replace template with user mention(s)
 
-        const messageData: CreateMessage = {
-          content: randomMessage,
-          tts: false,
-        };
+          const messageData: CreateMessage = {
+            content: randomMessage,
+            tts: false,
+          };
 
-        await ctx.api.createMessage(channel, messageData);
-      }
-    });
+          await ctx.api.createMessage(channel, messageData);
+        }
+      },
+      undefined,
+      undefined,
+      'America/New_York',
+    );
 
     scheduler.start();
   },

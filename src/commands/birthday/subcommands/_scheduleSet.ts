@@ -6,8 +6,8 @@ import { Config, BirthdaysConfig } from '../../../database';
 import { bold } from '../../../format';
 import { padNumber } from '../../../utils';
 
-export const schedule = new SubCommand({
-  name: 'schedule',
+export const scheduleSet = new SubCommand({
+  name: 'schedule-set',
   displayName: 'Set Schedule',
   description: 'Set schedule for sending birthday messages',
   requiredPermissions: [Discord.Permission.MANAGE_ROLES],
@@ -56,4 +56,4 @@ export const schedule = new SubCommand({
   },
 });
 
-export default schedule;
+export default scheduleSet;
