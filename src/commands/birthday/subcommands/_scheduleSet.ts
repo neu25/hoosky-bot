@@ -5,6 +5,10 @@ import { CommandOptionType } from '../../../Discord';
 import { Config, BirthdaysConfig } from '../../../database';
 import { bold } from '../../../format';
 import { padNumber } from '../../../utils';
+import configureScheduler, {
+  startScheduler,
+  stopScheduler,
+} from '../scheduler';
 
 export const scheduleSet = new SubCommand({
   name: 'schedule-set',
@@ -46,6 +50,11 @@ export const scheduleSet = new SubCommand({
 
       // Update database.
       await ctx.db.updateConfigValue(guildId, Config.BIRTHDAYS, birthdaysCfg);
+
+      // Restart scheduler.
+      await stopScheduler();
+      await configureScheduler(ctx, guildId);
+      await startScheduler();
 
       return ctx.respondWithMessage(
         `${bold('Birthdays schedule updated:')} \`${schedule}\``,
