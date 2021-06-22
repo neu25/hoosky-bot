@@ -166,7 +166,7 @@ class Api {
   }
 
   /**
-   * Create a message ans send it in the specified channel.
+   * Create a message and send it in the specified channel.
    *
    * @param guildId The ID of the guild.
    */

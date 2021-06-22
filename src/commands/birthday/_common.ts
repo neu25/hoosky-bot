@@ -9,7 +9,7 @@ export type Birthday = {
 };
 
 /**
- * Calculate the day of the year from a date.
+ * Calculate the day of year from a date.
  *
  * @param date The date to convert.
  */
@@ -27,9 +27,9 @@ export const calculateDayOfYear = async (date: string): Promise<number> => {
 };
 
 /**
- * Convert a day of the year to a Date object.
+ * Calculate a day of year to a Date object.
  *
- * @param day THe day of the year to convert.
+ * @param day THe day of year to convert.
  */
 export const calculateDate = async (day: number): Promise<Date> => {
   const startOfCurrentYear = new Date(new Date().getFullYear(), 0); // Initialize a date to Jan. 1 of the current year
