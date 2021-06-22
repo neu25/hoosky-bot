@@ -3,6 +3,7 @@
 This is a list of commands currently implemented in Hoosky Bot.
 
 > Note: `[]` indicates a variable argument.
+> Note: `[?]` indicates an optional argument.
 
 ## `/ping`
 
