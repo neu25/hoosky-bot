@@ -1,7 +1,7 @@
 import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
-import { semiBoldCourse, scanCourses, getCourseMembers } from '../_common';
+import { semiBoldCourse, scanCourses } from '../_common';
 import { fancyCenter } from '../../../format';
 
 type SubjectGroup = {
@@ -30,8 +30,7 @@ export const listJoined = new SubCommand({
 
     if (chosenUserId) {
       userId = chosenUserId;
-    }
-    else {
+    } else {
       userId = ctx.interaction.member?.user?.id;
       if (!userId) {
         return ctx.respondWithError('Unable to identify you');
@@ -43,7 +42,7 @@ export const listJoined = new SubCommand({
 
     // Nickname if exists, otherwise username
     const username = guildMember.nick || member.username;
-    
+
     // Hold an array of subject groups to output.
     const subGroups: SubjectGroup[] = [];
     // Record the current subject being written to.
@@ -52,8 +51,6 @@ export const listJoined = new SubCommand({
     // Iterate over every course.
     let c = await courses.next();
     while (c !== null) {
-
-
       const members = c.members;
       // If the current member is in the course
       if (members.includes(userId)) {

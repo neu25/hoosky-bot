@@ -36,7 +36,7 @@ export const listAll = new SubCommand({
       }
 
       // Write the course to the subject group.
-      
+
       curGroup.list += semiBoldCourse(c) + '\n';
       c = await courses.next();
     }

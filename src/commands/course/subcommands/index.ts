@@ -6,6 +6,14 @@ import { listAll } from './_listAll';
 import { listJoined } from './_listJoined';
 import { roster } from './_roster';
 
-export const subcommands = [create, del, join, leave, listAll, listJoined, roster];
+export const subcommands = [
+  create,
+  del,
+  join,
+  leave,
+  listAll,
+  listJoined,
+  roster,
+];
 
 export default subcommands;
