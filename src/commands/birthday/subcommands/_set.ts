@@ -37,6 +37,10 @@ export const set = new SubCommand({
 
     const dayOfYear = await calculateDayOfYear(targetBirthday);
 
+    if (!dayOfYear || typeof dayOfYear !== 'number') {
+      return ctx.respondWithError(`Invalid birthday`);
+    }
+
     if (targetUser) {
       if (!(await userHasBirthday(ctx, guildId, targetUser.id))) {
         const birthday = await setBirthday(ctx, guildId, {

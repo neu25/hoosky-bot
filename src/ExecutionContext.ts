@@ -173,7 +173,7 @@ class ExecutionContext {
    * @param content The error message.
    */
   respondWithError(content: string): Promise<void> {
-    return this.respondSilently(`Unable to run command: ${content}`);
+    return this.respondWithMessage(`Unable to run command: ${content}`);
   }
 
   /**

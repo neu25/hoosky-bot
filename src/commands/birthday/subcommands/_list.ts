@@ -6,22 +6,24 @@ export const list = new SubCommand({
   displayName: 'List Birthdays',
   description: 'List all stored birthdays',
   handler: async ctx => {
-    const guildId = ctx.mustGetGuildId();
+    await ctx.respondWithError('This is not yet implemented');
 
-    let birthdaysList = 'Here is a list of birthdays: \n';
-    birthdaysList += '```';
+    // const guildId = ctx.mustGetGuildId();
 
-    const courses = await scanBirthdays(ctx, guildId);
+    // let birthdaysList = 'Here is a list of birthdays: \n';
+    // birthdaysList += '```';
 
-    let nextBirthday = await courses.next();
-    while (nextBirthday !== null) {
-      // birthdaysList += `${nextBirthday._id} - ${nextBirthday.name}: ${nextBirthday.description} \n`;
-      nextBirthday = await courses.next();
-    }
+    // const courses = await scanBirthdays(ctx, guildId);
 
-    birthdaysList += '```';
+    // let nextBirthday = await courses.next();
+    // while (nextBirthday !== null) {
+    //   // birthdaysList += `${nextBirthday._id} - ${nextBirthday.name}: ${nextBirthday.description} \n`;
+    //   nextBirthday = await courses.next();
+    // }
 
-    await ctx.respondSilently(birthdaysList);
+    // birthdaysList += '```';
+
+    // await ctx.respondSilently(birthdaysList);
   },
 });
 

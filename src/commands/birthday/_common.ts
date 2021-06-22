@@ -60,7 +60,8 @@ export const userHasBirthday = async (
   const db = await ctx.db.getDb(guildId);
 
   return (
-    (await db.collection(Collection.BIRTHDAYS).findOne({ userId })) !== null
+    (await db.collection(Collection.BIRTHDAYS).findOne({ members: userId })) !==
+    null
   );
 };
 
@@ -73,14 +74,23 @@ export const setBirthday = async (
 
   const day = await dayExists(ctx, guildId, birthdayInfo.day);
 
+  console.log(day);
+
   if (day) {
     return await db
       .collection(Collection.BIRTHDAYS)
-      .insertOne({ _id: day._id, members: birthdayInfo.userId });
+      .updateOne({ _id: day._id }, { $push: { users: birthdayInfo.userId } });
   } else {
+    const birthday = await db
+      .collection(Collection.BIRTHDAYS)
+      .insertOne({ _id: birthdayInfo.day });
+
     return await db
       .collection(Collection.BIRTHDAYS)
-      .updateOne({ _id: day._id }, { $push: { members: birthdayInfo.userId } });
+      .updateOne(
+        { _id: birthdayInfo.day },
+        { $push: { users: birthdayInfo.userId } },
+      );
   }
 };
 
@@ -91,7 +101,9 @@ export const getBirthday = async (
 ): Promise<any> => {
   const db = await ctx.db.getDb(guildId);
 
-  return await db.collection(Collection.BIRTHDAYS).findOne({ userId });
+  console.log(db.collection(Collection.BIRTHDAYS).find({ day: 349 }));
+
+  return await db.collection(Collection.BIRTHDAYS).findOne({ members: userId });
 };
 
 export const scanBirthdays = async (
