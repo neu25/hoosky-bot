@@ -8,7 +8,8 @@ import { bold } from '../../../format';
 export const messageAdd = new SubCommand({
   name: 'message-add',
   displayName: 'Add Birthday Message',
-  description: 'Add a new birthday message',
+  description:
+    'Add a new birthday message. Use an `@` placeholder to mention the user',
   requiredPermissions: [Discord.Permission.MANAGE_ROLES],
   options: [
     new CommandOption({

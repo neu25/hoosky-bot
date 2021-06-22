@@ -1,5 +1,6 @@
 import { AxiosInstance } from 'axios';
 import * as Discord from './Discord';
+import { CreateMessage } from './Discord/message';
 import { performRequest, prepareEmoji } from './utils';
 
 export type GuildRoleData = {
@@ -160,6 +161,24 @@ class Api {
   getGuildChannels(guildId: string): Promise<Discord.Channel[]> {
     return performRequest(async () => {
       const res = await this._client.get(`/guilds/${guildId}/channels`);
+      return res.data;
+    });
+  }
+
+  /**
+   * Create a message ans send it in the specified channel.
+   *
+   * @param guildId The ID of the guild.
+   */
+  createMessage(
+    channelId: string,
+    data: CreateMessage,
+  ): Promise<Discord.Channel[]> {
+    return performRequest(async () => {
+      const res = await this._client.post(
+        `/channels/${channelId}/messages`,
+        data,
+      );
       return res.data;
     });
   }
