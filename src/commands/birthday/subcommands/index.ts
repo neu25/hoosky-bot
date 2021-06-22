@@ -3,6 +3,7 @@ import { messageAdd } from './_messageAdd';
 import { messageDelete } from './_messageDelete';
 import { messageList } from './_messageList';
 import { set } from './_set';
+import { setup } from './_setup';
 import { show } from './_show';
 import { unset } from './_unset';
 
@@ -12,6 +13,7 @@ export const subcommands = [
   messageDelete,
   messageList,
   set,
+  setup,
   show,
   unset,
 ];

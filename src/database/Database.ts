@@ -1,5 +1,11 @@
 import { Db, MongoClient } from 'mongodb';
-import { Collection, Config, guildConfig, rolesConfig } from './constants';
+import {
+  Collection,
+  Config,
+  guildConfig,
+  rolesConfig,
+  birthdaysConfig,
+} from './constants';
 
 class Database {
   private readonly _client: MongoClient;
@@ -44,6 +50,11 @@ class Database {
     for (const gId of guildIds) {
       await this.insertDefaultConfigValue(gId, Config.ROLES, rolesConfig);
       await this.insertDefaultConfigValue(gId, Config.GUILD, guildConfig);
+      await this.insertDefaultConfigValue(
+        gId,
+        Config.BIRTHDAYS,
+        birthdaysConfig,
+      );
     }
   }
 
