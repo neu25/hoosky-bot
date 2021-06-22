@@ -35,6 +35,8 @@ const scheduler = new Trigger<Discord.Event.CHANNEL_UPDATE>({
 
       if (birthdays) {
         // TODO: Send a random message from `messages` in `channel`.
+        // const randomMessage = messages[Math.floor(Math.random() * messages.length)]; // Pick a random message.
+        // randomMessage.replace('@', `<@${user}>`); // Replace template with user mention(s)
       }
     });
 
