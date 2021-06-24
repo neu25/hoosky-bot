@@ -10,7 +10,7 @@ type SubjectGroup = {
   list: string;
 };
 
-export const listJoined = new SubCommand({
+const listJoined = new SubCommand({
   name: 'list-joined',
   displayName: 'List Courses',
   description: 'Lists all available courses',
@@ -83,3 +83,5 @@ export const listJoined = new SubCommand({
     });
   },
 });
+
+export default listJoined;

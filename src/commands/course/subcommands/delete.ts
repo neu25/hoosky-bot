@@ -3,7 +3,7 @@ import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
 import { getCourseByRoleId, deleteCourse, boldCourse } from '../_common';
 
-export const del = new SubCommand({
+const del = new SubCommand({
   name: 'delete',
   displayName: 'Delete Course',
   description: 'Delete a course role',
@@ -31,3 +31,5 @@ export const del = new SubCommand({
     return ctx.respondWithMessage(`Deleted course ${boldCourse(course)}`);
   },
 });
+
+export default del;

@@ -8,7 +8,7 @@ import {
   boldCourse,
 } from '../_common';
 
-export const join = new SubCommand({
+const join = new SubCommand({
   name: 'join',
   displayName: 'Join Course',
   description: 'Joins a course',
@@ -47,3 +47,5 @@ export const join = new SubCommand({
     );
   },
 });
+
+export default join;

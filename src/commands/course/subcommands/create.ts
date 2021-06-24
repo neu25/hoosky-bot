@@ -3,7 +3,7 @@ import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
 import { boldCourse, Course, courseExists, createCourse } from '../_common';
 
-export const create = new SubCommand({
+const create = new SubCommand({
   name: 'create',
   displayName: 'New Course',
   description: 'Creates a new course role',
@@ -66,3 +66,5 @@ export const create = new SubCommand({
     );
   },
 });
+
+export default create;

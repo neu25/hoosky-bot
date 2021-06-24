@@ -9,7 +9,7 @@ type SubjectGroup = {
   list: string;
 };
 
-export const listAll = new SubCommand({
+const listAll = new SubCommand({
   name: 'list-all',
   displayName: 'List All Courses',
   description: 'Lists all available courses',
@@ -54,3 +54,5 @@ export const listAll = new SubCommand({
     });
   },
 });
+
+export default listAll;
