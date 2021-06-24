@@ -7,6 +7,9 @@ import TriggerContext from './TriggerContext';
 import { Database } from './database';
 import { AxiosInstance } from 'axios';
 
+// The delay between reconnections, in milliseconds.
+const RECONNECT_DELAY = 1000;
+
 /**
  * Client connects to the Discord bot gateway and maintains the connection.
  */
@@ -105,9 +108,11 @@ class Client {
 
     this._ws.on('close', (code, reason) => {
       console.log('WebSocket connection closed', code, reason);
-      this.connect().catch(err => {
-        console.error(err);
-      });
+      setTimeout(() => {
+        this.connect().catch(err => {
+          console.error(err);
+        });
+      }, RECONNECT_DELAY);
     });
 
     return new Promise(resolve => (this._connectCallback = resolve));
