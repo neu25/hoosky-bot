@@ -1,11 +1,11 @@
 import WebSocket from 'ws';
+import { AxiosInstance } from 'axios';
 import * as Discord from './Discord';
 import ExecutionContext from './ExecutionContext';
 import Command from './Command';
 import Trigger from './Trigger';
 import TriggerContext from './TriggerContext';
-import { Database } from './database';
-import { AxiosInstance } from 'axios';
+import { Repositories } from './repository';
 
 // The delay between reconnections, in milliseconds.
 const RECONNECT_DELAY = 1000;
@@ -40,18 +40,18 @@ class Client {
   // A callback function to be called when the connection is established.
   private _connectCallback?: (data: Discord.ReadyPayload) => void;
 
-  private readonly _database: Database;
+  private readonly _repos: Repositories;
 
   constructor(
     appId: string,
     token: string,
-    database: Database,
+    repos: Repositories,
     client: AxiosInstance,
     intents: Discord.Intent[],
   ) {
-    this._token = token;
     this._appId = appId;
-    this._database = database;
+    this._token = token;
+    this._repos = repos;
     this._lastSeqNum = null;
     this._commands = {};
     this._triggers = {};
@@ -181,7 +181,7 @@ class Client {
             await command.execute(
               new ExecutionContext(
                 this._appId,
-                this._database,
+                this._repos,
                 interaction,
                 this._client,
               ),
@@ -200,7 +200,7 @@ class Client {
       const ctx = new TriggerContext(
         this._appId,
         this._client,
-        this._database,
+        this._repos,
         data,
       );
       for (const t of triggers) {

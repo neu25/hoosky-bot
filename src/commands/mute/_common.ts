@@ -36,10 +36,7 @@ export const mustGetRolesConfig = async (
   ctx: ExecutionContext,
   guildId: string,
 ): Promise<Partial<RolesConfig>> => {
-  const rolesCfg = await ctx.db.getConfigValue<RolesConfig>(
-    guildId,
-    Config.ROLES,
-  );
+  const rolesCfg = await ctx.config().get<RolesConfig>(guildId, Config.ROLES);
   if (!rolesCfg) {
     throw new Error('No roles configuration found');
   }

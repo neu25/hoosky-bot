@@ -7,15 +7,13 @@ const mutedRole = new Trigger<Discord.Event.CHANNEL_UPDATE>({
   event: Discord.Event.CHANNEL_UPDATE,
   handler: async ctx => {
     const data = ctx.getData();
-
     if (!data.guild_id) {
       throw new Error('No guild ID found in trigger data');
     }
 
-    const rolesCfg = await ctx.db.getConfigValue<RolesConfig>(
-      data.guild_id,
-      Config.ROLES,
-    );
+    const rolesCfg = await ctx
+      .config()
+      .get<RolesConfig>(data.guild_id, Config.ROLES);
     if (!rolesCfg) {
       throw new Error('No roles configuration found');
     }

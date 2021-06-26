@@ -20,10 +20,7 @@ const setup = new SubCommand({
     });
 
     // Fetch the role configuration from the database.
-    let rolesCfg = await ctx.db.getConfigValue<RolesConfig>(
-      guildId,
-      Config.ROLES,
-    );
+    let rolesCfg = await ctx.config().get<RolesConfig>(guildId, Config.ROLES);
 
     const createMutedRole = async (): Promise<RolesConfig> => {
       // No roles saved yet, create new ones.
@@ -37,7 +34,7 @@ const setup = new SubCommand({
       };
 
       // Update the `roles` configuration value.
-      await ctx.db.updateConfigValue(guildId, Config.ROLES, newRolesCfg);
+      await ctx.config().update(guildId, Config.ROLES, newRolesCfg);
 
       return newRolesCfg;
     };
