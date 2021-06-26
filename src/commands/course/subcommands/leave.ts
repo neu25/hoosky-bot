@@ -31,7 +31,7 @@ const leave = new SubCommand({
 
     const userId = ctx.interaction.member?.user?.id;
     if (!userId) {
-      return ctx.respondWithError('Unable to identify you');
+      return ctx.respondWithError(`Couldn't identify you.`);
     }
 
     const courseMembers = (await getCourseMembers(ctx, guildId, roleId)) ?? [];

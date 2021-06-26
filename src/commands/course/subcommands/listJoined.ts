@@ -33,7 +33,7 @@ const listJoined = new SubCommand({
     } else {
       userId = ctx.interaction.member?.user?.id;
       if (!userId) {
-        return ctx.respondWithError('Unable to identify you');
+        return ctx.respondWithError(`Couldn't identify you.`);
       }
     }
 

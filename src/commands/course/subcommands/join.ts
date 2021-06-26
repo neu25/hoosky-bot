@@ -26,17 +26,17 @@ const join = new SubCommand({
 
     const course = await getCourseByRoleId(ctx, guildId, roleId);
     if (!course) {
-      return ctx.respondWithError('That course does not exist');
+      return ctx.respondWithError('That course does not exist.');
     }
 
     const userId = ctx.interaction.member?.user?.id;
     if (!userId) {
-      return ctx.respondWithError('Unable to identify you');
+      return ctx.respondWithError(`Couldn't identify you.`);
     }
 
     const courseMembers = (await getCourseMembers(ctx, guildId, roleId)) ?? [];
     if (courseMembers.includes(userId)) {
-      return ctx.respondWithError('You are already in that course');
+      return ctx.respondWithError('You are already in that course.');
     }
 
     await ctx.api.addRoleToMember(guildId, userId, roleId);
