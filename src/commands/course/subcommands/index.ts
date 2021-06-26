@@ -1,10 +1,19 @@
-import { create } from './_create';
-import { del } from './_delete';
-import { join } from './_join';
-import { leave } from './_leave';
-import { list } from './_list';
-import { roster } from './_roster';
+import create from './create';
+import del from './delete';
+import join from './join';
+import leave from './leave';
+import listAll from './listAll';
+import listJoined from './listJoined';
+import roster from './roster';
 
-export const subcommands = [create, del, join, leave, list, roster];
+export const subcommands = [
+  create,
+  del,
+  join,
+  leave,
+  listAll,
+  listJoined,
+  roster,
+];
 
 export default subcommands;

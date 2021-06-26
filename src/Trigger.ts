@@ -2,6 +2,7 @@ import * as Discord from './Discord';
 import TriggerContext from './TriggerContext';
 
 type TriggerHandler<E extends Discord.Event> = (
+  // @ts-ignore
   ctx: TriggerContext<EventData<E>>,
 ) => void | Promise<void>;
 

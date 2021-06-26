@@ -7,6 +7,9 @@ import TriggerContext from './TriggerContext';
 import { Database } from './database';
 import { AxiosInstance } from 'axios';
 
+// The delay between reconnections, in milliseconds.
+const RECONNECT_DELAY = 1000;
+
 /**
  * Client connects to the Discord bot gateway and maintains the connection.
  */
@@ -23,6 +26,8 @@ class Client {
   private _commands: Record<string, Command>;
   // The triggers that the bot should handle.
   private _triggers: Partial<Record<Discord.Event, Trigger<any>[]>>;
+  // The intents that the bot listens to.
+  private readonly _intents: number;
 
   // Dynamic parameters supplied by the Discord gateway.
   private _heartbeatInterval?: NodeJS.Timeout;
@@ -42,6 +47,7 @@ class Client {
     token: string,
     database: Database,
     client: AxiosInstance,
+    intents: Discord.Intent[],
   ) {
     this._token = token;
     this._appId = appId;
@@ -49,6 +55,7 @@ class Client {
     this._lastSeqNum = null;
     this._commands = {};
     this._triggers = {};
+    this._intents = intents.reduce((prev, cur) => prev | cur);
     this._client = client;
   }
 
@@ -105,9 +112,11 @@ class Client {
 
     this._ws.on('close', (code, reason) => {
       console.log('WebSocket connection closed', code, reason);
-      this.connect().catch(err => {
-        console.error(err);
-      });
+      setTimeout(() => {
+        this.connect().catch(err => {
+          console.error(err);
+        });
+      }, RECONNECT_DELAY);
     });
 
     return new Promise(resolve => (this._connectCallback = resolve));
@@ -266,7 +275,7 @@ class Client {
         $browser: 'hoosky',
         $device: 'hoosky',
       },
-      intents: Discord.Intent.GUILDS,
+      intents: this._intents,
     };
 
     this._sendMessage({

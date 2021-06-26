@@ -9,9 +9,9 @@ type SubjectGroup = {
   list: string;
 };
 
-export const list = new SubCommand({
-  name: 'list',
-  displayName: 'List Courses',
+const listAll = new SubCommand({
+  name: 'list-all',
+  displayName: 'List All Courses',
   description: 'Lists all available courses',
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
@@ -36,6 +36,7 @@ export const list = new SubCommand({
       }
 
       // Write the course to the subject group.
+
       curGroup.list += semiBoldCourse(c) + '\n';
       c = await courses.next();
     }
@@ -53,3 +54,5 @@ export const list = new SubCommand({
     });
   },
 });
+
+export default listAll;

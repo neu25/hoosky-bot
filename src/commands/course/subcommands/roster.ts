@@ -8,7 +8,7 @@ import {
   boldCourse,
 } from '../_common';
 
-export const roster = new SubCommand({
+const roster = new SubCommand({
   name: 'roster',
   displayName: 'Course Roster',
   description: 'Returns a roster of members in a course',
@@ -61,3 +61,5 @@ export const roster = new SubCommand({
     });
   },
 });
+
+export default roster;

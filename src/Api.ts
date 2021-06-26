@@ -251,7 +251,7 @@ class Api {
    * @param messageId The message ID of the message.
    * @param channelId The channel ID of the channel.
    * @param emojiString The emoji string of the reaction.
-   * @param userId? The id of the user. If ommitted it will delete the reaction made by the bot.
+   * @param userId? The id of the user. If omitted it will delete the reaction made by the bot.
    */
   async deleteUserReaction(
     messageId: string,

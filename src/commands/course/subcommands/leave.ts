@@ -8,7 +8,7 @@ import {
   boldCourse,
 } from '../_common';
 
-export const leave = new SubCommand({
+const leave = new SubCommand({
   name: 'leave',
   displayName: 'Leave Course',
   description: 'Leaves a course',
@@ -45,3 +45,5 @@ export const leave = new SubCommand({
     return ctx.respondWithMessage(`You left the course ${boldCourse(course)}`);
   },
 });
+
+export default leave;

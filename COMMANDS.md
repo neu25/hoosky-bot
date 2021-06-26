@@ -3,6 +3,7 @@
 This is a list of commands currently implemented in Hoosky Bot.
 
 > Note: `[]` indicates a variable argument.
+> Note: `[?]` indicates an optional argument.
 
 ## `/ping`
 
@@ -26,11 +27,12 @@ This is a list of commands currently implemented in Hoosky Bot.
 
 ## `/course`
 
-| Command                      | Description                                                                              |
-| ---------------------------- | ---------------------------------------------------------------------------------------- |
-| `/course create [name] [id]` | Creates a new course and associated server role. Requires the `MANAGE_ROLES` permission. |
-| `/course delete [@role]`     | Removes a course and associated server role. Requires the `MANAGE_ROLES` permission.     |
-| `/course list`               | Silently lists all available courses.                                                    |
-| `/course join [@role]`       | Joins a course and assigns the appropriate course role to the user.                      |
-| `/course leave [@role]`      | Leaves a course and removes the course role from the user.                               |
-| `/course roster [@role]`     | Silently lists all members currently in the course.                                      |
+| Command                        | Description                                                                                                                  |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| `/course create [name] [id]`   | Creates a new course and associated server role. Requires the `MANAGE_ROLES` permission.                                     |
+| `/course delete [@role]`       | Removes a course and associated server role. Requires the `MANAGE_ROLES` permission.                                         |
+| `/course list-all`             | Silently lists all available courses.                                                                                        |
+| `/course list-joined [@user?]` | Silently lists all joined courses for the specified user. If no user is specified, defaults to the user who ran the command. |
+| `/course join [@role]`         | Joins a course and assigns the appropriate course role to the user.                                                          |
+| `/course leave [@role]`        | Leaves a course and removes the course role from the user.                                                                   |
+| `/course roster [@role]`       | Silently lists all members currently in the course.                                                                          |
