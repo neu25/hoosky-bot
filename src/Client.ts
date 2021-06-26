@@ -178,6 +178,7 @@ class Client {
         if (interaction.data) {
           const command = this._commands[interaction.data.name];
           if (command) {
+            console.log('Handling command:', command.getName());
             await command.execute(
               new ExecutionContext(
                 this._appId,
@@ -190,13 +191,11 @@ class Client {
         }
         break;
       }
-      default:
-      // console.log(type);
-      // console.log(data);
     }
 
     const triggers = this._triggers[type];
     if (triggers) {
+      console.log('Handling trigger:', type);
       const ctx = new TriggerContext(
         this._appId,
         this._client,

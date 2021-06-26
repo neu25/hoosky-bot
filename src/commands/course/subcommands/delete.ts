@@ -26,7 +26,7 @@ const del = new SubCommand({
     }
 
     await ctx.api.deleteGuildRole(guildId, course.roleId);
-    await ctx.courses().delete(guildId, course);
+    await ctx.courses().deleteByRoleId(guildId, course.roleId);
 
     return ctx.respondWithMessage(`Deleted course ${boldCourse(course)}`);
   },

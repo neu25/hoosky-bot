@@ -29,18 +29,25 @@ class CourseRepo {
     return this.collection(guildId).findOne({ roleId });
   }
 
+  async listRoles(guildId: string): Promise<string[]> {
+    const courses = await this.list(guildId);
+    return courses.map(c => c.roleId);
+  }
+
   async scan(guildId: string): Promise<Cursor<Course>> {
     return this.collection(guildId).find();
+  }
+
+  async list(guildId: string): Promise<Course[]> {
+    return (await this.scan(guildId)).toArray();
   }
 
   async create(guildId: string, courseInfo: Course): Promise<void> {
     await this.collection(guildId).insertOne(courseInfo);
   }
 
-  async delete(guildId: string, courseInfo: Course): Promise<void> {
-    await this.collection(guildId).deleteOne({
-      roleId: courseInfo.roleId,
-    });
+  async deleteByRoleId(guildId: string, roleId: string): Promise<void> {
+    await this.collection(guildId).deleteOne({ roleId });
   }
 
   async addMember(

@@ -22,6 +22,7 @@ type EventTypeMap = {
   [Discord.Event.CHANNEL_CREATE]: Discord.Channel;
   [Discord.Event.CHANNEL_UPDATE]: Discord.Channel;
   [Discord.Event.CHANNEL_DELETE]: Discord.Channel;
+  [Discord.Event.GUILD_MEMBER_UPDATE]: Discord.GuildMemberUpdatePayload;
   [Discord.Event.INTERACTION_CREATE]: Discord.Interaction;
 };
 

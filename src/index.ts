@@ -44,7 +44,7 @@ import { setupRepos } from './repository';
     config.discord.token,
     repos,
     reqClient,
-    [Discord.Intent.GUILDS],
+    [Discord.Intent.GUILDS, Discord.Intent.GUILD_MEMBERS],
   );
 
   // Supply the commands we'd like to handle.
