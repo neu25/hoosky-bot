@@ -1,6 +1,7 @@
 import * as Discord from '../../Discord';
 import Trigger from '../../Trigger';
-import { Config, RolesConfig } from '../../database';
+import { Config } from '../../database';
+import { RolesConfig } from '../../repository';
 
 const courseRole = new Trigger<Discord.Event.GUILD_ROLE_DELETE>({
   event: Discord.Event.GUILD_ROLE_DELETE,

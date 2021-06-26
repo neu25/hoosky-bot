@@ -1,7 +1,8 @@
 import * as Discord from '../../Discord';
 import Trigger from '../../Trigger';
-import { Config, RolesConfig } from '../../database';
+import { Config } from '../../database';
 import { MUTED_PERMISSIONS } from '../../commands/mute';
+import { RolesConfig } from '../../repository';
 
 const mutedRole = new Trigger<Discord.Event.CHANNEL_UPDATE>({
   event: Discord.Event.CHANNEL_UPDATE,

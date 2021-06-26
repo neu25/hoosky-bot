@@ -1,7 +1,8 @@
 import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
-import { Config, RolesConfig } from '../../../database';
+import { Config } from '../../../database';
 import { MUTED_PERMISSIONS } from '../index';
+import { RolesConfig } from '../../../repository';
 
 const setup = new SubCommand({
   name: 'setup',

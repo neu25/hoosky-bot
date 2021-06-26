@@ -1,6 +1,29 @@
 import { Collection as MongoCollection } from 'mongodb';
 import { Collection, Config, Database } from '../database';
-import { guildConfig, rolesConfig } from '../database/constants';
+
+/**
+ * Config data structures
+ */
+
+export type GuildConfig = {
+  commandPrefixes: string[];
+};
+
+export type RolesConfig = {
+  muted: string;
+};
+
+/**
+ * Default config values
+ */
+
+export const rolesConfig: RolesConfig = {
+  muted: '',
+};
+
+export const guildConfig: GuildConfig = {
+  commandPrefixes: ['-'],
+};
 
 class ConfigRepo {
   private readonly _db: Database;

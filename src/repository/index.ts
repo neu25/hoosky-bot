@@ -15,3 +15,5 @@ export const setupRepos = (db: Database): Repositories => {
     config: new ConfigRepo(db),
   };
 };
+export { RolesConfig } from './ConfigRepo';
+export { GuildConfig } from './ConfigRepo';

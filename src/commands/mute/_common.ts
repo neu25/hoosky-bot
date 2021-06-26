@@ -1,7 +1,8 @@
 import ExecutionContext from '../../ExecutionContext';
 import * as Discord from '../../Discord';
 import { compareRank, guildRoleListToMap } from '../_utils';
-import { Config, RolesConfig } from '../../database';
+import { Config } from '../../database';
+import { RolesConfig } from '../../repository';
 
 export const respondSetupError = async (
   ctx: ExecutionContext,
