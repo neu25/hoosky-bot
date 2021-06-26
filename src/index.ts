@@ -8,6 +8,7 @@ import commands from './commands';
 import triggers from './triggers';
 import { Database } from './database';
 import Api from './Api';
+import { setupRepos } from './repository';
 
 (async () => {
   const argv = await yargs(hideBin(process.argv)).argv;
@@ -31,15 +32,19 @@ import Api from './Api';
   console.log('Connecting to database...');
   const database = new Database(config.mongodb.url, config.mongodb.db);
   await database.connect();
-  await database.initializeConfig(guildIds);
+
+  // Set up model repositories, interfaces for operating on data stored in the database.
+  const repos = setupRepos(database);
+  // Insert default configuration values into the database.
+  await repos.config.initialize(guildIds);
 
   console.log('Connecting to gateway...');
   const client = new Client(
     config.discord.appId,
     config.discord.token,
-    database,
+    repos,
     reqClient,
-    [Discord.Intent.GUILDS],
+    [Discord.Intent.GUILDS, Discord.Intent.GUILD_MEMBERS],
   );
 
   // Supply the commands we'd like to handle.

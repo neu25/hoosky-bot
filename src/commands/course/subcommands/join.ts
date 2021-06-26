@@ -1,12 +1,7 @@
 import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
-import {
-  getCourseByRoleId,
-  addUserToCourse,
-  getCourseMembers,
-  boldCourse,
-} from '../_common';
+import { boldCourse } from '../_common';
 
 const join = new SubCommand({
   name: 'join',
@@ -24,23 +19,23 @@ const join = new SubCommand({
     const guildId = ctx.mustGetGuildId();
     const roleId = ctx.getArgument<string>('role') as string;
 
-    const course = await getCourseByRoleId(ctx, guildId, roleId);
+    const course = await ctx.courses().getByRoleId(guildId, roleId);
     if (!course) {
-      return ctx.respondWithError('That course does not exist');
+      return ctx.respondWithError('That course does not exist.');
     }
 
     const userId = ctx.interaction.member?.user?.id;
     if (!userId) {
-      return ctx.respondWithError('Unable to identify you');
+      return ctx.respondWithError(`Couldn't identify you.`);
     }
 
-    const courseMembers = (await getCourseMembers(ctx, guildId, roleId)) ?? [];
-    if (courseMembers.includes(userId)) {
-      return ctx.respondWithError('You are already in that course');
+    const members = (await ctx.courses().getMembers(guildId, roleId)) ?? [];
+    if (members.includes(userId)) {
+      return ctx.respondWithError('You are already in that course.');
     }
 
     await ctx.api.addRoleToMember(guildId, userId, roleId);
-    await addUserToCourse(ctx, guildId, userId, roleId);
+    await ctx.courses().addMember(guildId, userId, roleId);
 
     return ctx.respondWithMessage(
       `You joined the course ${boldCourse(course)}`,

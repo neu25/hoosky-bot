@@ -1,6 +1,6 @@
 import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
-import { semiBoldCourse, scanCourses } from '../_common';
+import { semiBoldCourse } from '../_common';
 import { fancyCenter } from '../../../format';
 
 type SubjectGroup = {
@@ -15,7 +15,7 @@ const listAll = new SubCommand({
   description: 'Lists all available courses',
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
-    const courses = (await scanCourses(ctx, guildId)).sort({ _id: 1 });
+    const courses = (await ctx.courses().scan(guildId)).sort({ _id: 1 });
 
     // Hold an array of subject groups to output.
     const subGroups: SubjectGroup[] = [];

@@ -100,6 +100,18 @@ export type GuildRoleDeletePayload = {
   role_id: string;
 };
 
+export type GuildMemberUpdatePayload = {
+  guild_id: string;
+  roles: string[];
+  user: User;
+  nick?: string;
+  joined_at: string;
+  premium_since?: string;
+  deaf?: boolean;
+  mute?: boolean;
+  pending?: boolean;
+};
+
 export type Overwrite = {
   id: string;
   type: number;
