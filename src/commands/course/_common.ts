@@ -129,17 +129,7 @@ export const removeUserFromCourse = async (
       },
     },
   );
-  await coursesCollection(ctx, guildId).updateOne(
-    {
-      roleId: roleId,
-      'sections.members': userId,
-    },
-    {
-      $pull: {
-        'sections.$.members': userId,
-      },
-    },
-  );
+  removeUserFromSection(ctx, guildId, userId, roleId);
 };
 
 export const createSection = async (
@@ -178,6 +168,25 @@ export const addUserToSection = async (
     },
     {
       $push: {
+        'sections.$.members': userId,
+      },
+    },
+  );
+};
+
+export const removeUserFromSection = async (
+  ctx: ExecutionContext,
+  guildId: string,
+  userId: string,
+  roleId: string,
+): Promise<void> => {
+  await coursesCollection(ctx, guildId).updateOne(
+    {
+      roleId: roleId,
+      'sections.members': userId,
+    },
+    {
+      $pull: {
         'sections.$.members': userId,
       },
     },

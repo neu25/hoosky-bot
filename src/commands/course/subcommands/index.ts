@@ -5,6 +5,7 @@ import leave from './leave';
 import listAll from './listAll';
 import listJoined from './listJoined';
 import roster from './roster';
+import switchSection from './switchSection';
 
 export const subcommands = [
   create,
@@ -14,6 +15,7 @@ export const subcommands = [
   listAll,
   listJoined,
   roster,
+  switchSection,
 ];
 
 export default subcommands;
