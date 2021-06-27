@@ -1,3 +1,5 @@
+import Command from '../Command';
+import CommandOptionChoice from '../CommandOptionChoice';
 import * as Discord from '../Discord';
 
 export const guildRoleListToMap = (
@@ -47,3 +49,17 @@ const getOptionsOfType = (options: any[], type: number) => {
 export const countSubCommands = (options: any[]): number => {
   return getOptionsOfType(options, 1).length;
 };
+
+export const getCommandOptionChoices = (
+  commandsList: Object
+): CommandOptionChoice[] => {
+  const choices: CommandOptionChoice[] = [];
+  for (const cmd of Object.values(commandsList)) {
+    const command = cmd.serialize();
+    choices.push(new CommandOptionChoice({
+      name: command.name, 
+      value: command.name
+    }));
+  }
+  return choices;
+}
