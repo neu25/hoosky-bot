@@ -164,6 +164,26 @@ class Api {
     });
   }
 
+  
+  /**
+   * Create a message and send it in the specified channel.
+   *
+   * @param channelID The ID of the channel.
+   * @param data The content of the message.
+   */
+  createMessage(
+    channelId: string,
+    data: Discord.CreateMessage,
+  ): Promise<Discord.Channel[]> {
+    return performRequest(async () => {
+      const res = await this._client.post(
+        `/channels/${channelId}/messages`,
+        data,
+      );
+      return res.data;
+    });
+  }
+
   /**
    * Gets information about the specified guild member.
    *
@@ -199,7 +219,34 @@ class Api {
       return res.data;
     });
   }
-
+  /**
+   * Gets information about the specified channel.
+   * 
+   * @param channelId The ID of the channel.
+   * @returns Channel object
+   */
+  getChannel(
+    channelId: string
+  ): Promise<Discord.Channel>{
+    return performRequest(async () => {
+      const res = await this._client.get(`/channels/${channelId}`);
+      return res.data;
+    });
+  }
+  /**
+   * Returns a specific message given its channel and message ID.
+   * @param channelId The ID of the channel.
+   * @param messageId The ID of the message.
+   */
+  getChannelMessage(
+    channelId: string,
+    messageId: string
+  ): Promise<Discord.Message>{
+    return performRequest(async() => {
+      const res = await this._client.get(`/channels/${channelId}/messages/${messageId}`);
+      return res.data;
+    })
+  }
   /**
    * Edits the permissions of the channel by setting the provided overwrites.
    *

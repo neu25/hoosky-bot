@@ -1,4 +1,4 @@
-import { GuildConfig, RolesConfig } from './types';
+import { GuildConfig, RolesConfig, BirthdaysConfig } from './types';
 
 /**
  * Collection names
@@ -6,6 +6,7 @@ import { GuildConfig, RolesConfig } from './types';
 export enum Collection {
   CONFIG = 'config',
   COURSES = 'courses',
+  BIRTHDAYS = 'birthdays',
 }
 
 /**
@@ -14,6 +15,7 @@ export enum Collection {
 export enum Config {
   GUILD = 'guild',
   ROLES = 'roles',
+  BIRTHDAYS = 'birthdays',
 }
 
 export const rolesConfig: RolesConfig = {
@@ -25,4 +27,10 @@ export const rolesConfig: RolesConfig = {
  */
 export const guildConfig: GuildConfig = {
   commandPrefixes: ['-'],
+};
+
+export const birthdaysConfig: BirthdaysConfig = {
+  schedule: '00 15 10 * * *',
+  channel: '',
+  messages: ['Happy birthday, @!'],
 };

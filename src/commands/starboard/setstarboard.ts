@@ -3,6 +3,15 @@ import Command from '../../Command';
 import SubCommand from '../../SubCommand';
 import CommandOption from '../../CommandOption';
 
+//this doesn't work yet
+let boardNames: string[] = [];
+let boardIDs: string[] = [];
+let boardEmojis: string[] = [];
+let boardMins: number[] = [];
+function getBoardInfo() {
+  return [boardNames, boardIDs, boardEmojis, boardMins]
+};
+
 const setstarboard = new Command({
   name: 'setstarboard',
   description: 'Manage starboards',
@@ -33,7 +42,7 @@ const setstarboard = new Command({
         }),
       ],
       handler: async ctx => {
-        const channel = ctx.getArgument('channel') as number;
+        const channel = ctx.getArgument('channel') as string;
         //
         const emoji = ctx.getArgument('emoji') as string;
         //

@@ -35,6 +35,7 @@ export {
   PresenceUpdate,
 } from './user';
 export {
+  CreateMessage,
   Message,
   MessageComponentType,
   MessageEdit,

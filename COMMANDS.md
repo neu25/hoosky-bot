@@ -3,6 +3,22 @@
 This is a list of commands currently implemented in Hoosky Bot.
 
 > Note: `[]` indicates a variable argument.
+> Note: `[?]` indicates an optional argument.
+
+## `/birthday` [WIP]
+
+| Command                                  | Description                                                          |
+| ---------------------------------------- | -------------------------------------------------------------------- |
+| `/birthday list`                         | Lists all stored birthdays.                                          |
+| `/birthday message-add [message]`        | Adds a birthday message. Requires the `MANAGE_ROLES` permission.     |
+| `/birthday message-delete [message]`     | Deletes a birthday message. Requires the `MANAGE_ROLES` permission.  |
+| `/birthday message-list`                 | Lists all birthday messages. Requires the `MANAGE_ROLES` permission. |
+| `/birthday schedule-get`                 | Gets the birthdays schedule. Requires the `MANAGE_ROLES` permission. |
+| `/birthday schedule-set [hour] [minute]` | Sets the birthdays schedule. Requires the `MANAGE_ROLES` permission. |
+| `/birthday set [date]`                   | Sets the command executor's birthday.                                |
+| `/birthday setup [channel]`              | Sets the birthdays channel. Requires the `MANAGE_ROLES` permission.  |
+| `/birthday show [user?]`                 | Shows a user's birthday. Defaults to command executor.               |
+| `/birthday unset`                        | Unsets the command executor's birthday.                              |
 
 ## `/ping`
 

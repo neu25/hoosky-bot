@@ -28,6 +28,17 @@ export enum MessageType {
   GUILD_INVITE_REMINDER,
 }
 
+// https://discord.com/developers/docs/resources/channel#create-message
+export type CreateMessage = {
+  content?: string;
+  tts?: boolean;
+  // file: fileContents;
+  embeds?: [Embed];
+  // payload_json?: string;
+  // allowed_mentions?: [];
+  // message_reference?: ;
+};
+
 export type MessageActivity = {
   // https://discord.com/developers/docs/resources/channel#message-object-message-activity-structure
 };

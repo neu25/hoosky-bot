@@ -8,7 +8,6 @@ const commands = {
   ping,
   poll,
   mute,
-  unmute,
   course,
   setstarboard,
 };
