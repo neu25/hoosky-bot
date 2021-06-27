@@ -9,6 +9,7 @@ import triggers from './triggers';
 import { Database } from './database';
 import Api from './Api';
 import { setupRepos } from './repository';
+import Cache from './Cache';
 
 (async () => {
   const argv = await yargs(hideBin(process.argv)).argv;
@@ -22,7 +23,8 @@ import { setupRepos } from './repository';
   });
 
   console.log('Fetching list of joined guilds...');
-  const api = new Api(config.discord.appId, reqClient);
+  const cache = new Cache();
+  const api = new Api(config.discord.appId, reqClient, cache);
   const guilds = await api.getCurrentGuilds();
   const guildIds = guilds.map(g => g.id);
   for (let i = 0; i < guilds.length; i++) {
@@ -44,13 +46,14 @@ import { setupRepos } from './repository';
     config.discord.token,
     repos,
     reqClient,
+    api,
     [Discord.Intent.GUILDS, Discord.Intent.GUILD_MEMBERS],
   );
 
   // Supply the commands we'd like to handle.
   client.handleCommands(commands);
   // Supply the triggers we'd like to handle.
-  client.handleTriggers(triggers);
+  client.handleTriggers([...triggers, ...cache.triggers()]);
 
   client.connect().then(data => {
     console.log(`${data.user.username}#${data.user.discriminator} connected`);

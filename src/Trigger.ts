@@ -7,7 +7,7 @@ type TriggerHandler<E extends Discord.Event> = (
 ) => void | Promise<void>;
 
 type TriggerProps<E extends Discord.Event> = {
-  event: Discord.Event;
+  event: E;
   handler?: TriggerHandler<E>;
 };
 
@@ -22,23 +22,21 @@ type EventTypeMap = {
   [Discord.Event.CHANNEL_CREATE]: Discord.Channel;
   [Discord.Event.CHANNEL_UPDATE]: Discord.Channel;
   [Discord.Event.CHANNEL_DELETE]: Discord.Channel;
+  [Discord.Event.GUILD_MEMBER_ADD]: Discord.GuildMemberAddPayload;
   [Discord.Event.GUILD_MEMBER_UPDATE]: Discord.GuildMemberUpdatePayload;
+  [Discord.Event.GUILD_MEMBER_REMOVE]: Discord.GuildMemberRemovePayload;
   [Discord.Event.INTERACTION_CREATE]: Discord.Interaction;
 };
 
 export type EventData<E extends keyof EventTypeMap> = EventTypeMap[E];
 
 class Trigger<E extends Discord.Event> {
-  private readonly _event: Discord.Event;
+  readonly event: Discord.Event;
   private readonly _handler?: TriggerHandler<E>;
 
   constructor(props: TriggerProps<E>) {
-    this._event = props.event;
+    this.event = props.event;
     this._handler = props.handler;
-  }
-
-  getEvent(): Discord.Event {
-    return this._event;
   }
 
   execute(ctx: TriggerContext<any>): void | Promise<void> {

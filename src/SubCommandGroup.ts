@@ -25,7 +25,7 @@ class SubCommandGroup extends CommandOption {
       for (const opt of props.options) {
         // Organize all `SubCommand`s and `SubCommandGroup`s.
         if (opt instanceof SubCommandGroup) {
-          const name = opt.getName();
+          const name = opt.name;
 
           // Ensure there isn't already a sub-command group with the same name.
           if (name in this._subCommands) {

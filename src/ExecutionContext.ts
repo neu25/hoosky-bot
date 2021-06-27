@@ -38,8 +38,9 @@ class ExecutionContext {
     repos: Repositories,
     interaction: Discord.Interaction,
     client: AxiosInstance,
+    api: Api,
   ) {
-    this.api = new Api(appId, client);
+    this.api = api;
     this.repos = repos;
     this.interaction = interaction;
     this._appId = appId;
