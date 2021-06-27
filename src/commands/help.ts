@@ -1,93 +1,108 @@
 import * as Discord from '../Discord';
 import Command from '../Command';
 import CommandOption from '../CommandOption';
-import commands from './index';
-import { countSubCommands } from './_utils';
 import { bold } from '../format';
+import { countSubCommands } from './_utils';
+import commands from './index';
 
 const help = new Command({
   name: 'help',
-  description: 'Displays usage information for the bot\'s available commands',
+  description: "Displays usage information for the bot's available commands",
   options: [
     new CommandOption({
       name: 'command',
-      description: 'Optional command name for specific information about that command',
+      description:
+        'Optional command name for specific information about that command',
       required: false,
       type: Discord.CommandOptionType.STRING,
     }),
   ],
   handler: async ctx => {
     const chosenCommand = ctx.getArgument<string>('command')?.trim() as string;
-    
+
     if (chosenCommand) {
-        const sections = [];
-        let description = '';
-        for (const cmd of Object.values(commands)) {
-            const command = cmd.serialize();
-            if (command.name == chosenCommand) {
-                if (command.options) {
-                    if (command.options[0].type == 1) { // subCommands are type 1
-                        description = `\n\nSubcommands for /${command.name}:`;
-                        for (const subCommand of command.options) {
-                            sections.push({
-                                name: `/${command.name} `+subCommand.name,
-                                description: subCommand.description
-                            });
-                        }
-                    } else { // If options are not type 1, they are parameters (type 3)
-                        description = `\n\nCommand parameters for /${command.name}:`;
-                        for (const option of command.options) {
-                            let optional = '';
-                            if (!option.required) { optional = ' (Optional)'; }
-                            sections.push({
-                                name: option.name + optional,
-                                description: option.description
-                            })
-                        }
-                    }
-                }
-
-                // Map section groups to Discord embed fields
-                const fields: Discord.EmbedField[] = sections.map(sec => ({
-                    name: sec.name, // The section name
-                    value: sec.description, // The section description
-                }));
-
-                await ctx.respondSilentlyWithEmbed({
-                    type: Discord.EmbedType.RICH,
-                    title: `Usage information for /${command.name}`,
-                    description: bold(`/${command.name}: ${command.description}` + description),
-                    fields,
+      const sections = [];
+      let description = '';
+      for (const cmd of Object.values(commands)) {
+        const command = cmd.serialize();
+        if (command.name == chosenCommand) {
+          if (command.options) {
+            if (command.options[0].type == 1) {
+              // subCommands are type 1
+              description = `\n\nSubcommands for /${command.name}:`;
+              for (const subCommand of command.options) {
+                sections.push({
+                  name: `/${command.name} ` + subCommand.name,
+                  description: subCommand.description,
                 });
-                return;
+              }
+            } else {
+              // If options are not type 1, they are parameters (type 3)
+              description = `\n\nCommand parameters for /${command.name}:`;
+              for (const option of command.options) {
+                let optional = '';
+                if (!option.required) {
+                  optional = ' (Optional)';
+                }
+                sections.push({
+                  name: option.name + optional,
+                  description: option.description,
+                });
+              }
             }
-        }
-        return await ctx.respondWithError(`${bold(chosenCommand)} is not a command, so help cannot be displayed.`);
-    }
-    else {
-        const commandsList = [];
-        for (const cmd of Object.values(commands)) {
-            const command = cmd.serialize();
-            let subCommands = '';
-            const subCommandCount = countSubCommands(command.options);
-            if (subCommandCount > 0) {
-                subCommands = ` (${subCommandCount} subcommand${(subCommandCount > 1) ? 's' : ''})`;
-            }   
-            commandsList.push({name: command.name, description: command.description, subCommands: subCommands});
-        }
+          }
 
-        // Map commands to Discord embed fields
-        const fields: Discord.EmbedField[] = commandsList.map(cmd => ({
-            name: '/'+cmd.name, // The command name
-            value: cmd.description + cmd.subCommands, // The command description
-        }));
+          // Map section groups to Discord embed fields
+          const fields: Discord.EmbedField[] = sections.map(sec => ({
+            name: sec.name, // The section name
+            value: sec.description, // The section description
+          }));
 
-        return await ctx.respondSilentlyWithEmbed({
+          await ctx.respondSilentlyWithEmbed({
             type: Discord.EmbedType.RICH,
-            title: 'Command List',
-            description: 'Use `/help [command]` to view more information about a specific command',
+            title: `Usage information for /${command.name}`,
+            description: bold(
+              `/${command.name}: ${command.description}` + description,
+            ),
             fields,
+          });
+          return;
+        }
+      }
+      return await ctx.respondWithError(
+        `${bold(chosenCommand)} is not a command, so help cannot be displayed.`,
+      );
+    } else {
+      const commandsList = [];
+      for (const cmd of Object.values(commands)) {
+        const command = cmd.serialize();
+        let subCommands = '';
+        const subCommandCount = countSubCommands(command.options);
+        if (subCommandCount > 0) {
+          subCommands = ` (${subCommandCount} subcommand${
+            subCommandCount > 1 ? 's' : ''
+          })`;
+        }
+        commandsList.push({
+          name: command.name,
+          description: command.description,
+          subCommands: subCommands,
         });
+      }
+
+      // Map commands to Discord embed fields
+      const fields: Discord.EmbedField[] = commandsList.map(cmd => ({
+        name: '/' + cmd.name, // The command name
+        value: cmd.description + cmd.subCommands, // The command description
+      }));
+
+      return await ctx.respondSilentlyWithEmbed({
+        type: Discord.EmbedType.RICH,
+        title: 'Command List',
+        description:
+          'Use `/help [command]` to view more information about a specific command',
+        fields,
+      });
     }
   },
 });

@@ -31,22 +31,19 @@ export const getHighestRank = (roles: Discord.Role[]): number => {
   return highest;
 };
 
-const getOptionsOfType = (
-  options: any[],
-  type: number,
-) => {
+const getOptionsOfType = (options: any[], type: number) => {
   const commandOptions: any[] = [];
-  if (!options) {return commandOptions; }
+  if (!options) {
+    return commandOptions;
+  }
   for (const option of options) {
     if (option.type == type) {
       commandOptions.push(option);
     }
   }
   return commandOptions;
-}
+};
 
-export const countSubCommands = (
-  options: any[],
-): number => {
+export const countSubCommands = (options: any[]): number => {
   return getOptionsOfType(options, 1).length;
-}
+};
