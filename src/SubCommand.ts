@@ -47,7 +47,7 @@ class SubCommand extends SubCommandGroup {
       throw new Error('No member found in interaction');
     }
 
-    const executorPerms = parseInt(interaction.member.permissions);
+    const executorPerms = parseInt(interaction.member.permissions ?? '0');
     for (const p of this._requiredPerms) {
       if (!hasPermission(executorPerms, p)) {
         await ctx.respondWithError(

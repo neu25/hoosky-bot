@@ -1,5 +1,6 @@
 import { AxiosInstance } from 'axios';
 import * as Discord from './Discord';
+import Cache from './Cache';
 import { performRequest, prepareEmoji } from './utils';
 
 export type GuildRoleData = {
@@ -13,21 +14,30 @@ export type GuildRoleData = {
 class Api {
   private readonly _appId: string;
   private readonly _client: AxiosInstance;
+  private readonly _cache: Cache;
 
-  constructor(appId: string, client: AxiosInstance) {
+  constructor(appId: string, client: AxiosInstance, cache: Cache) {
     this._appId = appId;
     this._client = client;
+    this._cache = cache;
   }
 
   /**
    * Gets a list of the guilds the bot currently resides in.
    */
-  getCurrentGuilds(): Promise<Discord.Guild[]> {
+  async getCurrentGuilds(): Promise<Discord.Guild[]> {
+    const cached = Api._tryCache('current guilds', () =>
+      this._cache.getGuilds(),
+    );
+    if (cached) return cached;
+
     return performRequest(async () => {
       const res = await this._client.get(
         'https://discord.com/api/v8/users/@me/guilds',
       );
-      return res.data;
+      const guilds = res.data as Discord.Guild[];
+      this._cache._replaceGuilds(guilds);
+      return guilds;
     });
   }
 
@@ -36,10 +46,17 @@ class Api {
    *
    * @param guildId The ID of the guild.
    */
-  getGuildRoles(guildId: string): Promise<Discord.Role[]> {
+  async getGuildRoles(guildId: string): Promise<Discord.Role[]> {
+    const cached = Api._tryCache('guild roles', () =>
+      this._cache.getGuildRoles(guildId),
+    );
+    if (cached) return cached;
+
     return performRequest(async () => {
       const res = await this._client.get(`/guilds/${guildId}/roles`);
-      return res.data as Discord.Role[];
+      const roles = res.data as Discord.Role[];
+      this._cache._replaceGuildRoles(guildId, roles);
+      return roles;
     });
   }
 
@@ -52,7 +69,9 @@ class Api {
   createGuildRole(guildId: string, data: GuildRoleData): Promise<Discord.Role> {
     return performRequest(async () => {
       const res = await this._client.post(`/guilds/${guildId}/roles`, data);
-      return res.data as Discord.Role;
+      const role = res.data as Discord.Role;
+      this._cache._updateGuildRole(guildId, role);
+      return role;
     });
   }
 
@@ -75,7 +94,9 @@ class Api {
         id: roleId,
         position,
       });
-      return res.data as Discord.Role[];
+      const roles = res.data as Discord.Role[];
+      this._cache._replaceGuildRoles(guildId, roles);
+      return roles;
     });
   }
 
@@ -96,7 +117,9 @@ class Api {
         `/guilds/${guildId}/roles/${roleId}`,
         data,
       );
-      return res.data as Discord.Role;
+      const role = res.data as Discord.Role;
+      this._cache._updateGuildRole(guildId, role);
+      return role;
     });
   }
 
@@ -109,6 +132,7 @@ class Api {
   deleteGuildRole(guildId: string, roleId: string): Promise<void> {
     return performRequest(async () => {
       await this._client.delete(`/guilds/${guildId}/roles/${roleId}`);
+      this._cache._deleteGuildRole(guildId, roleId);
     });
   }
 
@@ -129,6 +153,7 @@ class Api {
       await this._client.put(
         `/guilds/${guildId}/members/${userId}/roles/${roleId}`,
       );
+      this._cache._addRoleToGuildMember(guildId, userId, roleId);
     });
   }
 
@@ -149,6 +174,7 @@ class Api {
       await this._client.delete(
         `/guilds/${guildId}/members/${userId}/roles/${roleId}`,
       );
+      this._cache._removeRoleFromGuildMember(guildId, userId, roleId);
     });
   }
 
@@ -157,10 +183,17 @@ class Api {
    *
    * @param guildId The ID of the guild.
    */
-  getGuildChannels(guildId: string): Promise<Discord.Channel[]> {
+  async getGuildChannels(guildId: string): Promise<Discord.Channel[]> {
+    const cached = Api._tryCache('guild channels', () =>
+      this._cache.getGuildChannels(guildId),
+    );
+    if (cached) return cached;
+
     return performRequest(async () => {
       const res = await this._client.get(`/guilds/${guildId}/channels`);
-      return res.data;
+      const channels = res.data as Discord.Channel[];
+      this._cache._replaceChannels(guildId, channels);
+      return channels;
     });
   }
 
@@ -173,15 +206,22 @@ class Api {
    * @param guildId The ID of the guild in which the user resides.
    * @param userId The ID of the user.
    */
-  getGuildMember(
+  async getGuildMember(
     guildId: string,
     userId: string,
   ): Promise<Discord.GuildMember> {
+    const cached = Api._tryCache('guild member', () =>
+      this._cache.getGuildMember(guildId, userId),
+    );
+    if (cached) return cached;
+
     return performRequest(async () => {
       const res = await this._client.get(
         `/guilds/${guildId}/members/${userId}`,
       );
-      return res.data;
+      const member = res.data as Discord.GuildMember;
+      this._cache._updateGuildMember(guildId, member);
+      return member;
     });
   }
 
@@ -218,6 +258,10 @@ class Api {
         `/channels/${channelId}/permissions/${overwriteId}`,
         overwrite,
       );
+      this._cache._updateChannelPermissions(channelId, {
+        ...overwrite,
+        id: overwriteId,
+      });
     });
   }
 
@@ -437,6 +481,18 @@ class Api {
       );
       return res.data as Discord.Command[];
     });
+  }
+
+  private static _tryCache<R>(
+    key: string,
+    fn: () => R | undefined,
+  ): R | undefined {
+    const cached = fn();
+    if (cached) {
+      console.log(`[Cache] HIT on ${key}`);
+      return cached;
+    }
+    console.log(`[Cache] MISS on ${key}`);
   }
 }
 

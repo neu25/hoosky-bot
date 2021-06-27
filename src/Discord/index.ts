@@ -14,7 +14,9 @@ export {
   GuildRoleCreatePayload,
   GuildRoleUpdatePayload,
   GuildRoleDeletePayload,
+  GuildMemberAddPayload,
   GuildMemberUpdatePayload,
+  GuildMemberRemovePayload,
 } from './guild';
 export {
   Interaction,

@@ -6,6 +6,7 @@ import Command from './Command';
 import Trigger from './Trigger';
 import TriggerContext from './TriggerContext';
 import { Repositories } from './repository';
+import Api from './Api';
 
 // The delay between reconnections, in milliseconds.
 const RECONNECT_DELAY = 1000;
@@ -16,6 +17,7 @@ const RECONNECT_DELAY = 1000;
 class Client {
   // The WebSocket connection object.
   private _ws?: WebSocket;
+  private readonly _api: Api;
 
   // The Discord bot token.
   private readonly _token: string;
@@ -47,6 +49,7 @@ class Client {
     token: string,
     repos: Repositories,
     client: AxiosInstance,
+    api: Api,
     intents: Discord.Intent[],
   ) {
     this._appId = appId;
@@ -57,6 +60,7 @@ class Client {
     this._triggers = {};
     this._intents = intents.reduce((prev, cur) => prev | cur);
     this._client = client;
+    this._api = api;
   }
 
   /**
@@ -65,25 +69,30 @@ class Client {
    *
    * @param commands The commands to use.
    */
-  handleCommands(commands: Record<string, Command>): void {
+  handleCommands(commands: Command[]): void {
     // Create a map of names and the corresponding commands.
     const mapping: Record<string, Command> = {};
-    for (const cmd of Object.values(commands)) {
-      mapping[cmd.getName()] = cmd;
+    for (const cmd of commands) {
+      mapping[cmd.name] = cmd;
     }
     this._commands = mapping;
   }
 
   /**
-   * Uses the provided map of triggers, appropriately executing them when
+   * Uses the provided array of triggers, appropriately executing them when
    * a user runs them.
    *
    * @param triggers The triggers to use.
    */
-  handleTriggers(
-    triggers: Partial<Record<Discord.Event, Trigger<any>[]>>,
-  ): void {
-    this._triggers = triggers;
+  handleTriggers(triggers: Trigger<any>[]): void {
+    const map: Partial<Record<string, Trigger<any>[]>> = {};
+    for (const t of triggers) {
+      if (!map[t.event]) {
+        map[t.event] = [];
+      }
+      map[t.event]!.push(t);
+    }
+    this._triggers = map;
   }
 
   /**
@@ -96,7 +105,7 @@ class Client {
     this._ws = new WebSocket('wss://gateway.discord.gg/?v=9&encoding=json');
 
     this._ws.on('open', () => {
-      console.log('WebSocket connection opened');
+      console.log('[Client] WebSocket connection opened');
     });
 
     this._ws.on('message', raw => {
@@ -111,7 +120,7 @@ class Client {
     });
 
     this._ws.on('close', (code, reason) => {
-      console.log('WebSocket connection closed', code, reason);
+      console.log('[Client] WebSocket connection closed', code, reason);
       setTimeout(() => {
         this.connect().catch(err => {
           console.error(err);
@@ -178,13 +187,14 @@ class Client {
         if (interaction.data) {
           const command = this._commands[interaction.data.name];
           if (command) {
-            console.log('Handling command:', command.getName());
+            console.log('[Client] Handling command:', command.name);
             await command.execute(
               new ExecutionContext(
                 this._appId,
                 this._repos,
                 interaction,
                 this._client,
+                this._api,
               ),
             );
           }
@@ -195,13 +205,8 @@ class Client {
 
     const triggers = this._triggers[type];
     if (triggers) {
-      console.log('Handling trigger:', type);
-      const ctx = new TriggerContext(
-        this._appId,
-        this._client,
-        this._repos,
-        data,
-      );
+      console.log('[Client] Handling trigger:', type);
+      const ctx = new TriggerContext(this._api, this._repos, data);
       for (const t of triggers) {
         t.execute(ctx);
       }

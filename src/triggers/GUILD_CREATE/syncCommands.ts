@@ -5,10 +5,10 @@ import commands from '../../commands';
 /**
  * Synchronize slash commands as guilds are registered.
  */
-const syncCommands = new Trigger<Discord.Event.GUILD_CREATE>({
+const syncCommands = new Trigger({
   event: Discord.Event.GUILD_CREATE,
   handler: async ctx => {
-    const data = ctx.getData();
+    const data = ctx.data;
 
     console.log(`Synchronizing commands with ${data.name} (${data.id})`);
     const serialized = Object.values(commands).map(cmd => cmd.serialize());
