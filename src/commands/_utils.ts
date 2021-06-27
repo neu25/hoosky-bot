@@ -33,8 +33,8 @@ export const getHighestRank = (roles: Discord.Role[]): number => {
   return highest;
 };
 
-const getOptionsOfType = (options: any[], type: number) => {
-  const commandOptions: any[] = [];
+const getOptionsOfType = (options: Discord.CommandOption[], type: number) => {
+  const commandOptions: Discord.CommandOption[] = [];
   if (!options) {
     return commandOptions;
   }
@@ -51,15 +51,17 @@ export const countSubCommands = (options: any[]): number => {
 };
 
 export const getCommandOptionChoices = (
-  commandsList: Object
+  commandsList: Record<string, Command>,
 ): CommandOptionChoice[] => {
   const choices: CommandOptionChoice[] = [];
   for (const cmd of Object.values(commandsList)) {
     const command = cmd.serialize();
-    choices.push(new CommandOptionChoice({
-      name: command.name, 
-      value: command.name
-    }));
+    choices.push(
+      new CommandOptionChoice({
+        name: command.name,
+        value: command.name,
+      }),
+    );
   }
   return choices;
-}
+};

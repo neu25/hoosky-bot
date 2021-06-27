@@ -65,7 +65,6 @@ const help = new Command({
         fields,
       });
       return;
-        
     } else {
       const commands = [];
       for (const cmd of Object.values(commandsList)) {
