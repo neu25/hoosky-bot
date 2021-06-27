@@ -22,7 +22,7 @@ import Cache from './Cache';
     },
   });
 
-  console.log('Fetching list of joined guilds...');
+  console.log('[Main] Fetching list of joined guilds...');
   const cache = new Cache();
   const api = new Api(config.discord.appId, reqClient, cache);
   const guilds = await api.getCurrentGuilds();
@@ -31,7 +31,7 @@ import Cache from './Cache';
     console.log(`  (${i + 1}) ${guilds[i].name}`);
   }
 
-  console.log('Connecting to database...');
+  console.log('[Main] Connecting to database...');
   const database = new Database(config.mongodb.url, config.mongodb.db);
   await database.connect();
 
@@ -40,7 +40,7 @@ import Cache from './Cache';
   // Insert default configuration values into the database.
   await repos.config.initialize(guildIds);
 
-  console.log('Connecting to gateway...');
+  console.log('[Main] Connecting to gateway...');
   const client = new Client(
     config.discord.appId,
     config.discord.token,
@@ -56,6 +56,8 @@ import Cache from './Cache';
   client.handleTriggers([...triggers, ...cache.triggers()]);
 
   client.connect().then(data => {
-    console.log(`${data.user.username}#${data.user.discriminator} connected`);
+    console.log(
+      `[Main] ${data.user.username}#${data.user.discriminator} connected`,
+    );
   });
 })().catch(e => console.error(e));

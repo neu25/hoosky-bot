@@ -105,7 +105,7 @@ class Client {
     this._ws = new WebSocket('wss://gateway.discord.gg/?v=9&encoding=json');
 
     this._ws.on('open', () => {
-      console.log('WebSocket connection opened');
+      console.log('[Client] WebSocket connection opened');
     });
 
     this._ws.on('message', raw => {
@@ -120,7 +120,7 @@ class Client {
     });
 
     this._ws.on('close', (code, reason) => {
-      console.log('WebSocket connection closed', code, reason);
+      console.log('[Client] WebSocket connection closed', code, reason);
       setTimeout(() => {
         this.connect().catch(err => {
           console.error(err);
@@ -205,7 +205,7 @@ class Client {
 
     const triggers = this._triggers[type];
     if (triggers) {
-      console.log('Handling trigger:', type);
+      console.log('[Client] Handling trigger:', type);
       const ctx = new TriggerContext(this._api, this._repos, data);
       for (const t of triggers) {
         t.execute(ctx);

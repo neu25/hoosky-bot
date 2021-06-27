@@ -65,7 +65,14 @@ class Cache {
       }),
       new Trigger<Discord.Event.GUILD_MEMBER_UPDATE>({
         event: Discord.Event.GUILD_MEMBER_UPDATE,
-        handler: ctx => this._updateGuildMember(ctx.data.guild_id, ctx.data),
+        handler: ctx => {
+          const curMember = this.getGuildMember(
+            ctx.data.guild_id,
+            ctx.data.user.id,
+          );
+          const nextMember = Object.assign({}, curMember, ctx.data);
+          this._updateGuildMember(ctx.data.guild_id, nextMember);
+        },
       }),
       new Trigger<Discord.Event.GUILD_MEMBER_REMOVE>({
         event: Discord.Event.GUILD_MEMBER_REMOVE,
@@ -220,10 +227,7 @@ class Cache {
     guild.channels.splice(i, 1);
   }
 
-  _updateGuildMember(
-    guildId: string,
-    member: Partial<Discord.GuildMember>,
-  ): void {
+  _updateGuildMember(guildId: string, member: Discord.GuildMember): void {
     console.log('[Cache] Updating guild member', member.user?.id);
     const guild = this.getGuild(guildId);
     if (!guild) return;
@@ -232,10 +236,12 @@ class Cache {
     for (let i = 0; i < guild.members.length; ++i) {
       const m = guild.members[i];
       if (m.user?.id === member.user?.id) {
-        guild.members[i] = Object.assign({}, guild.members[i], member);
+        guild.members[i] = member;
         return;
       }
     }
+
+    guild.members.push(member);
   }
 
   _addRoleToGuildMember(guildId: string, userId: string, roleId: string): void {

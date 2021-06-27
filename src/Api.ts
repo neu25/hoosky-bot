@@ -26,11 +26,10 @@ class Api {
    * Gets a list of the guilds the bot currently resides in.
    */
   async getCurrentGuilds(): Promise<Discord.Guild[]> {
-    const cached = this._cache.getGuilds();
-    if (cached) {
-      console.log('[API] Cache hit on current guilds');
-      return cached;
-    }
+    const cached = Api._tryCache('current guilds', () =>
+      this._cache.getGuilds(),
+    );
+    if (cached) return cached;
 
     return performRequest(async () => {
       const res = await this._client.get(
@@ -48,11 +47,10 @@ class Api {
    * @param guildId The ID of the guild.
    */
   async getGuildRoles(guildId: string): Promise<Discord.Role[]> {
-    const cached = this._cache.getGuildRoles(guildId);
-    if (cached) {
-      console.log('[API] Cache hit on guild roles in', guildId);
-      return cached;
-    }
+    const cached = Api._tryCache('guild roles', () =>
+      this._cache.getGuildRoles(guildId),
+    );
+    if (cached) return cached;
 
     return performRequest(async () => {
       const res = await this._client.get(`/guilds/${guildId}/roles`);
@@ -186,11 +184,10 @@ class Api {
    * @param guildId The ID of the guild.
    */
   async getGuildChannels(guildId: string): Promise<Discord.Channel[]> {
-    const cached = this._cache.getGuildChannels(guildId);
-    if (cached) {
-      console.log('[API] Cache hit on guild channels');
-      return cached;
-    }
+    const cached = Api._tryCache('guild channels', () =>
+      this._cache.getGuildChannels(guildId),
+    );
+    if (cached) return cached;
 
     return performRequest(async () => {
       const res = await this._client.get(`/guilds/${guildId}/channels`);
@@ -213,11 +210,10 @@ class Api {
     guildId: string,
     userId: string,
   ): Promise<Discord.GuildMember> {
-    const cached = this._cache.getGuildMember(guildId, userId);
-    if (cached) {
-      console.log('[API] Cache hit on guild member', userId);
-      return cached;
-    }
+    const cached = Api._tryCache('guild member', () =>
+      this._cache.getGuildMember(guildId, userId),
+    );
+    if (cached) return cached;
 
     return performRequest(async () => {
       const res = await this._client.get(
@@ -485,6 +481,18 @@ class Api {
       );
       return res.data as Discord.Command[];
     });
+  }
+
+  private static _tryCache<R>(
+    key: string,
+    fn: () => R | undefined,
+  ): R | undefined {
+    const cached = fn();
+    if (cached) {
+      console.log(`[Cache] HIT on ${key}`);
+      return cached;
+    }
+    console.log(`[Cache] MISS on ${key}`);
   }
 }
 
