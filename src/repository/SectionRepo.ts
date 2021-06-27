@@ -1,7 +1,6 @@
-import { Collection as MongoCollection, Cursor } from 'mongodb';
+import { Collection as MongoCollection } from 'mongodb';
 import { Collection, Database } from '../database';
-import { Course } from './CourseRepo';
-import CourseRepo from './CourseRepo';
+import CourseRepo, { Course } from './CourseRepo';
 
 export type Section = {
   number: number;
@@ -15,7 +14,11 @@ class SectionRepo {
     this._db = db;
   }
 
-  async create(guildId: string, roleId: string, sectionInfo: Section) {
+  async create(
+    guildId: string,
+    roleId: string,
+    sectionInfo: Section,
+  ): Promise<void> {
     this.collection(guildId).updateOne(
       {
         roleId,
@@ -33,7 +36,7 @@ class SectionRepo {
     userId: string,
     roleId: string,
     sectionNum: number,
-  ) {
+  ): Promise<void> {
     this.collection(guildId).updateOne(
       {
         roleId,
@@ -47,7 +50,11 @@ class SectionRepo {
     );
   }
 
-  async removeMember(guildId: string, userId: string, roleId: string) {
+  async removeMember(
+    guildId: string,
+    userId: string,
+    roleId: string,
+  ): Promise<void> {
     this.collection(guildId).updateOne(
       {
         roleId,

@@ -1,7 +1,6 @@
 import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
-import { fancyCenter } from '../../../format';
 
 const classmates = new SubCommand({
   name: 'classmates',
@@ -56,7 +55,7 @@ const classmates = new SubCommand({
       return ctx.respondSilently(`${username} has no classmates.`);
     }
 
-    let classmateArr = Array.from(classmates);
+    const classmateArr = Array.from(classmates);
     let classmateList = '';
     for (let i = 0; i < classmateArr.length; i++) {
       classmateList += `${i + 1}. <@${classmateArr[i]}>\n`;
