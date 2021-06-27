@@ -1,14 +1,7 @@
 import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
-import {
-  getCourseByRoleId,
-  getCourseMembers,
-  addUserToSection,
-  removeUserFromSection,
-  createSection,
-  boldCourse,
-} from '../_common';
+import { boldCourse } from '../_common';
 
 const switchSection = new SubCommand({
   name: 'switch-section',
@@ -35,7 +28,7 @@ const switchSection = new SubCommand({
       ctx.getArgument<string>('section-number') as string,
     );
 
-    const course = await getCourseByRoleId(ctx, guildId, roleId);
+    const course = await ctx.courses().getByRoleId(guildId, roleId);
     if (!course) {
       return ctx.respondWithError('That course does not exist');
     }
@@ -45,18 +38,21 @@ const switchSection = new SubCommand({
       return ctx.respondWithError('Unable to identify you');
     }
 
-    const courseMembers = (await getCourseMembers(ctx, guildId, roleId)) ?? [];
+    const courseMembers =
+      (await ctx.courses().getMembers(guildId, roleId)) ?? [];
     if (!courseMembers.includes(userId)) {
       return ctx.respondWithError(`You aren't in that course`);
     }
 
-    removeUserFromSection(ctx, guildId, roleId, userId);
+    ctx.sections().removeMember(guildId, roleId, userId);
 
     const sections = course.sections ?? [];
     if (sections.some(item => item.number === sectionNum)) {
-      addUserToSection(ctx, guildId, userId, roleId, sectionNum);
+      ctx.sections().addMember(guildId, userId, roleId, sectionNum);
     } else {
-      createSection(ctx, guildId, roleId, sectionNum, [userId]);
+      ctx
+        .sections()
+        .create(guildId, roleId, { number: sectionNum, members: [userId] });
     }
 
     return ctx.respondWithMessage(

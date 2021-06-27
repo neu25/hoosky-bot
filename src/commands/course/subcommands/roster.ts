@@ -1,12 +1,7 @@
 import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
-import {
-  getCourseByRoleId,
-  getCourseMembers,
-  getSectionMembers,
-  boldCourse,
-} from '../_common';
+import { boldCourse } from '../_common';
 
 const roster = new SubCommand({
   name: 'roster',
@@ -34,15 +29,15 @@ const roster = new SubCommand({
     );
     const sectionPhrase = sectionNum ? `section ${sectionNum} of ` : '';
 
-    const course = await getCourseByRoleId(ctx, guildId, roleId);
+    const course = await ctx.courses().getByRoleId(guildId, roleId);
     if (!course) {
       return ctx.respondWithError('That course does not exist');
     }
 
     const members =
       (sectionNum
-        ? await getSectionMembers(ctx, guildId, roleId, sectionNum)
-        : await getCourseMembers(ctx, guildId, roleId)) ?? [];
+        ? await ctx.sections().getMembers(guildId, roleId, sectionNum)
+        : await ctx.courses().getMembers(guildId, roleId)) ?? [];
     if (members.length === 0) {
       return ctx.respondSilently(
         `There are no members in ${sectionPhrase}${boldCourse(course)}`,

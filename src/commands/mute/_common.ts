@@ -1,23 +1,50 @@
 import ExecutionContext from '../../ExecutionContext';
 import * as Discord from '../../Discord';
 import { compareRank, guildRoleListToMap } from '../_utils';
-import { Config, RolesConfig } from '../../database';
+import { Config } from '../../database';
+import { RolesConfig } from '../../repository';
+
+export const respondSetupError = async (
+  ctx: ExecutionContext,
+): Promise<void> => {
+  await ctx.respondWithError(
+    'Muted role not set up yet. Try running `/mute setup`.',
+  );
+};
+
+export const getMuteRoleOrExit = async (
+  ctx: ExecutionContext,
+  guildId: string,
+): Promise<string | undefined> => {
+  // Fetch the roles configuration from the server.
+  const rolesCfg = await mustGetRolesConfig(ctx, guildId);
+  if (!rolesCfg.muted) {
+    await respondSetupError(ctx);
+    return;
+  }
+
+  // Get a list of all guild roles, and make sure the muted role still exists.
+  const guildRoles = await ctx.api.getGuildRoles(guildId);
+  if (!guildRoles.find(r => r.id === rolesCfg.muted)) {
+    await respondSetupError(ctx);
+    return;
+  }
+
+  return rolesCfg.muted;
+};
 
 export const mustGetRolesConfig = async (
   ctx: ExecutionContext,
   guildId: string,
 ): Promise<Partial<RolesConfig>> => {
-  const rolesCfg = await ctx.db.getConfigValue<RolesConfig>(
-    guildId,
-    Config.ROLES,
-  );
+  const rolesCfg = await ctx.config().get<RolesConfig>(guildId, Config.ROLES);
   if (!rolesCfg) {
     throw new Error('No roles configuration found');
   }
   return rolesCfg;
 };
 
-export const checkMutePermissions = async (
+export const checkMutePermissionsOrExit = async (
   ctx: ExecutionContext,
   guildId: string,
   targetUserId: string,

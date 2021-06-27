@@ -1,7 +1,8 @@
 import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
-import { boldCourse, Course, courseExists, createCourse } from '../_common';
+import { boldCourse } from '../_common';
+import { Course } from '../../../repository';
 
 const create = new SubCommand({
   name: 'create',
@@ -36,7 +37,7 @@ const create = new SubCommand({
     const subject = id.split(' ')[0];
     const number = parseInt(id.split(' ')[1]);
 
-    if (await courseExists(ctx, guildId, id)) {
+    if (await ctx.courses().exists(guildId, id)) {
       return ctx.respondWithError('That course already exists');
     }
 
@@ -59,7 +60,7 @@ const create = new SubCommand({
     };
 
     // Create course in database.
-    await createCourse(ctx, guildId, course);
+    await ctx.courses().create(guildId, course);
 
     // Notify of successful course creation.
     return ctx.respondWithMessage(

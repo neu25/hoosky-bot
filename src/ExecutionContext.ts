@@ -1,10 +1,13 @@
 import { AxiosInstance } from 'axios';
 import * as Discord from './Discord';
 import Snowflake from './Snowflake';
+import { Repositories } from './repository';
 import { performRequest } from './utils';
 import { parseCommand, OptionType, Arguments } from './arguments';
-import { Database } from './database';
 import Api from './Api';
+import CourseRepo from './repository/CourseRepo';
+import ConfigRepo from './repository/ConfigRepo';
+import SectionRepo from './repository/SectionRepo';
 
 /**
  * ExecutionContext is a helper class with a straightforward interface for
@@ -21,7 +24,7 @@ import Api from './Api';
  */
 class ExecutionContext {
   readonly api: Api;
-  readonly db: Database;
+  readonly repos: Repositories;
   readonly interaction: Discord.Interaction;
   private readonly _appId: string;
   private readonly _args: Arguments;
@@ -33,12 +36,12 @@ class ExecutionContext {
 
   constructor(
     appId: string,
-    database: Database,
+    repos: Repositories,
     interaction: Discord.Interaction,
     client: AxiosInstance,
   ) {
     this.api = new Api(appId, client);
-    this.db = database;
+    this.repos = repos;
     this.interaction = interaction;
     this._appId = appId;
     this._cmdIndex = 0;
@@ -52,6 +55,18 @@ class ExecutionContext {
       this._args = {};
       this._cmd = [];
     }
+  }
+
+  courses(): CourseRepo {
+    return this.repos.courses;
+  }
+
+  config(): ConfigRepo {
+    return this.repos.config;
+  }
+
+  sections(): SectionRepo {
+    return this.repos.sections;
   }
 
   /**

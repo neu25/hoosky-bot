@@ -8,7 +8,7 @@ import roster from './roster';
 import switchSection from './switchSection';
 import classmates from './classmates';
 
-export const subcommands = [
+const subcommands = [
   create,
   del,
   join,

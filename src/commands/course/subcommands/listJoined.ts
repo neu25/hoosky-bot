@@ -1,7 +1,7 @@
 import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
-import { semiBoldCourse, scanCourses } from '../_common';
+import { semiBoldCourse } from '../_common';
 import { fancyCenter } from '../../../format';
 
 type SubjectGroup = {
@@ -24,7 +24,7 @@ const listJoined = new SubCommand({
   ],
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
-    const courses = (await scanCourses(ctx, guildId)).sort({ _id: 1 });
+    const courses = (await ctx.courses().scan(guildId)).sort({ _id: 1 });
     const chosenUserId = ctx.getArgument<string>('user') as string;
     let userId;
 
@@ -33,7 +33,7 @@ const listJoined = new SubCommand({
     } else {
       userId = ctx.interaction.member?.user?.id;
       if (!userId) {
-        return ctx.respondWithError('Unable to identify you');
+        return ctx.respondWithError(`Couldn't identify you.`);
       }
     }
 

@@ -1,3 +1,4 @@
+import { OptionType } from '../arguments';
 import {
   AllowedMentions,
   Embed,
@@ -6,7 +7,6 @@ import {
 } from './message';
 import { Channel, GuildMember } from './guild';
 import { Role, User } from './user';
-import { OptionType } from '../arguments';
 
 export type InteractionResponse = {
   type: InteractionCallbackType;

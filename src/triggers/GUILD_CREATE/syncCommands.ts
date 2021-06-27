@@ -2,6 +2,9 @@ import * as Discord from '../../Discord';
 import Trigger from '../../Trigger';
 import commands from '../../commands';
 
+/**
+ * Synchronize slash commands as guilds are registered.
+ */
 const syncCommands = new Trigger<Discord.Event.GUILD_CREATE>({
   event: Discord.Event.GUILD_CREATE,
   handler: async ctx => {
