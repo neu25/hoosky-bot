@@ -1,7 +1,6 @@
 import { Collection as MongoCollection, Cursor } from 'mongodb';
 import { Collection, Database } from '../database';
-import { Section } from './SectionRepo';
-import SectionRepo from './SectionRepo';
+import SectionRepo, { Section } from './SectionRepo';
 
 export type Course = {
   _id: string;
