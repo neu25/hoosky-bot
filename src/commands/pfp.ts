@@ -15,16 +15,17 @@ const pfp = new Command({
     }),
   ],
   handler: async ctx => {
-    const guildId = ctx.mustGetGuildId();
     const targetUserId = ctx.getArgument<string>('user') as string;
 
     const user = await ctx.api.getUser(targetUserId);
     let url;
     // Info on image urls at https://discord.com/developers/docs/reference#image-formatting
     if (user.avatar != null) {
-        url = `https://cdn.discordapp.com/avatars/${targetUserId}/${user.avatar}.png?size=4096`; 
+      url = `https://cdn.discordapp.com/avatars/${targetUserId}/${user.avatar}.png?size=4096`;
     } else {
-        url = `https://cdn.discordapp.com/embed/avatars/${(Number(user.discriminator)) % 5}.png?size=4096`;
+      url = `https://cdn.discordapp.com/embed/avatars/${
+        Number(user.discriminator) % 5
+      }.png?size=4096`;
     }
     const image: EmbedImage = { url: url };
 
