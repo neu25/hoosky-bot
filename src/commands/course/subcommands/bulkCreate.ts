@@ -21,7 +21,11 @@ const bulkCreate = new SubCommand({
   requiredPermissions: [Discord.Permission.MANAGE_ROLES],
   handler: async ctx => {
     const userId = ctx.mustGetUserId();
+
+    // Expect a follow-up message from the user.
+    // Thus, the user's next message will trigger the handler in `followUpHandlers.upload` below.
     ctx.expectFollowUp(userId, FollowUp.UPLOAD);
+
     await ctx.respondWithMessage(
       `Upload a ${inlineCode('.csv')} file, with each line formatted as ${bold(
         'Course Code, Course Name',
@@ -29,7 +33,7 @@ const bulkCreate = new SubCommand({
     );
   },
   followUpHandlers: {
-    [FollowUp.UPLOAD]: async tctx => {
+    [FollowUp.UPLOAD]: async (tctx, ectx) => {
       const {
         attachments,
         channel_id: channelId,
@@ -39,6 +43,7 @@ const bulkCreate = new SubCommand({
       if (!guildId) {
         throw new Error('No guild ID found in message data');
       }
+      const userId = ectx.mustGetUserId();
 
       if (attachments.length === 0) {
         return tctx.api.createErrorReply(
@@ -129,6 +134,9 @@ const bulkCreate = new SubCommand({
         // Create course in database.
         await tctx.courses().create(guildId, course);
       }
+
+      // Stop treated this user's messages as follow-ups.
+      ectx.unexpectFollowUp(userId);
 
       return tctx.api.createMessage(channelId, {
         content: `Created roles for ${bold(courses.length.toString())} courses`,

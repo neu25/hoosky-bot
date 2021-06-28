@@ -111,12 +111,35 @@ class ExecutionContext {
     return new Snowflake(this.interaction.id).getDate();
   }
 
-  expectFollowUp(userId: string, followUpId: string): void {
+  /**
+   * Primes the follow-up handler with the provided ID for the user who executed the command.
+   * Thus, the user's next message will trigger the follow-up handler.
+   *
+   * @param userId The ID of the user to listen to.
+   * @param followUpId The ID of the handler in the `followUpHandlers` map.
+   * @param ttl The number of milliseconds to keep the follow-up listener open. (Default: 10,000ms).
+   */
+  expectFollowUp(userId: string, followUpId: string, ttl?: number): void {
     const handler = this._followUpHandlers[followUpId];
     if (!handler) {
       throw new Error(`No follow-up handler with ID ${followUpId}`);
     }
-    this._followUpManager.addPendingFollowUp({ handler, userId, ectx: this });
+    this._followUpManager.addPendingFollowUp({
+      handler,
+      userId,
+      ectx: this,
+      expires: Date.now() + (ttl ?? 10000),
+    });
+  }
+
+  /**
+   * Un-primes the follow-up handler for the provided user ID.
+   * This means that the user's messages will no longer be treated as follow-ups.
+   *
+   * @param userId The ID of the user to un-listen to.
+   */
+  unexpectFollowUp(userId: string): void {
+    this._followUpManager.removePendingFollowUp(userId);
   }
 
   /**
@@ -282,6 +305,15 @@ class ExecutionContext {
    */
   followUpWithMessage(msg: string): Promise<Discord.Message> {
     return this.followUp({ content: msg });
+  }
+
+  /**
+   * Follows-up with the initial interaction with the provided error message.
+   *
+   * @param msg The follow-up text message.
+   */
+  followUpWithError(msg: string): Promise<Discord.Message> {
+    return this.followUpWithMessage(`Error: ${msg}`);
   }
 
   /**

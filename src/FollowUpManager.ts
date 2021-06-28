@@ -9,6 +9,7 @@ type PendingFollowUp = {
   userId: string;
   handler: FollowUpHandler;
   ectx: ExecutionContext;
+  expires: number;
 };
 
 class FollowUpManager {
@@ -20,6 +21,21 @@ class FollowUpManager {
     this._pendingFollowUps = {};
     this._api = api;
     this._repos = repos;
+
+    // Periodically prune follow-ups.
+    setInterval(() => {
+      for (const f of Object.values(this._pendingFollowUps)) {
+        // Check if the pending follow-up has expired.
+        if (Date.now() > f.expires) {
+          this.removePendingFollowUp(f.userId);
+          f.ectx
+            .followUpWithError(
+              'Timed out while waiting for response. Please execute the command again.',
+            )
+            .catch(e => console.log(e));
+        }
+      }
+    }, 500);
   }
 
   handleMessage(msg: Discord.Message): void {
@@ -36,6 +52,11 @@ class FollowUpManager {
   addPendingFollowUp(followUp: PendingFollowUp): void {
     console.log('[Client] Waiting for follow-up from user', followUp.userId);
     this._pendingFollowUps[followUp.userId] = followUp;
+  }
+
+  removePendingFollowUp(userId: string): void {
+    console.log('[Client] Deactivated follow-up from user', userId);
+    delete this._pendingFollowUps[userId];
   }
 }
 
