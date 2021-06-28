@@ -26,6 +26,7 @@ type EventTypeMap = {
   [Discord.Event.GUILD_MEMBER_UPDATE]: Discord.GuildMemberUpdatePayload;
   [Discord.Event.GUILD_MEMBER_REMOVE]: Discord.GuildMemberRemovePayload;
   [Discord.Event.INTERACTION_CREATE]: Discord.Interaction;
+  [Discord.Event.MESSAGE_CREATE]: Discord.Message;
 };
 
 export type EventData<E extends keyof EventTypeMap> = EventTypeMap[E];

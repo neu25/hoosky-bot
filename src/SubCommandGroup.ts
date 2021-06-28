@@ -47,13 +47,13 @@ class SubCommandGroup extends CommandOption {
    *
    * @param ctx The execution context.
    */
-  execute(ctx: ExecutionContext): void | Promise<void> {
-    const cmd = ctx.getCurrentCommand();
+  execute(ctx: ExecutionContext): unknown | Promise<unknown> {
+    const cmd = ctx._getCurrentCommand();
 
     const subCommand = this._subCommands[cmd];
     if (subCommand) {
       // Mark the current command group as handled, and execute the sub-command.
-      ctx.advanceCommand();
+      ctx._advanceCommand();
       subCommand.execute(ctx);
       return;
     }

@@ -7,6 +7,17 @@ import { parseCommand, OptionType, Arguments } from './arguments';
 import Api from './Api';
 import CourseRepo from './repository/CourseRepo';
 import ConfigRepo from './repository/ConfigRepo';
+import FollowUpManager from './FollowUpManager';
+import { FollowUpHandler } from './SubCommand';
+
+export type ExecutionContextOpts = {
+  appId: string;
+  repos: Repositories;
+  interaction: Discord.Interaction;
+  client: AxiosInstance;
+  api: Api;
+  followUpManager: FollowUpManager;
+};
 
 /**
  * ExecutionContext is a helper class with a straightforward interface for
@@ -25,30 +36,28 @@ class ExecutionContext {
   readonly api: Api;
   readonly repos: Repositories;
   readonly interaction: Discord.Interaction;
+  private _followUpHandlers: Record<string, FollowUpHandler>;
   private readonly _appId: string;
   private readonly _args: Arguments;
   private readonly _client: AxiosInstance;
+  private readonly _followUpManager: FollowUpManager;
 
   // For internal use.
   private readonly _cmd: string[];
   private _cmdIndex: number;
 
-  constructor(
-    appId: string,
-    repos: Repositories,
-    interaction: Discord.Interaction,
-    client: AxiosInstance,
-    api: Api,
-  ) {
-    this.api = api;
-    this.repos = repos;
-    this.interaction = interaction;
-    this._appId = appId;
+  constructor(opts: ExecutionContextOpts) {
+    this.api = opts.api;
+    this.repos = opts.repos;
+    this.interaction = opts.interaction;
+    this._appId = opts.appId;
     this._cmdIndex = 0;
-    this._client = client;
+    this._client = opts.client;
+    this._followUpManager = opts.followUpManager;
+    this._followUpHandlers = {};
 
-    if (interaction.data) {
-      const { command, args } = parseCommand(interaction.data);
+    if (opts.interaction.data) {
+      const { command, args } = parseCommand(opts.interaction.data);
       this._cmd = command;
       this._args = args;
     } else {
@@ -80,10 +89,19 @@ class ExecutionContext {
    * it throws an error.
    */
   mustGetGuildId(): string {
-    if (!this.interaction.guild_id) {
+    const guildId = this.interaction.guild_id;
+    if (!guildId) {
       throw new Error('No guild ID found in interaction');
     }
-    return this.interaction.guild_id;
+    return guildId;
+  }
+
+  mustGetUserId(): string {
+    const userId = this.interaction.member?.user?.id;
+    if (!userId) {
+      throw new Error('No user ID found in interaction');
+    }
+    return userId;
   }
 
   /**
@@ -91,6 +109,37 @@ class ExecutionContext {
    */
   interactionDate(): Date {
     return new Snowflake(this.interaction.id).getDate();
+  }
+
+  /**
+   * Primes the follow-up handler with the provided ID for the user who executed the command.
+   * Thus, the user's next message will trigger the follow-up handler.
+   *
+   * @param userId The ID of the user to listen to.
+   * @param followUpId The ID of the handler in the `followUpHandlers` map.
+   * @param ttl The number of milliseconds to keep the follow-up listener open. (Default: 10,000ms).
+   */
+  expectFollowUp(userId: string, followUpId: string, ttl?: number): void {
+    const handler = this._followUpHandlers[followUpId];
+    if (!handler) {
+      throw new Error(`No follow-up handler with ID ${followUpId}`);
+    }
+    this._followUpManager.addPendingFollowUp({
+      handler,
+      userId,
+      ectx: this,
+      expires: Date.now() + (ttl ?? 10000),
+    });
+  }
+
+  /**
+   * Un-primes the follow-up handler for the provided user ID.
+   * This means that the user's messages will no longer be treated as follow-ups.
+   *
+   * @param userId The ID of the user to un-listen to.
+   */
+  unexpectFollowUp(userId: string): void {
+    this._followUpManager.removePendingFollowUp(userId);
   }
 
   /**
@@ -237,16 +286,34 @@ class ExecutionContext {
   /**
    * Sends a follow-up message on top of the initial interaction response.
    *
-   * @param msg The follow-up message.
+   * @param data The follow-up message data.
    */
-  followUp(msg: Discord.FollowUpMessage): Promise<Discord.Message> {
+  followUp(data: Discord.FollowUpMessage): Promise<Discord.Message> {
     return performRequest(async () => {
       const res = await this._client.post(
         `/webhooks/${this._appId}/${this.interaction.token}`,
-        msg,
+        data,
       );
       return res.data;
     });
+  }
+
+  /**
+   * Follows-up with the initial interaction response with the provided message.
+   *
+   * @param msg The follow-up text message.
+   */
+  followUpWithMessage(msg: string): Promise<Discord.Message> {
+    return this.followUp({ content: msg });
+  }
+
+  /**
+   * Follows-up with the initial interaction with the provided error message.
+   *
+   * @param msg The follow-up text message.
+   */
+  followUpWithError(msg: string): Promise<Discord.Message> {
+    return this.followUpWithMessage(`Error: ${msg}`);
   }
 
   /**
@@ -282,6 +349,10 @@ class ExecutionContext {
     );
   }
 
+  _setFollowUpHandlers(handlers: Record<string, FollowUpHandler>): void {
+    this._followUpHandlers = handlers;
+  }
+
   /**
    * Returns the current command name being processed.
    *
@@ -289,7 +360,7 @@ class ExecutionContext {
    * handler. There are currently no use cases for this method, as the command
    * name is obvious within each command handler.
    */
-  getCurrentCommand(): string {
+  _getCurrentCommand(): string {
     if (this._cmdIndex >= this._cmd.length) {
       return '';
     }
@@ -303,8 +374,8 @@ class ExecutionContext {
    * handler. There are currently no use cases for this method, as the command
    * name is obvious within each command handler.
    */
-  advanceCommand(): string {
-    const current = this.getCurrentCommand();
+  _advanceCommand(): string {
+    const current = this._getCurrentCommand();
     this._cmdIndex++;
     return current;
   }

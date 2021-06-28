@@ -63,6 +63,7 @@ export {
   EmbedVideo,
   EmbedThumbnail,
   EmbedFooter,
+  CreateMessagePayload,
 } from './message';
 export {
   CommandOption,

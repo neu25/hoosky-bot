@@ -24,10 +24,7 @@ const leave = new SubCommand({
       return ctx.respondWithError('That course does not exist');
     }
 
-    const userId = ctx.interaction.member?.user?.id;
-    if (!userId) {
-      return ctx.respondWithError(`Couldn't identify you.`);
-    }
+    const userId = ctx.mustGetUserId();
 
     const members = (await ctx.courses().getMembers(guildId, roleId)) ?? [];
     if (!members.includes(userId)) {
