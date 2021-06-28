@@ -1,5 +1,5 @@
 import * as Discord from './Discord';
-import { CommandHandler } from './SubCommand';
+import { CommandHandler, FollowUpHandler } from './SubCommand';
 import SubCommandGroup, { SubCommandGroupProps } from './SubCommandGroup';
 import ExecutionContext from './ExecutionContext';
 
@@ -7,6 +7,7 @@ type CommandProps = {
   default_permission?: boolean;
   permissions?: Discord.CommandPermission[];
   handler?: CommandHandler;
+  followUpHandlers?: Record<string, FollowUpHandler>;
 } & SubCommandGroupProps;
 
 /**
@@ -14,14 +15,16 @@ type CommandProps = {
  * constructor to add new commands to the bot.
  */
 class Command extends SubCommandGroup {
+  readonly followUpHandlers: Record<string, FollowUpHandler>;
   private readonly _handler?: CommandHandler;
   private readonly _defaultPerm: boolean;
 
   constructor(props: CommandProps) {
-    const { handler, default_permission, ...base } = props;
+    const { handler, default_permission, followUpHandlers, ...base } = props;
     super(base);
     this._handler = handler;
     this._defaultPerm = default_permission ?? true;
+    this.followUpHandlers = followUpHandlers ?? {};
   }
 
   /**
@@ -30,12 +33,14 @@ class Command extends SubCommandGroup {
    *
    * @param ctx The execution context.
    */
-  execute(ctx: ExecutionContext): void | Promise<void> {
+  execute(ctx: ExecutionContext): unknown | Promise<unknown> {
     if (this._handler) {
+      // Supply this command's follow-up handlers.
+      ctx._setFollowUpHandlers(this.followUpHandlers);
       return this._handler(ctx);
     }
 
-    ctx.advanceCommand();
+    ctx._advanceCommand();
 
     super.execute(ctx);
   }

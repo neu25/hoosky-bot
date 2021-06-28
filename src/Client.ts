@@ -7,9 +7,20 @@ import Trigger from './Trigger';
 import TriggerContext from './TriggerContext';
 import { Repositories } from './repository';
 import Api from './Api';
+import FollowUpManager from './FollowUpManager';
 
 // The delay between reconnections, in milliseconds.
 const RECONNECT_DELAY = 1000;
+
+export type ClientOpts = {
+  appId: string;
+  token: string;
+  repos: Repositories;
+  client: AxiosInstance;
+  api: Api;
+  intents: Discord.Intent[];
+  followUpListener: FollowUpManager;
+};
 
 /**
  * Client connects to the Discord bot gateway and maintains the connection.
@@ -18,6 +29,7 @@ class Client {
   // The WebSocket connection object.
   private _ws?: WebSocket;
   private readonly _api: Api;
+  private readonly _followUpListener: FollowUpManager;
 
   // The Discord bot token.
   private readonly _token: string;
@@ -44,23 +56,17 @@ class Client {
 
   private readonly _repos: Repositories;
 
-  constructor(
-    appId: string,
-    token: string,
-    repos: Repositories,
-    client: AxiosInstance,
-    api: Api,
-    intents: Discord.Intent[],
-  ) {
-    this._appId = appId;
-    this._token = token;
-    this._repos = repos;
+  constructor(opts: ClientOpts) {
+    this._appId = opts.appId;
+    this._token = opts.token;
+    this._repos = opts.repos;
     this._lastSeqNum = null;
     this._commands = {};
     this._triggers = {};
-    this._intents = intents.reduce((prev, cur) => prev | cur);
-    this._client = client;
-    this._api = api;
+    this._intents = opts.intents.reduce((prev, cur) => prev | cur);
+    this._client = opts.client;
+    this._api = opts.api;
+    this._followUpListener = opts.followUpListener;
   }
 
   /**
@@ -187,25 +193,30 @@ class Client {
         if (interaction.data) {
           const command = this._commands[interaction.data.name];
           if (command) {
-            console.log('[Client] Handling command:', command.name);
+            console.log('[Client] Handling command', command.name);
             await command.execute(
-              new ExecutionContext(
-                this._appId,
-                this._repos,
+              new ExecutionContext({
+                appId: this._appId,
+                repos: this._repos,
+                client: this._client,
+                api: this._api,
+                followUpManager: this._followUpListener,
                 interaction,
-                this._client,
-                this._api,
-              ),
+              }),
             );
           }
         }
         break;
       }
+      case Discord.Event.MESSAGE_CREATE: {
+        const msg = data as Discord.Message;
+        this._followUpListener.handleMessage(msg);
+      }
     }
 
     const triggers = this._triggers[type];
     if (triggers) {
-      console.log('[Client] Handling trigger:', type);
+      console.log('[Client] Handling trigger', type);
       const ctx = new TriggerContext(this._api, this._repos, data);
       for (const t of triggers) {
         t.execute(ctx);

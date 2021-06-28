@@ -31,10 +31,7 @@ const listJoined = new SubCommand({
     if (chosenUserId) {
       userId = chosenUserId;
     } else {
-      userId = ctx.interaction.member?.user?.id;
-      if (!userId) {
-        return ctx.respondWithError(`Couldn't identify you.`);
-      }
+      userId = ctx.mustGetUserId();
     }
 
     const guildMember = await ctx.api.getGuildMember(guildId, userId);

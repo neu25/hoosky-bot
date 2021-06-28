@@ -10,6 +10,7 @@ import { Database } from './database';
 import Api from './Api';
 import { setupRepos } from './repository';
 import Cache from './Cache';
+import FollowUpManager from './FollowUpManager';
 
 (async () => {
   const argv = await yargs(hideBin(process.argv)).argv;
@@ -41,14 +42,20 @@ import Cache from './Cache';
   await repos.config.initialize(guildIds);
 
   console.log('[Main] Connecting to gateway...');
-  const client = new Client(
-    config.discord.appId,
-    config.discord.token,
+  const followUpListener = new FollowUpManager(api, repos);
+  const client = new Client({
+    appId: config.discord.appId,
+    token: config.discord.token,
+    client: reqClient,
+    intents: [
+      Discord.Intent.GUILDS,
+      Discord.Intent.GUILD_MEMBERS,
+      Discord.Intent.GUILD_MESSAGES,
+    ],
+    followUpListener,
     repos,
-    reqClient,
     api,
-    [Discord.Intent.GUILDS, Discord.Intent.GUILD_MEMBERS],
-  );
+  });
 
   // Supply the commands we'd like to handle.
   client.handleCommands(commands);

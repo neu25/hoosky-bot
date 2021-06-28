@@ -1,4 +1,4 @@
-import { AxiosInstance } from 'axios';
+import axios, { AxiosInstance } from 'axios';
 import * as Discord from './Discord';
 import Cache from './Cache';
 import { performRequest, prepareEmoji } from './utils';
@@ -237,6 +237,70 @@ class Api {
     return performRequest(async () => {
       const res = await this._client.get(`/users/${userId}`);
       return res.data;
+    });
+  }
+
+  /**
+   * Sends a message in the specified channel.
+   *
+   * @param channelId The ID of the channel.
+   * @param data The content of the message.
+   */
+  createMessage(
+    channelId: string,
+    data: Discord.CreateMessagePayload,
+  ): Promise<Discord.Message> {
+    return performRequest(async () => {
+      const res = await this._client.post(
+        `/channels/${channelId}/messages`,
+        data,
+      );
+      return res.data as Discord.Message;
+    });
+  }
+
+  /**
+   * Sends an error message in the specified channel.
+   *
+   * @param channelId The ID of the channel.
+   * @param content The error message.
+   */
+  createErrorMessage(
+    channelId: string,
+    content: string,
+  ): Promise<Discord.Message> {
+    return this.createMessage(channelId, { content: `Error: ${content}` });
+  }
+
+  /**
+   * Replies to a message with an error message in the specified channel.
+   *
+   * @param channelId The ID of the channel.
+   * @param messageId The ID of the message to reply to.
+   * @param content The error message.
+   */
+  createErrorReply(
+    channelId: string,
+    messageId: string,
+    content: string,
+  ): Promise<Discord.Message> {
+    return this.createMessage(channelId, {
+      content: `Error: ${content}`,
+      message_reference: {
+        message_id: messageId,
+      },
+    });
+  }
+
+  /**
+   * Deletes a message in the specified channel.
+   *
+   * @param channelId The ID of the channel.
+   * @param messageId The ID of the message.
+   */
+  deleteMessage(channelId: string, messageId: string): Promise<void> {
+    return performRequest(async () => {
+      await this._client.delete(`/channels/${channelId}/messages/${messageId}`);
     });
   }
 
@@ -480,6 +544,13 @@ class Api {
         commands,
       );
       return res.data as Discord.Command[];
+    });
+  }
+
+  download(url: string): Promise<string> {
+    return performRequest(async () => {
+      const res = await axios.get(url, { responseType: 'text' });
+      return res.data as string;
     });
   }
 
