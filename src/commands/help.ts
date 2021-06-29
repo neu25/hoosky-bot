@@ -1,18 +1,17 @@
 import * as Discord from '../Discord';
 import Command from '../Command';
 import CommandOption from '../CommandOption';
-import { bold } from '../format';
+import { bold, pluralize } from '../format';
 import { countSubCommands, getCommandOptionChoices } from './_utils';
 import commandsList from './commands';
 
 const help = new Command({
   name: 'help',
-  description: "Displays usage information for the bot's available commands",
+  description: "Displays usage information about HooskBot's available commands",
   options: [
     new CommandOption({
       name: 'command',
-      description:
-        'Optional command name for specific information about that command',
+      description: 'Get information about a specific command',
       required: false,
       choices: getCommandOptionChoices(commandsList),
       type: Discord.CommandOptionType.STRING,
@@ -72,16 +71,29 @@ const help = new Command({
       });
       return;
     } else {
-      const commands = [];
-      for (const cmd of commandsList) {
+      const commands: {
+        name: string;
+        description: string;
+        subCommands: string;
+      }[] = [];
+
+      // Sort the commands in alphabetical order of name.
+      const sortedCmdList = [...commandsList].sort((a, b) =>
+        a.name.localeCompare(b.name),
+      );
+
+      for (const cmd of sortedCmdList) {
         const command = cmd.serialize();
         let subCommands = '';
         const subCommandCount = countSubCommands(command.options);
+
         if (subCommandCount > 0) {
-          subCommands = ` (${subCommandCount} subcommand${
-            subCommandCount > 1 ? 's' : ''
-          })`;
+          subCommands = ` (${subCommandCount} ${pluralize(
+            'subcommand',
+            subCommandCount,
+          )})`;
         }
+
         commands.push({
           name: command.name,
           description: command.description,
@@ -99,7 +111,7 @@ const help = new Command({
         type: Discord.EmbedType.RICH,
         title: 'Command List',
         description:
-          'Use `/help [command]` to view more information about a specific command',
+          'Run `/help [command]` to view more information about a specific command.',
         fields,
       });
     }
