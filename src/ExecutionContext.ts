@@ -9,12 +9,14 @@ import CourseRepo from './repository/CourseRepo';
 import ConfigRepo from './repository/ConfigRepo';
 import FollowUpManager from './FollowUpManager';
 import { FollowUpHandler } from './SubCommand';
+import Client from './Client';
 
 export type ExecutionContextOpts = {
   appId: string;
   repos: Repositories;
   interaction: Discord.Interaction;
-  client: AxiosInstance;
+  client: Client;
+  http: AxiosInstance;
   api: Api;
   followUpManager: FollowUpManager;
 };
@@ -36,10 +38,11 @@ class ExecutionContext {
   readonly api: Api;
   readonly repos: Repositories;
   readonly interaction: Discord.Interaction;
+  readonly client: Client;
   private _followUpHandlers: Record<string, FollowUpHandler>;
   private readonly _appId: string;
   private readonly _args: Arguments;
-  private readonly _client: AxiosInstance;
+  private readonly _http: AxiosInstance;
   private readonly _followUpManager: FollowUpManager;
 
   // For internal use.
@@ -50,9 +53,10 @@ class ExecutionContext {
     this.api = opts.api;
     this.repos = opts.repos;
     this.interaction = opts.interaction;
+    this.client = opts.client;
     this._appId = opts.appId;
     this._cmdIndex = 0;
-    this._client = opts.client;
+    this._http = opts.http;
     this._followUpManager = opts.followUpManager;
     this._followUpHandlers = {};
 
@@ -151,7 +155,7 @@ class ExecutionContext {
    */
   respond(res: Discord.InteractionResponse): Promise<void> {
     return performRequest(async () => {
-      await this._client.post(
+      await this._http.post(
         `/interactions/${this.interaction.id}/${this.interaction.token}/callback`,
         res,
       );
@@ -260,7 +264,7 @@ class ExecutionContext {
    */
   getResponse(): Promise<Discord.Message> {
     return performRequest(async () => {
-      const res = await this._client.get(
+      const res = await this._http.get(
         `/webhooks/${this._appId}/${this.interaction.token}/messages/@original`,
       );
       return res.data;
@@ -290,7 +294,7 @@ class ExecutionContext {
    */
   followUp(data: Discord.FollowUpMessage): Promise<Discord.Message> {
     return performRequest(async () => {
-      const res = await this._client.post(
+      const res = await this._http.post(
         `/webhooks/${this._appId}/${this.interaction.token}`,
         data,
       );
@@ -327,7 +331,7 @@ class ExecutionContext {
     edit: Discord.MessageEdit,
   ): Promise<Discord.Message> {
     return performRequest(async () => {
-      const res = await this._client.patch(
+      const res = await this._http.patch(
         `/webhooks/${this._appId}/${this.interaction.token}/messages/${messageId}`,
         edit,
       );
@@ -343,7 +347,7 @@ class ExecutionContext {
   deleteFollowUp(messageId: string): Promise<void> {
     return performRequest(
       async () =>
-        await this._client.delete(
+        await this._http.delete(
           `/webhooks/${this._appId}/${this.interaction.token}/messages/${messageId}`,
         ),
     );

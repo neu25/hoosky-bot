@@ -16,7 +16,7 @@ export type ClientOpts = {
   appId: string;
   token: string;
   repos: Repositories;
-  client: AxiosInstance;
+  http: AxiosInstance;
   api: Api;
   intents: Discord.Intent[];
   followUpListener: FollowUpManager;
@@ -49,7 +49,7 @@ class Client {
   private _sessionId?: string;
 
   // The axios client to pass to the ExecutionContext
-  private readonly _client: AxiosInstance;
+  private readonly _http: AxiosInstance;
 
   // A callback function to be called when the connection is established.
   private _connectCallback?: (data: Discord.ReadyPayload) => void;
@@ -64,7 +64,7 @@ class Client {
     this._commands = {};
     this._triggers = {};
     this._intents = opts.intents.reduce((prev, cur) => prev | cur);
-    this._client = opts.client;
+    this._http = opts.http;
     this._api = opts.api;
     this._followUpListener = opts.followUpListener;
   }
@@ -138,6 +138,18 @@ class Client {
   }
 
   /**
+   * Updates the presence (AKA status) of the bot.
+   *
+   * @param data The presence data.
+   */
+  updatePresence(data: Discord.PresenceUpdatePayload): void {
+    this._sendMessage({
+      op: Discord.Opcode.PresenceUpdate,
+      d: data,
+    });
+  }
+
+  /**
    * Handles a message from the gateway.
    *
    * @param msg
@@ -198,8 +210,9 @@ class Client {
               new ExecutionContext({
                 appId: this._appId,
                 repos: this._repos,
-                client: this._client,
+                http: this._http,
                 api: this._api,
+                client: this,
                 followUpManager: this._followUpListener,
                 interaction,
               }),
@@ -229,7 +242,7 @@ class Client {
    *
    * @param interval How often to send a heartbeat, in milliseconds.
    */
-  private _beginHeartbeat(interval: number) {
+  private _beginHeartbeat(interval: number): void {
     if (this._heartbeatInterval) {
       clearInterval(this._heartbeatInterval);
     }
@@ -244,7 +257,7 @@ class Client {
    *
    * @param msg The raw Discord gateway message.
    */
-  private _sendMessage(msg: Discord.GatewayMessage) {
+  private _sendMessage(msg: Discord.GatewayMessage): void {
     if (!this._ws) throw new Error('WebSocket connection not initialized');
     this._ws.send(JSON.stringify(msg));
   }
@@ -252,7 +265,7 @@ class Client {
   /**
    * Sends a heartbeat message to the gateway.
    */
-  private _sendHeartbeat() {
+  private _sendHeartbeat(): void {
     this._sendMessage({
       op: Discord.Opcode.Heartbeat,
       d: this._lastSeqNum,
@@ -262,7 +275,7 @@ class Client {
   /**
    * Identifies the bot with the gateway after a prior disconnection.
    */
-  private _sendResume() {
+  private _sendResume(): void {
     if (this._sessionId === undefined || this._lastSeqNum === null) {
       return this._sendIdentify();
     }
@@ -282,7 +295,7 @@ class Client {
   /**
    * Identifies the bot with the gateway for the first time.
    */
-  private _sendIdentify() {
+  private _sendIdentify(): void {
     const data: Discord.IdentifyPayload = {
       token: this._token,
       properties: {

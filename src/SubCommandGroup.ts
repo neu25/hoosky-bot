@@ -3,7 +3,10 @@ import CommandOption, { CommandOptionProps } from './CommandOption';
 import ExecutionContext from './ExecutionContext';
 import SubCommand from './SubCommand';
 
-export type SubCommandGroupProps = Omit<CommandOptionProps, 'type'>;
+export type SubCommandGroupProps = Omit<
+  CommandOptionProps,
+  'type' | 'required'
+>;
 
 /**
  * `SubCommandGroup` represents a command group that is a child of a parent
