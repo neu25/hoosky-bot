@@ -20,19 +20,22 @@ const help = new Command({
   ],
   handler: async ctx => {
     const chosenCommand = ctx.getArgument<string>('command')?.trim() as string;
+
     if (chosenCommand) {
-      const sections = [];
-      let description = '';
+      const sections: { name: string; description: string }[] = [];
+
+      let heading = '';
       // Find the command with the chosen name. find() will always return the correct command because options are fixed
       // so the secondary clause just ensures that cmd will always be defined (even though it isn't really needed)
       const cmd =
         commandsList.find(element => element.name == chosenCommand) ||
         commandsList[0];
+
       const command = cmd.serialize();
       if (command.options) {
         if (command.options[0].type == 1) {
           // subCommands are type 1
-          description = `\n\nSubcommands for /${command.name}:`;
+          heading = '\n\nSubcommands:';
           for (const subCommand of command.options) {
             sections.push({
               name: `/${command.name} ` + subCommand.name,
@@ -41,11 +44,11 @@ const help = new Command({
           }
         } else {
           // If options are not type 1, they are parameters (type 3)
-          description = `\n\nCommand parameters for /${command.name}:`;
+          heading = '\n\nCommand parameters:';
           for (const option of command.options) {
             let optional = '';
             if (!option.required) {
-              optional = ' (Optional)';
+              optional = ' (optional)';
             }
             sections.push({
               name: option.name + optional,
@@ -63,10 +66,8 @@ const help = new Command({
 
       await ctx.respondSilentlyWithEmbed({
         type: Discord.EmbedType.RICH,
-        title: `Usage information for /${command.name}`,
-        description: bold(
-          `/${command.name}: ${command.description}` + description,
-        ),
+        title: `Usage information for ${bold('/' + command.name)}`,
+        description: command.description + (heading && bold(heading)),
         fields,
       });
       return;
