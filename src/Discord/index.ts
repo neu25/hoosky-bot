@@ -29,14 +29,7 @@ export {
   CommandInteractionDataResolved,
   InteractionType,
 } from './interaction';
-export {
-  User,
-  Role,
-  RoleTag,
-  Activity,
-  ActivityTimestamp,
-  PresenceUpdate,
-} from './user';
+export { User, Role, RoleTag, PresenceUpdate } from './user';
 export {
   Message,
   MessageComponentType,
@@ -83,4 +76,10 @@ export {
   HelloPayload,
   Opcode,
   GatewayMessage,
+  Activity,
+  ActivityEmoji,
+  ActivityTimestamps,
+  ActivityType,
+  StatusType,
+  PresenceUpdatePayload,
 } from './gateway';

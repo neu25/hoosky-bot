@@ -59,3 +59,51 @@ export type ResumePayload = {
   session_id: string;
   seq: number;
 };
+
+export enum StatusType {
+  Online = 'online',
+  Dnd = 'dnd',
+  Idle = 'idle',
+  Invisible = 'invisible',
+  Offline = 'offline',
+}
+
+export type PresenceUpdatePayload = {
+  since: number | null;
+  activities: Activity[];
+  status: StatusType;
+  afk: boolean;
+};
+
+export enum ActivityType {
+  Game,
+  Streaming,
+  Listening,
+  Watching,
+  Custom,
+  Competing,
+}
+
+export type ActivityTimestamps = {
+  start?: number; // Unix
+  end?: number;
+};
+
+export type ActivityEmoji = {
+  name: string;
+  id?: string;
+  animated?: boolean;
+};
+
+export type Activity = {
+  name: string;
+  type: ActivityType;
+  url?: string; // For `Streaming` only
+  created_at: number; // Unix
+  timestamps?: ActivityTimestamps;
+  application_id?: string;
+  details?: string;
+  state?: string;
+  emoji?: ActivityEmoji;
+  // ... more at https://discord.com/developers/docs/topics/gateway#activity-object
+};

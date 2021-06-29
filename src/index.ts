@@ -46,7 +46,7 @@ import FollowUpManager from './FollowUpManager';
   const client = new Client({
     appId: config.discord.appId,
     token: config.discord.token,
-    client: reqClient,
+    http: reqClient,
     intents: [
       Discord.Intent.GUILDS,
       Discord.Intent.GUILD_MEMBERS,
