@@ -8,10 +8,10 @@ import Trigger from '../../Trigger';
  * When a course role is manually added to a user, add that user to the course's
  * member list in the database.
  */
-const courseRole = new Trigger<Discord.Event.GUILD_MEMBER_UPDATE>({
+const courseRole = new Trigger({
   event: Discord.Event.GUILD_MEMBER_UPDATE,
   handler: async ctx => {
-    const data = ctx.getData();
+    const data = ctx.data;
     const { user, guild_id: guildId } = data;
     if (!guildId) {
       throw new Error('No guild ID found in trigger data');

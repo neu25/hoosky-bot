@@ -7,10 +7,10 @@ import { RolesConfig } from '../../repository';
 /**
  * Ensure correct permissions for the `Muted` role when channels are updated.
  */
-const mutedRole = new Trigger<Discord.Event.CHANNEL_UPDATE>({
+const mutedRole = new Trigger({
   event: Discord.Event.CHANNEL_UPDATE,
   handler: async ctx => {
-    const data = ctx.getData();
+    const data = ctx.data;
     const { guild_id: guildId } = data;
     if (!guildId) {
       throw new Error('No guild ID found in trigger data');

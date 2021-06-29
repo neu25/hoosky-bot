@@ -238,3 +238,14 @@ export type Reaction = {
   me: boolean;
   emoji: Emoji;
 };
+
+export type CreateMessagePayload = {
+  content?: string;
+  tts?: boolean;
+  // file: fileContents;
+  embeds?: Embed[];
+  // payload_json?: string;
+  // allowed_mentions?: [];
+  message_reference?: MessageReference;
+  components?: MessageComponent[];
+};

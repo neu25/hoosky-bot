@@ -9,6 +9,8 @@ import triggers from './triggers';
 import { Database } from './database';
 import Api from './Api';
 import { setupRepos } from './repository';
+import Cache from './Cache';
+import FollowUpManager from './FollowUpManager';
 
 (async () => {
   const argv = await yargs(hideBin(process.argv)).argv;
@@ -21,15 +23,16 @@ import { setupRepos } from './repository';
     },
   });
 
-  console.log('Fetching list of joined guilds...');
-  const api = new Api(config.discord.appId, reqClient);
+  console.log('[Main] Fetching list of joined guilds...');
+  const cache = new Cache();
+  const api = new Api(config.discord.appId, reqClient, cache);
   const guilds = await api.getCurrentGuilds();
   const guildIds = guilds.map(g => g.id);
   for (let i = 0; i < guilds.length; i++) {
     console.log(`  (${i + 1}) ${guilds[i].name}`);
   }
 
-  console.log('Connecting to database...');
+  console.log('[Main] Connecting to database...');
   const database = new Database(config.mongodb.url, config.mongodb.db);
   await database.connect();
 
@@ -38,21 +41,30 @@ import { setupRepos } from './repository';
   // Insert default configuration values into the database.
   await repos.config.initialize(guildIds);
 
-  console.log('Connecting to gateway...');
-  const client = new Client(
-    config.discord.appId,
-    config.discord.token,
+  console.log('[Main] Connecting to gateway...');
+  const followUpListener = new FollowUpManager(api, repos);
+  const client = new Client({
+    appId: config.discord.appId,
+    token: config.discord.token,
+    http: reqClient,
+    intents: [
+      Discord.Intent.GUILDS,
+      Discord.Intent.GUILD_MEMBERS,
+      Discord.Intent.GUILD_MESSAGES,
+    ],
+    followUpListener,
     repos,
-    reqClient,
-    [Discord.Intent.GUILDS, Discord.Intent.GUILD_MEMBERS],
-  );
+    api,
+  });
 
   // Supply the commands we'd like to handle.
   client.handleCommands(commands);
   // Supply the triggers we'd like to handle.
-  client.handleTriggers(triggers);
+  client.handleTriggers([...triggers, ...cache.triggers()]);
 
   client.connect().then(data => {
-    console.log(`${data.user.username}#${data.user.discriminator} connected`);
+    console.log(
+      `[Main] ${data.user.username}#${data.user.discriminator} connected`,
+    );
   });
 })().catch(e => console.error(e));

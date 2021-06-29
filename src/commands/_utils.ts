@@ -51,11 +51,11 @@ export const countSubCommands = (options: any[]): number => {
 };
 
 export const getCommandOptionChoices = (
-  commandsList: Record<string, Command>,
+  commandsList: Command[],
 ): CommandOptionChoice[] => {
+  console.log(commandsList);
   const choices: CommandOptionChoice[] = [];
-  for (const cmd of Object.values(commandsList)) {
-    const command = cmd.serialize();
+  for (const command of commandsList) {
     choices.push(
       new CommandOptionChoice({
         name: command.name,

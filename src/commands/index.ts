@@ -1,8 +1,13 @@
 import commandsList from './commands';
 import help from './help';
 
-const commands = { help }; // Add help command
+const commands = [help]; // Add help command
 
-Object.assign(commands, commandsList); // Add remaining commands
+for (const command of commandsList) {
+  // Add remaining commands
+  commands.push(command);
+}
+
+console.log(commands);
 
 export default commands;

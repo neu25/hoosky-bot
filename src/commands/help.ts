@@ -23,7 +23,12 @@ const help = new Command({
     if (chosenCommand) {
       const sections = [];
       let description = '';
-      const command = (commandsList as any)[chosenCommand].serialize();
+      // Find the command with the chosen name. find() will always return the correct command because options are fixed
+      // so the secondary clause just ensures that cmd will always be defined (even though it isn't really needed)
+      const cmd =
+        commandsList.find(element => element.name == chosenCommand) ||
+        commandsList[0];
+      const command = cmd.serialize();
       if (command.options) {
         if (command.options[0].type == 1) {
           // subCommands are type 1
@@ -67,7 +72,7 @@ const help = new Command({
       return;
     } else {
       const commands = [];
-      for (const cmd of Object.values(commandsList)) {
+      for (const cmd of commandsList) {
         const command = cmd.serialize();
         let subCommands = '';
         const subCommandCount = countSubCommands(command.options);

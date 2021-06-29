@@ -1,13 +1,21 @@
 import * as Discord from './Discord';
 import SubCommandGroup, { SubCommandGroupProps } from './SubCommandGroup';
 import ExecutionContext from './ExecutionContext';
+import TriggerContext from './TriggerContext';
 import { hasPermission } from './permissions';
 import { bold } from './format';
 
-export type CommandHandler = (ctx: ExecutionContext) => void | Promise<void>;
+export type CommandHandler = (
+  ctx: ExecutionContext,
+) => unknown | Promise<unknown>;
+export type FollowUpHandler = (
+  tctx: TriggerContext<Discord.Message>,
+  ectx: ExecutionContext,
+) => unknown | Promise<unknown>;
 
 export type SubCommandOptions = {
   handler: CommandHandler;
+  followUpHandlers?: Record<string, FollowUpHandler>;
   displayName: string;
   requiredPermissions?: Discord.Permission[];
 } & SubCommandGroupProps;
@@ -24,13 +32,21 @@ export type SubCommandOptions = {
  */
 class SubCommand extends SubCommandGroup {
   readonly displayName: string;
+  readonly followUpHandlers: Record<string, FollowUpHandler>;
   private readonly _handler: CommandHandler;
   private readonly _requiredPerms: Discord.Permission[];
 
   constructor(opts: SubCommandOptions) {
-    const { handler, requiredPermissions, displayName, ...base } = opts;
+    const {
+      handler,
+      requiredPermissions,
+      displayName,
+      followUpHandlers,
+      ...base
+    } = opts;
     super(base);
     this.displayName = displayName;
+    this.followUpHandlers = followUpHandlers ?? {};
     this._handler = handler;
     this._requiredPerms = requiredPermissions ?? [];
   }
@@ -41,13 +57,13 @@ class SubCommand extends SubCommandGroup {
    *
    * @param ctx The execution context.
    */
-  async execute(ctx: ExecutionContext): Promise<void> {
+  async execute(ctx: ExecutionContext): Promise<unknown> {
     const { interaction } = ctx;
     if (!interaction.member) {
       throw new Error('No member found in interaction');
     }
 
-    const executorPerms = parseInt(interaction.member.permissions);
+    const executorPerms = parseInt(interaction.member.permissions ?? '0');
     for (const p of this._requiredPerms) {
       if (!hasPermission(executorPerms, p)) {
         await ctx.respondWithError(
@@ -59,6 +75,9 @@ class SubCommand extends SubCommandGroup {
         return;
       }
     }
+
+    // Supply this subcommand's follow-up handlers.
+    ctx._setFollowUpHandlers(this.followUpHandlers);
 
     return this._handler(ctx);
   }

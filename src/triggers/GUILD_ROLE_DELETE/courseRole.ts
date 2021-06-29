@@ -4,10 +4,10 @@ import Trigger from '../../Trigger';
 /**
  * When a course role is deleted, also delete the course in the database.
  */
-const courseRole = new Trigger<Discord.Event.GUILD_ROLE_DELETE>({
+const courseRole = new Trigger({
   event: Discord.Event.GUILD_ROLE_DELETE,
   handler: async ctx => {
-    const data = ctx.getData();
+    const data = ctx.data;
     const { guild_id: guildId } = data;
     if (!guildId) {
       throw new Error('No guild ID found in trigger data');

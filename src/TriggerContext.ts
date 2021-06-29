@@ -1,4 +1,3 @@
-import { AxiosInstance } from 'axios';
 import Api from './Api';
 import { Repositories } from './repository';
 import ConfigRepo from './repository/ConfigRepo';
@@ -7,17 +6,12 @@ import CourseRepo from './repository/CourseRepo';
 class TriggerContext<T> {
   readonly api: Api;
   readonly repos: Repositories;
-  private readonly _data: T;
+  readonly data: T;
 
-  constructor(
-    appId: string,
-    client: AxiosInstance,
-    repos: Repositories,
-    data: T,
-  ) {
-    this.api = new Api(appId, client);
+  constructor(api: Api, repos: Repositories, data: T) {
+    this.api = api;
     this.repos = repos;
-    this._data = data;
+    this.data = data;
   }
 
   courses(): CourseRepo {
@@ -26,10 +20,6 @@ class TriggerContext<T> {
 
   config(): ConfigRepo {
     return this.repos.config;
-  }
-
-  getData(): T {
-    return this._data;
   }
 }
 
