@@ -1,4 +1,4 @@
-import { Emoji } from './message';
+import { Activity } from './gateway';
 import { ClientStatus } from './application';
 
 export type User = {
@@ -23,25 +23,6 @@ export type PresenceUpdate = {
   status: string;
   activities: Activity[];
   client_status: ClientStatus;
-};
-
-export type Activity = {
-  name: string;
-  type: number;
-  url?: string;
-  created_at: number;
-  timestamps?: ActivityTimestamp;
-  application_id?: string;
-  details?: string;
-  state?: string;
-  emoji?: Emoji;
-  // ... and several other omitted fields.
-  // https://discord.com/developers/docs/topics/gateway#activity-object
-};
-
-export type ActivityTimestamp = {
-  start?: number;
-  end?: number;
 };
 
 export type Role = {

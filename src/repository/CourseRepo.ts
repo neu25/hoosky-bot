@@ -31,6 +31,14 @@ class CourseRepo {
     return this.collection(guildId).findOne({ roleId });
   }
 
+  async updateById(
+    guildId: string,
+    id: string,
+    course: Partial<Omit<Course, '_id'>>,
+  ): Promise<void> {
+    await this.collection(guildId).updateOne({ _id: id }, { $set: course });
+  }
+
   async listRoles(guildId: string): Promise<string[]> {
     const courses = await this.list(guildId);
     return courses.map(c => c.roleId);

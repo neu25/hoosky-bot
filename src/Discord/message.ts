@@ -86,7 +86,7 @@ export type Message = {
   referenced_message?: Message;
   interaction?: MessageInteraction;
   thread?: Channel;
-  components?: MessageComponent;
+  components?: MessageComponent[];
 };
 
 export type MessageEdit = Partial<{
@@ -237,4 +237,15 @@ export type Reaction = {
   count: number;
   me: boolean;
   emoji: Emoji;
+};
+
+export type CreateMessagePayload = {
+  content?: string;
+  tts?: boolean;
+  file?: File;
+  embeds?: Embed[];
+  // payload_json?: string;
+  // allowed_mentions?: [];
+  message_reference?: MessageReference;
+  components?: MessageComponent[];
 };

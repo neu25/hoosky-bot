@@ -28,3 +28,19 @@ export const semiBoldCourse = (course: Course): string => {
 export const boldCourse = (course: Course): string => {
   return bold(formatCourse(course));
 };
+
+export const validCourseId = (id: string): boolean => {
+  return /^[A-Z]{2,4} [0-9]{4}$/.test(id);
+};
+
+export type NewCourse = {
+  subject: string;
+  number: number;
+};
+
+export const parseCourse = (id: string): NewCourse => {
+  // Extract the subject code. E.g., `ENGW 1111` -> `ENGW`.
+  const subject = id.split(' ')[0];
+  const number = parseInt(id.split(' ')[1]);
+  return { subject, number };
+};

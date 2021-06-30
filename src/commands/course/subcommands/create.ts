@@ -1,7 +1,7 @@
 import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
-import { boldCourse } from '../_common';
+import { boldCourse, parseCourse, validCourseId } from '../_common';
 import { Course } from '../../../repository';
 
 const create = new SubCommand({
@@ -26,39 +26,33 @@ const create = new SubCommand({
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
 
-    const name = ctx.getArgument<string>('name')?.trim() as string;
-    const id = ctx.getArgument<string>('id')?.trim() as string;
+    const courseName = ctx.getArgument<string>('name')?.trim() as string;
+    const courseId = ctx.getArgument<string>('id')?.trim() as string;
 
-    if (!/^[A-Z]{2,4} [0-9]{4}$/.test(id)) {
-      return ctx.respondWithError('Invalid course ID');
+    if (!validCourseId(courseId)) {
+      return ctx.respondWithError('Invalid course ID.');
     }
-
-    // Extract the subject code. E.g., `ENGW 1111` -> `ENGW`.
-    const subject = id.split(' ')[0];
-    const number = parseInt(id.split(' ')[1]);
-
-    if (await ctx.courses().exists(guildId, id)) {
-      return ctx.respondWithError('That course already exists');
+    if (await ctx.courses().exists(guildId, courseId)) {
+      return ctx.respondWithError('Course already exists.');
     }
-
-    const roleParams = {
-      name: id,
-      permissions: '0',
-      mentionable: true,
-    };
 
     // Create the course role.
-    const courseRole = await ctx.api.createGuildRole(guildId, roleParams);
+    const courseRole = await ctx.api.createGuildRole(guildId, {
+      name: courseId,
+      permissions: '0',
+      mentionable: true,
+    });
+
+    const { subject, number } = parseCourse(courseId);
     const course: Course = {
-      _id: id,
+      _id: courseId,
       subject,
       number,
-      name,
+      name: courseName,
       roleId: courseRole.id,
       members: [],
       sections: [],
     };
-
     // Create course in database.
     await ctx.courses().create(guildId, course);
 
