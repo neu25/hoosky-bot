@@ -1,7 +1,7 @@
+import cronstrue from 'cronstrue';
 import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import { Config, BirthdaysConfig } from '../../../database';
-import { bold } from '../../../format';
 
 export const scheduleGet = new SubCommand({
   name: 'schedule-get',
@@ -17,9 +17,11 @@ export const scheduleGet = new SubCommand({
       Config.BIRTHDAYS,
     );
 
-    if (birthdaysCfg) {
+    if (birthdaysCfg && birthdaysCfg.schedule) {
       return ctx.respondWithMessage(
-        `${bold('Current birthdays schedule:')} \`${birthdaysCfg.schedule}\``,
+        `Birthday messages send ${cronstrue
+          .toString(birthdaysCfg.schedule, { verbose: true })
+          .toLowerCase()}`,
       );
     }
 

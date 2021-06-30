@@ -22,6 +22,7 @@
   "dependencies": {
     "axios": "^0.21.1",
     "cron": "^1.8.2",
+    "cronstrue": "^1.114.0",
     "mongodb": "^3.6.9",
     "ws": "^7.4.6",
     "yargs": "^17.0.1"

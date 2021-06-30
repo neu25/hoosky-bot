@@ -1,3 +1,4 @@
+import cronstrue from 'cronstrue';
 import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
@@ -58,7 +59,11 @@ export const scheduleSet = new SubCommand({
       await startScheduler();
 
       return ctx.respondWithMessage(
-        `${bold('Birthdays schedule updated:')} \`${schedule}\``,
+        `${bold('Birthdays schedule updated!')} Messages will send ${cronstrue
+          .toString(schedule, {
+            verbose: true,
+          })
+          .toLowerCase()}`,
       );
     }
 
