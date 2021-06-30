@@ -77,19 +77,7 @@ export const setBirthday = async (
   dayOfYear: number,
   userId: string,
 ): Promise<any> => {
-  const day = await dayExists(ctx, guildId, dayOfYear);
-
-  if (day) {
-    return await birthdaysCollection(ctx, guildId).updateOne(
-      { _id: dayOfYear },
-      { $push: { users: userId } },
-    );
-  } else {
-    return await birthdaysCollection(ctx, guildId).insertOne({
-      _id: dayOfYear,
-      users: [userId],
-    });
-  }
+  return await createBirthdayIfNotExists(ctx, guildId, userId, dayOfYear);
 };
 
 export const getBirthday = async (
@@ -124,6 +112,27 @@ export const getTodaysBirthdays = async (
   day: number,
 ): Promise<Cursor<Birthday>> => {
   return await birthdaysCollection(ctx, guildId).find({ _id: day });
+};
+
+export const createBirthdayIfNotExists = async (
+  ctx: ExecutionContext,
+  guildId: string,
+  userId: string,
+  dayOfYear: number,
+): Promise<any> => {
+  const day = await dayExists(ctx, guildId, dayOfYear);
+
+  if (day) {
+    return await birthdaysCollection(ctx, guildId).updateOne(
+      { _id: dayOfYear },
+      { $push: { users: userId } },
+    );
+  } else {
+    return await birthdaysCollection(ctx, guildId).insertOne({
+      _id: dayOfYear,
+      users: [userId],
+    });
+  }
 };
 
 /**
