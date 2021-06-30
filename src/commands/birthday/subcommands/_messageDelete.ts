@@ -12,15 +12,20 @@ export const messageDelete = new SubCommand({
   requiredPermissions: [Discord.Permission.MANAGE_ROLES],
   options: [
     new CommandOption({
-      name: 'message',
-      description: 'Birthday message',
+      name: 'id',
+      description: 'Message ID',
       required: true,
       type: CommandOptionType.STRING,
     }),
   ],
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
-    const message = ctx.getArgument<string>('message') as string;
+    const providedId = ctx.getArgument<string>('id') as string;
+    const id = parseInt(providedId, 10);
+
+    if (!id || typeof id !== 'number') {
+      return ctx.respondWithError(`ID is invalid`);
+    }
 
     // Get birthdays config.
     const birthdaysCfg = await ctx.db.getConfigValue<BirthdaysConfig>(
@@ -29,7 +34,13 @@ export const messageDelete = new SubCommand({
     );
 
     if (birthdaysCfg && birthdaysCfg.messages) {
-      const index = birthdaysCfg.messages.indexOf(message);
+      const index = birthdaysCfg.messages
+        .map(function (m) {
+          return m.id;
+        })
+        .indexOf(id);
+
+      const message = birthdaysCfg.messages[index].message;
 
       if (index > -1) {
         // Remove message.

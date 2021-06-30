@@ -37,8 +37,19 @@ export const messageAdd = new SubCommand({
     );
 
     if (birthdaysCfg) {
+      const messages = birthdaysCfg?.messages;
+      let nextId = 1;
+      if (messages) {
+        nextId = messages[messages.length - 1].id + 1;
+
+        // Ensure all IDs are positive values
+        if (nextId < 1) {
+          nextId = 1;
+        }
+      }
+
       // Add message.
-      birthdaysCfg.messages?.push(message);
+      birthdaysCfg.messages?.push({ id: nextId, message });
 
       // Update database.
       await ctx.db.updateConfigValue(guildId, Config.BIRTHDAYS, birthdaysCfg);

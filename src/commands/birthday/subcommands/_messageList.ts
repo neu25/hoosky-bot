@@ -17,7 +17,7 @@ export const messageList = new SubCommand({
     if (birthdaysCfg && birthdaysCfg.messages) {
       let description = '';
       birthdaysCfg.messages.map(m => {
-        description += m + '\n';
+        description += `\`${m.id}\`: ${m.message}\n`;
       });
 
       await ctx.respondSilentlyWithEmbed({

@@ -53,7 +53,7 @@ export const configureScheduler = async (
         });
 
         let randomMessage =
-          messages[Math.floor(Math.random() * messages.length)]; // Pick a random message.
+          messages[Math.floor(Math.random() * messages.length)].message; // Pick a random message.
         randomMessage = randomMessage.replace('@', greeting); // Replace template with user mention(s)
 
         const messageData: CreateMessage = {
