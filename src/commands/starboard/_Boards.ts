@@ -35,4 +35,6 @@ class Boards {
         Boards.boardEmojis.splice(idx, 1);
         Boards.boardMins.splice(idx, 1);
     }
+    //TODO: add methods for changing channel, emoji, and minimum
 }
+export default Boards;

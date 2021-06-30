@@ -2,7 +2,7 @@ import * as Discord from '../../Discord';
 import Command from '../../Command';
 import SubCommand from '../../SubCommand';
 import CommandOption from '../../CommandOption';
-import '../starboard/_Boards'
+import Boards from '../starboard/_Boards'
 
 
 const setstarboard = new Command({
@@ -43,7 +43,7 @@ const setstarboard = new Command({
         //respond to user
         await ctx.respondWithMessage(`Starboard created in <#${channelId}> with ${minstars} minimum reactions of ${emoji} required`);
         //add information to Boards object so it can be accessed from starboard.ts
-        Boards.addBoard(channelName!,channelId,emoji,minstars)
+        await Boards.addBoard(channelName!,channelId,emoji,minstars);
         /*
         Use response system to extract variables from parameters
         Use database as a means to communicate with starboard.ts and as a means to store aformentioned variables
