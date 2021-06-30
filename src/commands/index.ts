@@ -8,6 +8,4 @@ for (const command of commandsList) {
   commands.push(command);
 }
 
-console.log(commands);
-
 export default commands;

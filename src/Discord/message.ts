@@ -86,7 +86,7 @@ export type Message = {
   referenced_message?: Message;
   interaction?: MessageInteraction;
   thread?: Channel;
-  components?: MessageComponent;
+  components?: MessageComponent[];
 };
 
 export type MessageEdit = Partial<{
@@ -242,7 +242,7 @@ export type Reaction = {
 export type CreateMessagePayload = {
   content?: string;
   tts?: boolean;
-  // file: fileContents;
+  file?: File;
   embeds?: Embed[];
   // payload_json?: string;
   // allowed_mentions?: [];

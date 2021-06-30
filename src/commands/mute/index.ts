@@ -9,6 +9,7 @@ export const MUTED_PERMISSIONS = {
 
 const mute = new Command({
   name: 'mute',
+  displayName: 'Mute',
   description: 'Execute mute commands',
   options: subcommands,
 });

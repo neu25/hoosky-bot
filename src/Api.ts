@@ -258,6 +258,29 @@ class Api {
   }
 
   /**
+   * TODO: Work in progress.
+   */
+  // createMessageWithFile(
+  //   channelId: string,
+  //   fileName: string,
+  //   data: Discord.CreateMessagePayload & { file: File },
+  // ): Promise<Discord.Message> {
+  //   const { file, ...payload } = data;
+  //
+  //   const formData = new FormData();
+  //   formData.append('file', file, fileName);
+  //   formData.append('payload_json', JSON.stringify(payload));
+  //
+  //   return performRequest(async () => {
+  //     const res = await this._http.post(
+  //       `/channels/${channelId}/messages`,
+  //       formData,
+  //     );
+  //     return res.data as Discord.Message;
+  //   });
+  // }
+
+  /**
    * Sends an error message in the specified channel.
    *
    * @param channelId The ID of the channel.

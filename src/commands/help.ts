@@ -7,6 +7,7 @@ import commandsList from './commands';
 
 const help = new Command({
   name: 'help',
+  displayName: 'Help',
   description: "Displays usage information about HooskBot's available commands",
   options: [
     new CommandOption({
