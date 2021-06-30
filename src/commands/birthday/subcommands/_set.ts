@@ -6,7 +6,7 @@ import { calculateDayOfYear, userHasBirthday, setBirthday } from '../_common';
 export const set = new SubCommand({
   name: 'set',
   displayName: 'Set Birthday',
-  description: "Set a user's birthday",
+  description: 'Set your birthday',
   options: [
     new CommandOption({
       name: 'date',

@@ -41,7 +41,7 @@ export const calculateDate = (day: number): Date => {
 export const getTargetUser = async (
   ctx: ExecutionContext,
   requestorId: string | undefined,
-  targetUserId: string,
+  targetUserId: string | undefined,
 ): Promise<Discord.User | undefined> => {
   if (targetUserId) {
     return await ctx.api.getUser(targetUserId);
