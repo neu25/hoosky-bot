@@ -2,15 +2,8 @@ import * as Discord from '../../Discord';
 import Command from '../../Command';
 import SubCommand from '../../SubCommand';
 import CommandOption from '../../CommandOption';
+import '../starboard/_Boards'
 
-//this doesn't work yet
-let boardNames: string[] = [];
-let boardIDs: string[] = [];
-let boardEmojis: string[] = [];
-let boardMins: number[] = [];
-function getBoardInfo() {
-  return [boardNames, boardIDs, boardEmojis, boardMins]
-};
 
 const setstarboard = new Command({
   name: 'setstarboard',
@@ -42,26 +35,19 @@ const setstarboard = new Command({
         }),
       ],
       handler: async ctx => {
-        const channel = ctx.getArgument('channel') as string;
-        //
+        //get information about new board
+        const channelId = ctx.getArgument('channel') as string;
+        const channelName = (await ctx.api.getChannel(channelId)).name;
         const emoji = ctx.getArgument('emoji') as string;
-        //
         const minstars = ctx.getArgument('minstars') as number;
-
-        await ctx.respondWithMessage(
-          'Starboard created in ' +
-            channel +
-            'with ' +
-            minstars +
-            ' ' +
-            emoji +
-            ' required',
-        );
-
+        //respond to user
+        await ctx.respondWithMessage(`Starboard created in <#${channelId}> with ${minstars} minimum reactions of ${emoji} required`);
+        //add information to Boards object so it can be accessed from starboard.ts
+        Boards.addBoard(channelName!,channelId,emoji,minstars)
         /*
         Use response system to extract variables from parameters
         Use database as a means to communicate with starboard.ts and as a means to store aformentioned variables
-        Implement/Utilize a listening system to recognize when the number of stars has been reached
+        Implement/Utilize a listening system to recognize when the number of stars has been reached (DONE)
           Once code works, revamp setstarboard to include self-star:(boolean), starring a bot(boolean), and emoji(STRING)
       */
       },

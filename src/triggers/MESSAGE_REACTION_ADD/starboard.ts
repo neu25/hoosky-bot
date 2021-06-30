@@ -1,19 +1,20 @@
 import * as Discord from '../../Discord';
 import Trigger from '../../Trigger';
 import {setstarboard} from '../../commands/starboard';
-
+import '../../commands/starboard/_Boards'
 /*
 this only works for star emojis for now, ideally we will have multiple boards with multiple emojis and minstars
 */
 const starboard = new Trigger<Discord.Event.MESSAGE_REACTION_ADD>({
   event: Discord.Event.MESSAGE_REACTION_ADD,
   handler: async ctx => {
-    //const boardsInfo = setstarboard.getBoardInfo() //doesn't work yet
-    const minstars = 1; //1 for now, ideally will get this value from setstarboard
     //get information about the reaction
     const data = ctx.getData();
-    console.log(data);
-    if (data.emoji.name === '⭐') {
+    //check if the emoji is one of the designated emojis for theboards
+    if (Boards.boardNames.includes(data.emoji.name)) {
+      const idx = Boards.boardNames.indexOf(data.emoji.name);
+      const minstars = Boards.boardMins[idx];
+      const channelId = Boards.boardIDs[idx];
       //get array of users who reacted with a star
       const reactions = await ctx.api.getReactions(
         data.message_id,
@@ -38,8 +39,7 @@ const starboard = new Trigger<Discord.Event.MESSAGE_REACTION_ADD>({
       };
 
       if (reactions.length >= minstars) {
-        await ctx.api.createMessage("854880840085536798", boardMsg); //this is my own starboard channel's id
-        //TODO: get starboard channel id from commands/starboard/setstarboard
+        await ctx.api.createMessage(channelId, boardMsg); 
       }
     }
   },
