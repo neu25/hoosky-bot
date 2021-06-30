@@ -8,7 +8,7 @@ import { calculateDayOfYear } from '../../commands/birthday/_common';
 
 let job: CronJob;
 
-const configureScheduler = async (
+export const configureScheduler = async (
   ctx: ExecutionContext | TriggerContext<Discord.Channel>,
   guildId: string,
 ): Promise<void> => {
@@ -81,5 +81,3 @@ export const stopScheduler = (): void => {
     job.stop();
   }
 };
-
-export default configureScheduler;

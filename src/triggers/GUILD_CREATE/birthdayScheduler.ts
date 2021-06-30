@@ -1,6 +1,7 @@
 import * as Discord from '../../Discord';
 import Trigger from '../../Trigger';
-import configureScheduler, {
+import {
+  configureScheduler,
   startScheduler,
 } from '../../commands/birthday/scheduler';
 

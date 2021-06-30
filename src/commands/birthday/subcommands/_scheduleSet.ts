@@ -5,7 +5,8 @@ import { CommandOptionType } from '../../../Discord';
 import { Config, BirthdaysConfig } from '../../../database';
 import { bold } from '../../../format';
 import { padNumber } from '../../../utils';
-import configureScheduler, {
+import {
+  configureScheduler,
   startScheduler,
   stopScheduler,
 } from '../scheduler';
