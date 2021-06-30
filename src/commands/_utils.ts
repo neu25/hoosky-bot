@@ -53,7 +53,6 @@ export const countSubCommands = (options: any[]): number => {
 export const getCommandOptionChoices = (
   commandsList: Command[],
 ): CommandOptionChoice[] => {
-  console.log(commandsList);
   const choices: CommandOptionChoice[] = [];
   for (const command of commandsList) {
     choices.push(

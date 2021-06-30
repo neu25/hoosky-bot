@@ -12,6 +12,7 @@ import CommandOption from '../CommandOption';
  */
 const poll = new Command({
   name: 'poll',
+  displayName: 'Poll',
   description: 'Manage polls',
   options: [
     new SubCommand({

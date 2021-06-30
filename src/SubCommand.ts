@@ -58,28 +58,54 @@ class SubCommand extends SubCommandGroup {
    * @param ctx The execution context.
    */
   async execute(ctx: ExecutionContext): Promise<unknown> {
-    const { interaction } = ctx;
-    if (!interaction.member) {
-      throw new Error('No member found in interaction');
-    }
-
-    const executorPerms = parseInt(interaction.member.permissions ?? '0');
-    for (const p of this._requiredPerms) {
-      if (!hasPermission(executorPerms, p)) {
-        await ctx.respondWithError(
-          `The ${bold(this.displayName)} command requires the ` +
-            `${bold(
-              Discord.PermissionName[p],
-            )} permission, but you don't have it.`,
-        );
-        return;
-      }
+    if (
+      !(await SubCommand.checkPermissions(
+        ctx,
+        this.displayName,
+        this._requiredPerms,
+      ))
+    ) {
+      return;
     }
 
     // Supply this subcommand's follow-up handlers.
     ctx._setFollowUpHandlers(this.followUpHandlers);
 
     return this._handler(ctx);
+  }
+
+  /**
+   * Checks whether the command execution is permitted according to the specified
+   * required permissions.
+   *
+   * @param ctx The ExecutionContext of the command.
+   * @param displayName The display name of the command.
+   * @param requiredPerms The Discord permissions required to execute the command.
+   */
+  static async checkPermissions(
+    ctx: ExecutionContext,
+    displayName: string,
+    requiredPerms: Discord.Permission[],
+  ): Promise<boolean> {
+    const { interaction } = ctx;
+    if (!interaction.member) {
+      throw new Error('No member found in interaction');
+    }
+
+    const executorPerms = parseInt(interaction.member.permissions ?? '0');
+    for (const p of requiredPerms) {
+      if (!hasPermission(executorPerms, p)) {
+        await ctx.respondWithError(
+          `The ${bold(displayName)} command requires the ` +
+            `${bold(
+              Discord.PermissionName[p],
+            )} permission, but you don't have it.`,
+        );
+        return false;
+      }
+    }
+
+    return true;
   }
 
   /**

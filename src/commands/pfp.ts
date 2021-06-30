@@ -4,6 +4,7 @@ import CommandOption from '../CommandOption';
 
 const pfp = new Command({
   name: 'pfp',
+  displayName: 'Profile Picture',
   description: 'View the profile picture of a user',
   options: [
     new CommandOption({
