@@ -15,7 +15,7 @@ const join = new SubCommand({
       type: Discord.CommandOptionType.ROLE,
     }),
     new CommandOption({
-      name: 'section-number',
+      name: 'section',
       description: 'The number of your course section',
       required: false,
       type: Discord.CommandOptionType.INTEGER,
@@ -24,9 +24,7 @@ const join = new SubCommand({
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
     const roleId = ctx.getArgument<string>('role') as string;
-    const sectionNum = parseInt(
-      ctx.getArgument<string>('section-number') as string,
-    );
+    const sectionNum = parseInt(ctx.getArgument<string>('section') as string);
 
     const course = await ctx.courses().getByRoleId(guildId, roleId);
     if (!course) {

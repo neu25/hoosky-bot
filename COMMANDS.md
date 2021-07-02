@@ -27,14 +27,14 @@ This is a list of commands currently implemented in Hoosky Bot.
 
 ## `/course`
 
-| Command                                       | Description                                                                                                                                            |
-| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `/course create [name] [id]`                  | Creates a new course and associated server role. Requires the `MANAGE_ROLES` permission.                                                               |
-| `/course delete [@role]`                      | Removes a course and associated server role. Requires the `MANAGE_ROLES` permission.                                                                   |
-| `/course list-all`                            | Silently lists all available courses.                                                                                                                  |
-| `/course list-joined [@user?]`                | Silently lists all joined courses for the specified user. If no user is specified, defaults to the user who ran the command.                           |
-| `/course join [@role] [sectionNum?]`          | Joins a course and assigns the appropriate course role to the user.                                                                                    |
-| `/course leave [@role]`                       | Leaves a course and removes the course role from the user.                                                                                             |
-| `/course roster [@role] [sectionNum?]`        | Silently lists all members currently in the course. If a section number is provided, only lists members in that section of the course.                 |
-| `/course classmates [@user?]`                 | Silently lists all users who share a section of any course with the specified user. If no user is specified, defaults to the user who ran the command. |
-| `/course switch-section [@role] [sectionNum]` | Switches to the specificed section of the course.                                                                                                      |
+| Command                                    | Description                                                                                                                                            |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `/course create [name] [id]`               | Creates a new course and associated server role. Requires the `MANAGE_ROLES` permission.                                                               |
+| `/course delete [@role]`                   | Removes a course and associated server role. Requires the `MANAGE_ROLES` permission.                                                                   |
+| `/course list-all`                         | Silently lists all available courses.                                                                                                                  |
+| `/course list-joined [@user?]`             | Silently lists all joined courses for the specified user. If no user is specified, defaults to the user who ran the command.                           |
+| `/course join [@role] [section?]`          | Joins a course and assigns the appropriate course role to the user.                                                                                    |
+| `/course leave [@role]`                    | Leaves a course and removes the course role from the user.                                                                                             |
+| `/course roster [@role] [section?]`        | Silently lists all members currently in the course. If a section number is provided, only lists members in that section of the course.                 |
+| `/course classmates [@user?]`              | Silently lists all users who share a section of any course with the specified user. If no user is specified, defaults to the user who ran the command. |
+| `/course switch-section [@role] [section]` | Switches to the specificed section of the course.                                                                                                      |
