@@ -1,0 +1,8 @@
+#!/usr/bin/env node
+
+var gaze_run_interrupt = require('gaze-run-interrupt');
+
+gaze_run_interrupt('{src,tests}/**/*.ts', [
+    { command: 'tsc' },
+    { command: 'npx', args: ['jest']}
+]);
