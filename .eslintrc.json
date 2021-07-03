@@ -1,6 +1,9 @@
 {
   "env": {
-    "es2021": true
+    "es2021": true,
+    "browser": true,
+    "amd": true,
+    "node": true
   },
   "extends": [
     "eslint:recommended",
