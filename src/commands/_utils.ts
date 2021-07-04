@@ -1,3 +1,5 @@
+import Command from '../Command';
+import CommandOptionChoice from '../CommandOptionChoice';
 import * as Discord from '../Discord';
 
 export const guildRoleListToMap = (
@@ -29,4 +31,36 @@ export const getHighestRank = (roles: Discord.Role[]): number => {
     }
   }
   return highest;
+};
+
+const getOptionsOfType = (options: Discord.CommandOption[], type: number) => {
+  const commandOptions: Discord.CommandOption[] = [];
+  if (!options) {
+    return commandOptions;
+  }
+  for (const option of options) {
+    if (option.type == type) {
+      commandOptions.push(option);
+    }
+  }
+  return commandOptions;
+};
+
+export const countSubCommands = (options: any[]): number => {
+  return getOptionsOfType(options, 1).length;
+};
+
+export const getCommandOptionChoices = (
+  commandsList: Command[],
+): CommandOptionChoice[] => {
+  const choices: CommandOptionChoice[] = [];
+  for (const command of commandsList) {
+    choices.push(
+      new CommandOptionChoice({
+        name: command.name,
+        value: command.name,
+      }),
+    );
+  }
+  return choices;
 };

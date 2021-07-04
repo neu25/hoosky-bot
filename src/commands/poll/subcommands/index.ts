@@ -1,6 +1,6 @@
-import { create } from './create';
-import { close } from './close';
+import create from './create';
+import close from './close';
 
-export const subcommands = [create, close];
+const subcommands = [create, close];
 
 export default subcommands;

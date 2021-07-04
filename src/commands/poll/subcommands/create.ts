@@ -1,9 +1,9 @@
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
 import * as Discord from '../../../Discord';
-import { createPoll, Poll } from '../_common';
+import { Poll } from '../../../repository/PollRepo';
 
-export const create = new SubCommand({
+const create = new SubCommand({
   name: 'create',
   displayName: 'Create',
   description: 'Create a new poll',
@@ -63,6 +63,8 @@ export const create = new SubCommand({
       closed: false,
     };
 
-    createPoll(ctx, guildId, poll);
+    ctx.poll().create(guildId, poll);
   },
 });
+
+export default create;

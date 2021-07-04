@@ -1,25 +1,30 @@
-import { Database } from './database';
 import Api from './Api';
-import { AxiosInstance } from 'axios';
+import { Repositories } from './repository';
+import ConfigRepo from './repository/ConfigRepo';
+import CourseRepo from './repository/CourseRepo';
+import PollRepo from './repository/PollRepo';
 
 class TriggerContext<T> {
   readonly api: Api;
-  readonly db: Database;
-  private readonly _data: T;
+  readonly repos: Repositories;
+  readonly data: T;
 
-  constructor(
-    appId: string,
-    client: AxiosInstance,
-    database: Database,
-    data: T,
-  ) {
-    this.api = new Api(appId, client);
-    this.db = database;
-    this._data = data;
+  constructor(api: Api, repos: Repositories, data: T) {
+    this.api = api;
+    this.repos = repos;
+    this.data = data;
   }
 
-  getData(): T {
-    return this._data;
+  courses(): CourseRepo {
+    return this.repos.courses;
+  }
+
+  config(): ConfigRepo {
+    return this.repos.config;
+  }
+
+  poll(): PollRepo {
+    return this.repos.poll;
   }
 }
 

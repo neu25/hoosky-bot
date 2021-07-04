@@ -1,9 +1,9 @@
 import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
-import { getCourseByRoleId, getCourseMembers, boldCourse } from '../_common';
+import { boldCourse } from '../_common';
 
-export const roster = new SubCommand({
+const roster = new SubCommand({
   name: 'roster',
   displayName: 'Course Roster',
   description: 'Returns a roster of members in a course',
@@ -19,12 +19,12 @@ export const roster = new SubCommand({
     const guildId = ctx.mustGetGuildId();
     const roleId = ctx.getArgument<string>('role') as string;
 
-    const course = await getCourseByRoleId(ctx, guildId, roleId);
+    const course = await ctx.courses().getByRoleId(guildId, roleId);
     if (!course) {
       return ctx.respondWithError('That course does not exist');
     }
 
-    const members = (await getCourseMembers(ctx, guildId, roleId)) ?? [];
+    const members = (await ctx.courses().getMembers(guildId, roleId)) ?? [];
     if (members.length === 0) {
       return ctx.respondSilently(
         `There are no members in ${boldCourse(course)}`,
@@ -43,3 +43,5 @@ export const roster = new SubCommand({
     });
   },
 });
+
+export default roster;

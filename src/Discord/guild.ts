@@ -28,7 +28,7 @@ export type GuildMember = {
   deaf: boolean;
   mute: boolean;
   pending?: boolean;
-  permissions: string;
+  permissions?: string;
 };
 
 export type UnavailableGuild = Pick<Guild, 'id' | 'unavailable'>;
@@ -98,6 +98,25 @@ export type GuildRoleUpdatePayload = GuildRoleCreatePayload;
 export type GuildRoleDeletePayload = {
   guild_id: string;
   role_id: string;
+};
+
+export type GuildMemberAddPayload = GuildMember & { guild_id: string };
+
+export type GuildMemberUpdatePayload = {
+  guild_id: string;
+  roles: string[];
+  user: User;
+  nick?: string;
+  joined_at: string;
+  premium_since?: string;
+  deaf?: boolean;
+  mute?: boolean;
+  pending?: boolean;
+};
+
+export type GuildMemberRemovePayload = {
+  guild_id: string;
+  user: User;
 };
 
 export type Overwrite = {

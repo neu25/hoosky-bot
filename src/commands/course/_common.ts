@@ -1,16 +1,5 @@
-import { Cursor, Collection as MongoCollection } from 'mongodb';
-import { Collection } from '../../database';
-import ExecutionContext from '../../ExecutionContext';
 import { bold } from '../../format';
-
-export type Course = {
-  _id: string;
-  subject: string;
-  number: number;
-  name: string;
-  roleId: string;
-  members: string[];
-};
+import { Course } from '../../repository';
 
 /**
  * Returns a formatted version of the course name.
@@ -40,108 +29,18 @@ export const boldCourse = (course: Course): string => {
   return bold(formatCourse(course));
 };
 
-export const courseExists = async (
-  ctx: ExecutionContext,
-  guildId: string,
-  id: string,
-): Promise<boolean> => {
-  return !!(await getCourseById(ctx, guildId, id));
+export const validCourseId = (id: string): boolean => {
+  return /^[A-Z]{2,4} [0-9]{4}$/.test(id);
 };
 
-export const getCourseById = async (
-  ctx: ExecutionContext,
-  guildId: string,
-  id: string,
-): Promise<Course | null> => {
-  return coursesCollection(ctx, guildId).findOne({ _id: id });
+export type NewCourse = {
+  subject: string;
+  number: number;
 };
 
-export const getCourseByRoleId = async (
-  ctx: ExecutionContext,
-  guildId: string,
-  roleId: string,
-): Promise<Course | null> => {
-  return coursesCollection(ctx, guildId).findOne({ roleId });
-};
-
-export const scanCourses = async (
-  ctx: ExecutionContext,
-  guildId: string,
-): Promise<Cursor<Course>> => {
-  return coursesCollection(ctx, guildId).find();
-};
-
-export const createCourse = async (
-  ctx: ExecutionContext,
-  guildId: string,
-  courseInfo: Course,
-): Promise<void> => {
-  await coursesCollection(ctx, guildId).insertOne(courseInfo);
-};
-
-export const deleteCourse = async (
-  ctx: ExecutionContext,
-  guildId: string,
-  courseInfo: Course,
-): Promise<void> => {
-  await coursesCollection(ctx, guildId).deleteOne({
-    roleId: courseInfo.roleId,
-  });
-};
-
-export const addUserToCourse = async (
-  ctx: ExecutionContext,
-  guildId: string,
-  userId: string,
-  roleId: string,
-): Promise<void> => {
-  await coursesCollection(ctx, guildId).updateOne(
-    {
-      roleId: roleId,
-    },
-    {
-      $push: {
-        members: userId,
-      },
-    },
-  );
-};
-
-export const removeUserFromCourse = async (
-  ctx: ExecutionContext,
-  guildId: string,
-  userId: string,
-  roleId: string,
-): Promise<void> => {
-  await coursesCollection(ctx, guildId).updateOne(
-    {
-      roleId: roleId,
-    },
-    {
-      $pull: {
-        members: userId,
-      },
-    },
-  );
-};
-
-export const getCourseMembers = async (
-  ctx: ExecutionContext,
-  guildId: string,
-  roleId: string,
-): Promise<string[] | undefined> => {
-  return (await getCourseByRoleId(ctx, guildId, roleId))?.members;
-};
-
-/**
- * Returns the `courses` collection for the specified guild.
- *
- * @param ctx The relevant execution context.
- * @param guildId The ID of the guild.
- */
-const coursesCollection = (
-  ctx: ExecutionContext,
-  guildId: string,
-): MongoCollection<Course> => {
-  return ctx.db.getDb(guildId).collection(Collection.COURSES);
+export const parseCourse = (id: string): NewCourse => {
+  // Extract the subject code. E.g., `ENGW 1111` -> `ENGW`.
+  const subject = id.split(' ')[0];
+  const number = parseInt(id.split(' ')[1]);
+  return { subject, number };
 };

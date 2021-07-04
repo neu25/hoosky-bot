@@ -36,8 +36,9 @@ export const performRequest = async <T>(fn: () => Promise<T>): Promise<T> => {
         // Log the entire response object.
         console.error('Response:');
         console.error(util.inspect(e.response.data, false, null, true));
+        throw e.response.data;
       }
-      throw new Error('HTTP request error');
+      throw e.response;
     }
 
     if (e.request) {

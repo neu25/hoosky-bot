@@ -1,13 +1,11 @@
-import ping from './ping';
-import poll from './poll';
-import mute from './mute';
-import course from './course';
+import commandsList from './commands';
+import help from './help';
 
-const commands = {
-  ping,
-  mute,
-  poll,
-  course,
-};
+const commands = [help]; // Add help command
+
+for (const command of commandsList) {
+  // Add remaining commands
+  commands.push(command);
+}
 
 export default commands;

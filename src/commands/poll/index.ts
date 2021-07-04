@@ -11,6 +11,7 @@ import subcommands from './subcommands';
  */
 const poll = new Command({
   name: 'poll',
+  displayName: 'Poll',
   description: 'Manage polls',
   options: subcommands,
 });

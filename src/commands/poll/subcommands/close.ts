@@ -1,9 +1,9 @@
 import CommandOption from '../../../CommandOption';
 import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
-import { deletePoll, getPoll, closePoll } from '../_common';
+import { closePoll } from '../_common';
 
-export const close = new SubCommand({
+const close = new SubCommand({
   name: 'close',
   displayName: 'Close',
   description: 'Closes all your polls',
@@ -28,13 +28,13 @@ export const close = new SubCommand({
       return ctx.respondWithError('Unable to identify you');
     }
 
-    const poll = await getPoll(ctx, guildId, pollId, userId);
+    const poll = await ctx.poll().getById(guildId, pollId, userId);
     if (poll == null) {
       return;
     }
 
     if (ctx.getArgument('delete') as boolean) {
-      deletePoll(ctx, guildId, pollId);
+      ctx.poll().deleteById(guildId, pollId);
       await ctx.api.deleteMessage(poll._id, poll.channelId);
       return await ctx.respondWithMessage('Poll deleted succesfully', true);
     }
@@ -42,3 +42,5 @@ export const close = new SubCommand({
     closePoll(ctx, guildId, poll);
   },
 });
+
+export default close;

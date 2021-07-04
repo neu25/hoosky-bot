@@ -15,17 +15,12 @@ export type CommandOptionProps = {
  * behavior of a command execution.
  */
 class CommandOption {
+  readonly name: string;
   private readonly _opts: CommandOptionProps;
 
   constructor(opts: CommandOptionProps) {
+    this.name = opts.name;
     this._opts = opts;
-  }
-
-  /**
-   * Returns the name of the command option.
-   */
-  getName(): string {
-    return this._opts.name;
   }
 
   /**

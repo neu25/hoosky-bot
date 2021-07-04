@@ -3,7 +3,10 @@ import CommandOption, { CommandOptionProps } from './CommandOption';
 import ExecutionContext from './ExecutionContext';
 import SubCommand from './SubCommand';
 
-export type SubCommandGroupProps = Omit<CommandOptionProps, 'type'>;
+export type SubCommandGroupProps = Omit<
+  CommandOptionProps,
+  'type' | 'required'
+>;
 
 /**
  * `SubCommandGroup` represents a command group that is a child of a parent
@@ -25,7 +28,7 @@ class SubCommandGroup extends CommandOption {
       for (const opt of props.options) {
         // Organize all `SubCommand`s and `SubCommandGroup`s.
         if (opt instanceof SubCommandGroup) {
-          const name = opt.getName();
+          const name = opt.name;
 
           // Ensure there isn't already a sub-command group with the same name.
           if (name in this._subCommands) {
@@ -47,13 +50,13 @@ class SubCommandGroup extends CommandOption {
    *
    * @param ctx The execution context.
    */
-  execute(ctx: ExecutionContext): void | Promise<void> {
-    const cmd = ctx.getCurrentCommand();
+  execute(ctx: ExecutionContext): unknown | Promise<unknown> {
+    const cmd = ctx._getCurrentCommand();
 
     const subCommand = this._subCommands[cmd];
     if (subCommand) {
       // Mark the current command group as handled, and execute the sub-command.
-      ctx.advanceCommand();
+      ctx._advanceCommand();
       subCommand.execute(ctx);
       return;
     }
