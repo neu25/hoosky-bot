@@ -1,5 +1,6 @@
 import ExecutionContext from '../../ExecutionContext';
 import { Poll } from '../../repository/PollRepo';
+import * as Discord from '../../Discord';
 
 export const calculateReactionCounts = async (
   ctx: ExecutionContext,
@@ -28,17 +29,33 @@ export const closePoll = async (
     const reactionCounts: number[] = await calculateReactionCounts(ctx, poll);
     ctx.poll().setReactionCounts(guildId, poll._id, reactionCounts);
 
-    let content = `${poll.content}\n\n***Poll closed!***\n**Results:**\n`;
+    const embedFields: Discord.EmbedField[] = [];
     for (let i = 0; i < reactionCounts.length; ++i) {
-      content += `    ${poll.reactions[i]} - ${reactionCounts[i]}\n`;
+      embedFields.push({
+        name: poll.reactions[i],
+        value: `· ${reactionCounts[i]}`,
+        inline: true,
+      });
     }
 
+    const embeds: Discord.Embed[] = [
+      poll.embeds[0],
+      {
+        type: Discord.EmbedType.RICH,
+        title: '***Poll closed!***\n**Results:**\n',
+        fields: embedFields,
+      },
+    ];
+
     ctx.poll().setClosed(guildId, poll._id, true);
-    ctx.api.editMessage(poll._id, poll.channelId, content);
+    ctx.poll().setEmbeds(guildId, poll._id, embeds);
+
+    ctx.api.editMessage(poll._id, poll.channelId, undefined, embeds);
+
     ctx.api.deleteAllReactions(poll._id, poll.channelId);
 
     ctx.respondWithMessage('Poll closed succesfully.', true);
   } else {
-    ctx.respondWithMessage('That poll is already closed.', true);
+    ctx.respondWithError('That poll is already closed.');
   }
 };

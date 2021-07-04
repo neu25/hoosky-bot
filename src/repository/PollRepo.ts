@@ -1,12 +1,14 @@
 import { Collection as MongoCollection } from 'mongodb';
 import { Collection, Database } from '../database';
+import * as Discord from '../Discord';
 
 export type Poll = {
   _id: string;
   userId: string;
   channelId: string;
-  content: string;
+  question: string;
   reactions: string[];
+  embeds: Discord.Embed[];
   reactionCounts?: number[];
   closed?: boolean;
 };
@@ -55,6 +57,17 @@ class PollRepo {
     this.collection(guildId).updateOne(
       { _id: pollId },
       { $set: { reactionCounts: counts } },
+    );
+  };
+
+  setEmbeds = async (
+    guildId: string,
+    pollId: string,
+    embeds: Discord.Embed[],
+  ): Promise<void> => {
+    this.collection(guildId).updateOne(
+      { _id: pollId },
+      { $set: { embeds: embeds } },
     );
   };
 
