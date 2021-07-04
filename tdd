@@ -4,5 +4,5 @@ var gaze_run_interrupt = require('gaze-run-interrupt');
 
 gaze_run_interrupt('{src,tests}/**/*.ts', [
     { command: 'tsc' },
-    { command: 'npx', args: ['jest']}
+    { command: 'npx', args: ['jest', '--reporters', 'jest-silent-reporter']}
 ]);
