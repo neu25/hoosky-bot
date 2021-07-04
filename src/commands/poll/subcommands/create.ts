@@ -28,7 +28,11 @@ export const create = new SubCommand({
       return ctx.respondWithError('Unable to identify you');
     }
 
-    await ctx.respondWithMessage(ctx.getArgument('question') as string);
+    await ctx.respondWithEmbed({
+      type: Discord.EmbedType.RICH,
+      title: ctx.getArgument('question') as string,
+      fields: [],
+    });
 
     const msg = await ctx.getResponse();
     const emojis = ctx.getArgument('emojis') as string;

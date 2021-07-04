@@ -105,7 +105,7 @@ export const closePoll = async (
     const reactionCounts: number[] = await calculateReactionCounts(ctx, poll);
     setReactionCounts(ctx, guildId, poll._id, reactionCounts);
 
-    let content = `${poll.content}\n\n***Poll closed!.***\n**Results:**\n`;
+    let content = `${poll.content}\n\n***Poll closed!***\n**Results:**\n`;
     for (let i = 0; i < reactionCounts.length; ++i) {
       content += `    ${poll.reactions[i]} - ${reactionCounts[i]}\n`;
     }
