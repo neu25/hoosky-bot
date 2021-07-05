@@ -24,7 +24,7 @@ const roster = new SubCommand({
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
     const roleId = ctx.getArgument<string>('role') as string;
-    const sectionNum = parseInt(ctx.getArgument<string>('section') as string);
+    const sectionNum = ctx.getArgument<string>('section');
     const sectionPhrase = sectionNum ? `section ${sectionNum} of ` : '';
 
     const course = await ctx.courses().getByRoleId(guildId, roleId);
@@ -32,10 +32,14 @@ const roster = new SubCommand({
       return ctx.respondWithError('That course does not exist');
     }
 
-    const members =
-      (sectionNum
-        ? await ctx.sections().getMembers(guildId, roleId, sectionNum)
-        : await ctx.courses().getMembers(guildId, roleId)) ?? [];
+    let members: string[];
+    if (sectionNum) {
+      members =
+        (await ctx.courses().getSection(guildId, roleId, parseInt(sectionNum)))
+          ?.members ?? [];
+    } else {
+      members = (await ctx.courses().getMembers(guildId, roleId)) ?? [];
+    }
     if (members.length === 0) {
       return ctx.respondSilently(
         `There are no members in ${sectionPhrase}${boldCourse(course)}`,

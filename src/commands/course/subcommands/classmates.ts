@@ -16,40 +16,44 @@ const classmates = new SubCommand({
   ],
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
-    const courses = (await ctx.courses().scan(guildId)).sort({ _id: 1 });
+    const executorId = ctx.mustGetUserId();
     const chosenUserId = ctx.getArgument<string>('user') as string;
-    let userId;
 
-    if (chosenUserId) {
-      userId = chosenUserId;
-    } else {
-      userId = ctx.interaction.member?.user?.id;
-      if (!userId) {
-        return ctx.respondWithError('Unable to identify you');
+    const targetUserId = chosenUserId || executorId;
+
+    const courses = await (await ctx.courses().scan(guildId))
+      .sort({ _id: 1 })
+      .toArray();
+    const classmates = new Set<string>();
+    // Iterate over every course.
+    for (const c of courses) {
+      const userSection = Object.values(c.sections).find(sec =>
+        sec.members.includes(targetUserId),
+      );
+
+      // User not found in any of this course's sections, so skip.
+      if (!userSection) continue;
+
+      // Add all of the members in the section.
+      for (const m of userSection.members) {
+        classmates.add(m);
       }
     }
 
-    const guildMember = await ctx.api.getGuildMember(guildId, userId);
-    const member = await ctx.api.getUser(userId);
+    // Remove yourself from the classmate list.
+    classmates.delete(targetUserId);
 
     // Nickname if exists, otherwise username
-    const username = guildMember.nick || member.username;
-
-    const classmates = new Set<string>();
-
-    // Iterate over every course.
-
-    for (let c = await courses.next(); c !== null; c = await courses.next()) {
-      for (const section of c.sections) {
-        if (section.members.includes(userId)) {
-          for (const member of section.members) {
-            classmates.add(member);
-          }
-        }
+    let username: string;
+    {
+      const guildMember = await ctx.api.getGuildMember(guildId, targetUserId);
+      if (guildMember.nick) {
+        username = guildMember.nick;
+      } else {
+        const member = await ctx.api.getUser(targetUserId);
+        username = member.username;
       }
     }
-
-    classmates.delete(userId);
 
     if (classmates.size == 0) {
       return ctx.respondSilently(`${username} has no classmates.`);

@@ -7,7 +7,6 @@ import { parseCommand, OptionType, Arguments } from './arguments';
 import Api from './Api';
 import CourseRepo from './repository/CourseRepo';
 import ConfigRepo from './repository/ConfigRepo';
-import SectionRepo from './repository/SectionRepo';
 import FollowUpManager from './FollowUpManager';
 import { FollowUpHandler } from './SubCommand';
 import Client from './Client';
@@ -77,10 +76,6 @@ class ExecutionContext {
 
   config(): ConfigRepo {
     return this.repos.config;
-  }
-
-  sections(): SectionRepo {
-    return this.repos.sections;
   }
 
   /**

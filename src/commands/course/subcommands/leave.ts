@@ -31,7 +31,8 @@ const leave = new SubCommand({
       return ctx.respondWithError(`You aren't in that course`);
     }
 
-    // Trigger will activate, automatically removing user from course
+    // `GUILD_MEMBER_UPDATE` trigger will activate and automatically remove the
+    // user from the database. Thus, there's no need to do it here.
     await ctx.api.removeRoleFromMember(guildId, userId, roleId);
 
     return ctx.respondWithMessage(`You left the course ${boldCourse(course)}`);
