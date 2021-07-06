@@ -2,7 +2,7 @@ import * as Discord from '../Discord';
 import Command from '../Command';
 import CommandOption from '../CommandOption';
 import { bold, pluralize } from '../format';
-import { countSubCommands, getCommandOptionChoices } from './_utils';
+import { countSubCommands, getCommandOptionChoices, hasPermissions } from './_utils';
 import commandsList from './commands';
 
 const help = new Command({
@@ -37,10 +37,12 @@ const help = new Command({
           // subCommands are type 1
           heading = '\n\nSubcommands:';
           for (const subCommand of command.options) {
-            sections.push({
-              name: `/${command.name} ` + subCommand.name,
-              description: subCommand.description,
-            });
+            if (hasPermissions(ctx, subCommand.requiredPerms)) {
+              sections.push({
+                name: `/${command.name} ` + subCommand.name,
+                description: subCommand.description,
+              });
+            }
           }
         } else {
           // If options are not type 1, they are parameters (type 3)
@@ -85,21 +87,24 @@ const help = new Command({
 
       for (const cmd of sortedCmdList) {
         const command = cmd.serialize();
-        let subCommands = '';
-        const subCommandCount = countSubCommands(command.options);
+        if (hasPermissions(ctx, command.requiredPerms)) {
+          console.log(command.name + `Requires ${command.requiredPerms}`);
+          let subCommands = '';
+          const subCommandCount = countSubCommands(command.options);
 
-        if (subCommandCount > 0) {
-          subCommands = ` (${subCommandCount} ${pluralize(
-            'subcommand',
-            subCommandCount,
-          )})`;
+          if (subCommandCount > 0) {
+            subCommands = ` (${subCommandCount} ${pluralize(
+              'subcommand',
+              subCommandCount,
+            )})`;
+          }
+
+          commands.push({
+            name: command.name,
+            description: command.description,
+            subCommands: subCommands,
+          });
         }
-
-        commands.push({
-          name: command.name,
-          description: command.description,
-          subCommands: subCommands,
-        });
       }
 
       // Map commands to Discord embed fields

@@ -1,4 +1,6 @@
 import Command from '../Command';
+import ExecutionContext from '../ExecutionContext';
+import { hasPermission } from '../permissions';
 import CommandOptionChoice from '../CommandOptionChoice';
 import * as Discord from '../Discord';
 
@@ -64,3 +66,24 @@ export const getCommandOptionChoices = (
   }
   return choices;
 };
+
+export const hasPermissions = (
+  ctx: ExecutionContext,
+  requiredPerms: Discord.Permission[],
+): boolean => {
+  const { interaction } = ctx;
+  if (!interaction.member) {
+    throw new Error('No member found in interaction');
+  }
+
+  if (!requiredPerms) {return true; }
+
+  const executorPerms = parseInt(interaction.member.permissions ?? '0');
+  for (const p of requiredPerms) {
+    if (!hasPermission(executorPerms, p)) {
+      return false;
+    }
+  }
+
+  return true;
+}
