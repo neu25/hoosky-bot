@@ -35,7 +35,10 @@ export const getHighestRank = (roles: Discord.Role[]): number => {
   return highest;
 };
 
-const getOptionsOfType = (options: Discord.CommandOption[], type: number) => {
+const getOptionsOfType = (
+  options: Discord.CommandOption[],
+  type: number,
+): Discord.CommandOption[] => {
   const commandOptions: Discord.CommandOption[] = [];
   if (!options) {
     return commandOptions;
@@ -48,8 +51,33 @@ const getOptionsOfType = (options: Discord.CommandOption[], type: number) => {
   return commandOptions;
 };
 
-export const countSubCommands = (options: any[]): number => {
-  return getOptionsOfType(options, 1).length;
+export const countSubCommands = (
+  ctx: ExecutionContext,
+  options: Discord.CommandOption[],
+): number => {
+  const subCommands = getOptionsOfType(options, 1) as any;
+
+  const validSubCommands =
+    subCommands.filter((subCommand: any) =>
+      hasPermissions(ctx, subCommand.requiredPerms),
+    ) || [];
+  return validSubCommands.length;
+};
+
+const countAllSubCommands = (options: any[]): number => {
+  const subCommands = getOptionsOfType(options, 1);
+  return subCommands.length;
+};
+
+export const canRunCommand = (ctx: ExecutionContext, cmd: Command): boolean => {
+  const command = cmd.serialize();
+  // Permission to run command and either has more than one subcommand with permission to run or always has no subcommmands
+  // Filters out commands with only subcommands requring more permissions than the user has
+  return (
+    hasPermissions(ctx, command.requiredPerms) &&
+    (countSubCommands(ctx, command.options) != 0 ||
+      countAllSubCommands(command.options) == 0)
+  );
 };
 
 export const getCommandOptionChoices = (
@@ -76,7 +104,9 @@ export const hasPermissions = (
     throw new Error('No member found in interaction');
   }
 
-  if (!requiredPerms) {return true; }
+  if (!requiredPerms) {
+    return true;
+  }
 
   const executorPerms = parseInt(interaction.member.permissions ?? '0');
   for (const p of requiredPerms) {
@@ -86,4 +116,4 @@ export const hasPermissions = (
   }
 
   return true;
-}
+};

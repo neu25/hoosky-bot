@@ -2,7 +2,12 @@ import * as Discord from '../Discord';
 import Command from '../Command';
 import CommandOption from '../CommandOption';
 import { bold, pluralize } from '../format';
-import { countSubCommands, getCommandOptionChoices, hasPermissions } from './_utils';
+import {
+  canRunCommand,
+  countSubCommands,
+  getCommandOptionChoices,
+  hasPermissions,
+} from './_utils';
 import commandsList from './commands';
 
 const help = new Command({
@@ -86,12 +91,10 @@ const help = new Command({
       );
 
       for (const cmd of sortedCmdList) {
-        const command = cmd.serialize();
-        if (hasPermissions(ctx, command.requiredPerms)) {
-          console.log(command.name + `Requires ${command.requiredPerms}`);
+        if (canRunCommand(ctx, cmd)) {
+          const command = cmd.serialize();
           let subCommands = '';
-          const subCommandCount = countSubCommands(command.options);
-
+          const subCommandCount = countSubCommands(ctx, command.options);
           if (subCommandCount > 0) {
             subCommands = ` (${subCommandCount} ${pluralize(
               'subcommand',
