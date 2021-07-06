@@ -77,6 +77,7 @@ class Command extends SubCommandGroup {
     const { type, ...serialized } = super.serialize();
     return {
       default_permission: this._defaultPerm,
+      requiredPerms: this._requiredPerms,
       ...serialized,
     };
   }

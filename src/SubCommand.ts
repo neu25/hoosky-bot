@@ -114,6 +114,7 @@ class SubCommand extends SubCommandGroup {
    */
   serialize(): any {
     return {
+      requiredPerms: this._requiredPerms,
       ...super.serialize(),
       type: Discord.CommandOptionType.SUB_COMMAND,
     };
