@@ -59,5 +59,7 @@ export const prepareEmoji = (emojiString: string): string => {
   // example:
   //  - from: <:test2:850478323712131073>
   //  - to: test2:850478323712131073
-  return encodeURI(emojiString.split('<:').join('').split('>').join(''));
+  return encodeURIComponent(
+    emojiString.split('<:').join('').split('>').join(''),
+  );
 };
