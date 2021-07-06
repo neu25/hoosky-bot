@@ -1,5 +1,7 @@
 import util from 'util';
 
+export type Primitive = string | boolean | number | undefined | null;
+
 /**
  * Returns a Promise that resolves after the given time.
  *
@@ -60,4 +62,8 @@ export const prepareEmoji = (emojiString: string): string => {
   //  - from: <:test2:850478323712131073>
   //  - to: test2:850478323712131073
   return encodeURI(emojiString.split('<:').join('').split('>').join(''));
+};
+
+export const eliminateDuplicates = <T extends Primitive>(array: T[]): T[] => {
+  return Array.from(new Set(array));
 };

@@ -5,6 +5,7 @@ import leave from './leave';
 import listAll from './listAll';
 import listJoined from './listJoined';
 import roster from './roster';
+import classmates from './classmates';
 import bulkCreate from './bulkCreate';
 
 const subcommands = [
@@ -15,6 +16,7 @@ const subcommands = [
   listAll,
   listJoined,
   roster,
+  classmates,
   bulkCreate,
 ];
 

@@ -19,16 +19,22 @@ const courseRole = new Trigger({
 
     const courses = await ctx.courses().list(guildId);
     for (const c of courses) {
-      if (c.members.includes(user.id) && !data.roles.includes(c.roleId)) {
-        // If the user is a member of the course but doesn't have the role, remove
-        // the course role from the user.
+      if (
+        // User IS a member of the course in the database
+        c.members.includes(user.id) &&
+        // but the user DOESN'T HAVE the course role.
+        !data.roles.includes(c.roleId)
+      ) {
+        // Remove the user from the course in the database.
+        // This also removes the user from all sections of that course.
         await ctx.courses().removeMember(guildId, user.id, c.roleId);
       } else if (
+        // User IS NOT a member of the course in the database
         !c.members.includes(user.id) &&
+        // but the user HAS the course role.
         data.roles.includes(c.roleId)
       ) {
-        // If the user has the course role but isn't a member of the course in
-        // the database, add the user as a member.
+        // Add the user to the course in the database.
         await ctx.courses().addMember(guildId, user.id, c.roleId);
       }
     }

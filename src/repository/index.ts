@@ -2,7 +2,7 @@ import { Database } from '../database';
 import CourseRepo from './CourseRepo';
 import ConfigRepo from './ConfigRepo';
 
-export type { Course } from './CourseRepo';
+export type { Course, Section } from './CourseRepo';
 
 export type Repositories = {
   courses: CourseRepo;

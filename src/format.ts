@@ -24,6 +24,13 @@ export const bold = (text: string): string => `**${text}**`;
 export const italics = (text: string): string => `*${text}*`;
 
 /**
+ * Underlines the supplied text using Discord's syntax.
+ *
+ * @param text The text to underline.
+ */
+export const underline = (text: string): string => `__${text}__`;
+
+/**
  * Places the supplied text in an inline code block using Discord's syntax.
  *
  * @param text The text to place in an inline code block.

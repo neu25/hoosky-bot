@@ -130,6 +130,7 @@ const bulkCreate = new SubCommand({
           name: c.name,
           roleId: courseRole.id,
           members: [],
+          sections: {},
         };
         // Create course in database.
         await tctx.courses().create(guildId, course);

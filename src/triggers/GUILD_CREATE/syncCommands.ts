@@ -8,11 +8,11 @@ import commands from '../../commands';
 const syncCommands = new Trigger({
   event: Discord.Event.GUILD_CREATE,
   handler: async ctx => {
-    const data = ctx.data;
+    const guild = ctx.data;
 
-    console.log(`Synchronizing commands with ${data.name} (${data.id})`);
+    console.log(`Synchronizing commands with ${guild.name} (${guild.id})`);
     const serialized = Object.values(commands).map(cmd => cmd.serialize());
-    await ctx.api.bulkOverwriteGuildCommands(data.id, serialized);
+    await ctx.api.bulkOverwriteGuildCommands(guild.id, serialized);
   },
 });
 
