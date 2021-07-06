@@ -1,5 +1,5 @@
 import { bold } from '../../format';
-import { Course } from '../../repository';
+import { Course, Section } from '../../repository';
 import ExecutionContext from '../../ExecutionContext';
 
 /**
@@ -33,6 +33,12 @@ export const boldCourse = (course: Course): string => {
 export const validCourseId = (id: string): boolean => {
   return /^[A-Z]{2,4} [0-9]{4}$/.test(id);
 };
+
+export const findUserSection = (
+  course: Course,
+  userId: string,
+): Section | undefined =>
+  Object.values(course.sections).find(sec => sec.members.includes(userId));
 
 export type NewCourse = {
   subject: string;

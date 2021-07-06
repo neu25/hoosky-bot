@@ -38,7 +38,7 @@ const pfp = new Command({
 
     return ctx.respondWithEmbed({
       type: Discord.EmbedType.RICH,
-      title: `${user.username}'s Profile Picture:`,
+      title: `${user.username}’s Profile Picture`,
       image: { url },
     });
   },

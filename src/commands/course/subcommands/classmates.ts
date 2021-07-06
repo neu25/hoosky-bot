@@ -1,30 +1,45 @@
 import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
-import CommandOption from '../../../CommandOption';
+import { bold } from '../../../format';
+
+type SharedClass = {
+  _id: string;
+  sectionNumber: number;
+};
+
+type Classmate = {
+  userId: string;
+  sharedClasses: SharedClass[];
+};
+
+const sortClassmates = (classmates: Classmate[]): void => {
+  classmates.sort((a, b) => {
+    return b.sharedClasses.length - a.sharedClasses.length;
+  });
+};
 
 const classmates = new SubCommand({
   name: 'classmates',
   displayName: 'List Classmates',
   description: 'Lists all people in the same section of a course as you',
   options: [
-    new CommandOption({
-      name: 'user',
-      description: 'Optional user, defaults to self if left empty',
-      required: false,
-      type: Discord.CommandOptionType.USER,
-    }),
+    // new CommandOption({
+    //   name: 'user',
+    //   description: 'Optional user, defaults to self if left empty',
+    //   required: false,
+    //   type: Discord.CommandOptionType.USER,
+    // }),
   ],
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
-    const executorId = ctx.mustGetUserId();
-    const chosenUserId = ctx.getArgument<string>('user') as string;
+    const targetUserId = ctx.mustGetUserId();
+    // const chosenUserId = ctx.getArgument<string>('user') as string;
 
-    const targetUserId = chosenUserId || executorId;
+    const classmates: Record<string, Classmate> = {};
 
     const courses = await (await ctx.courses().scan(guildId))
       .sort({ _id: 1 })
       .toArray();
-    const classmates = new Set<string>();
     // Iterate over every course.
     for (const c of courses) {
       const userSection = Object.values(c.sections).find(sec =>
@@ -36,12 +51,15 @@ const classmates = new SubCommand({
 
       // Add all of the members in the section.
       for (const m of userSection.members) {
-        classmates.add(m);
+        // Don't count yourself as a classmate.
+        if (m === targetUserId) continue;
+        classmates[m] = classmates[m] ?? { userId: m, sharedClasses: [] };
+        classmates[m].sharedClasses.push({
+          _id: c._id,
+          sectionNumber: userSection.number,
+        });
       }
     }
-
-    // Remove yourself from the classmate list.
-    classmates.delete(targetUserId);
 
     // Nickname if exists, otherwise username
     let username: string;
@@ -55,19 +73,27 @@ const classmates = new SubCommand({
       }
     }
 
-    if (classmates.size == 0) {
-      return ctx.respondSilently(`${username} has no classmates.`);
+    const classmateArr = Object.values(classmates);
+    if (classmateArr.length === 0) {
+      return ctx.respondSilently(`${username} has no classmates`);
     }
 
-    const classmateArr = Array.from(classmates);
+    // Sort classmates in order of descending number of shared classes.
+    sortClassmates(classmateArr);
+
     let classmateList = '';
-    for (let i = 0; i < classmateArr.length; i++) {
-      classmateList += `${i + 1}. <@${classmateArr[i]}>\n`;
+    let n = 1;
+    for (const cm of classmateArr) {
+      const sharedStr = cm.sharedClasses
+        .map(cls => `${bold(cls._id)} #${cls.sectionNumber}`)
+        .join(', ');
+      classmateList += `${n}. <@${cm.userId}> - ${sharedStr}\n`;
+      ++n;
     }
 
-    await ctx.respondSilentlyWithEmbed({
+    await ctx.respondWithEmbed({
       type: Discord.EmbedType.RICH,
-      title: `Classmates of ${username}`,
+      title: `${username}’s Classmates`,
       description: classmateList,
     });
   },
