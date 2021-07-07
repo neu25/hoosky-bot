@@ -73,7 +73,7 @@ class Client {
    * Uses the provided map of commands, appropriately executing them when
    * a user runs them.
    *
-   * @param commands The commands to use.
+   * @param commands - The commands to use.
    */
   handleCommands(commands: Command[]): void {
     // Create a map of names and the corresponding commands.
@@ -88,7 +88,7 @@ class Client {
    * Uses the provided array of triggers, appropriately executing them when
    * a user runs them.
    *
-   * @param triggers The triggers to use.
+   * @param triggers - The triggers to use.
    */
   handleTriggers(triggers: Trigger<any>[]): void {
     const map: Partial<Record<string, Trigger<any>[]>> = {};
@@ -140,7 +140,7 @@ class Client {
   /**
    * Updates the presence (AKA status) of the bot.
    *
-   * @param data The presence data.
+   * @param data - The presence data.
    */
   updatePresence(data: Discord.PresenceUpdatePayload): void {
     this._sendMessage({
@@ -152,7 +152,7 @@ class Client {
   /**
    * Handles a message from the gateway.
    *
-   * @param msg
+   * @param msg - Discord gateway message
    */
   private async _handleMessage(msg: Discord.GatewayMessage) {
     switch (msg.op) {
@@ -186,8 +186,8 @@ class Client {
   /**
    * Handles the event dispatch from Discord.
    *
-   * @param type The event type.
-   * @param data The event data.
+   * @param type - The event type.
+   * @param data - The event data.
    */
   private async _handleEvent(type: Discord.Event, data: unknown) {
     switch (type) {
@@ -240,7 +240,7 @@ class Client {
   /**
    * Begins the periodic heartbeat sending loop.
    *
-   * @param interval How often to send a heartbeat, in milliseconds.
+   * @param interval - How often to send a heartbeat, in milliseconds.
    */
   private _beginHeartbeat(interval: number): void {
     if (this._heartbeatInterval) {
@@ -255,7 +255,7 @@ class Client {
   /**
    * Sends a message to the gateway.
    *
-   * @param msg The raw Discord gateway message.
+   * @param msg - The raw Discord gateway message.
    */
   private _sendMessage(msg: Discord.GatewayMessage): void {
     if (!this._ws) throw new Error('WebSocket connection not initialized');
