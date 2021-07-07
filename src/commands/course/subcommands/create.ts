@@ -51,6 +51,7 @@ const create = new SubCommand({
       name: courseName,
       roleId: courseRole.id,
       members: [],
+      sections: {},
     };
     // Create course in database.
     await ctx.courses().create(guildId, course);
