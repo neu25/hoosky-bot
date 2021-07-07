@@ -58,9 +58,9 @@ import FollowUpManager from './FollowUpManager';
   });
 
   // Supply the commands we'd like to handle.
-  client.handleCommands(commands);
+  client.setCommands(commands);
   // Supply the triggers we'd like to handle.
-  client.handleTriggers([...triggers, ...cache.triggers()]);
+  client.setTriggers([...triggers, ...cache.triggers()]);
 
   client.connect().then(data => {
     console.log(
