@@ -1,6 +1,9 @@
 {
   "env": {
-    "es2021": true
+    "es2021": true,
+    "browser": true,
+    "amd": true,
+    "node": true
   },
   "extends": [
     "eslint:recommended",
@@ -13,7 +16,8 @@
     "ecmaVersion": 12,
     "sourceType": "module"
   },
-  "plugins": ["@typescript-eslint"],
+  "plugins": ["@typescript-eslint", "eslint-plugin-tsdoc"],
+  "ignorePatterns": ["docs/*"],
   "rules": {
     "@typescript-eslint/no-empty-function": "off",
     "@typescript-eslint/no-explicit-any": "off",
@@ -21,6 +25,7 @@
     "@typescript-eslint/no-unused-vars": "error",
     "@typescript-eslint/explicit-module-boundary-types": "error",
     "@typescript-eslint/ban-ts-comment": "off",
-    "import/order": "error"
+    "import/order": "error",
+    "tsdoc/syntax": "warn"
   }
 }

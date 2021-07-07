@@ -1,0 +1,199 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>hoosky-bot</title>
+	<meta name="description" content="Documentation for hoosky-bot">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="assets/css/main.css">
+	<script async src="assets/js/search.js" id="search-script"></script>
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="assets/js/search.json" data-base=".">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="index.html" class="title">hoosky-bot</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<h1>hoosky-bot</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<div class="tsd-panel tsd-typography">
+				<a href="#hoosky-bot" id="hoosky-bot" style="color: inherit; text-decoration: none;">
+					<h1>Hoosky Bot</h1>
+				</a>
+				<p><img src="https://github.com/nu25/hoosky-bot/actions/workflows/deploy.yml/badge.svg" alt="Deploy Workflow"></p>
+				<p>A custom-built Discord bot for the Northeastern Class of 2025 Discord server.</p>
+				<a href="#commands" id="commands" style="color: inherit; text-decoration: none;">
+					<h2>Commands</h2>
+				</a>
+				<p>All current commands are documented in <a href="COMMANDS.md"><code>COMMANDS.md</code></a>. Source files are located in <a href="src/commands"><code>src/commands</code></a>.</p>
+				<a href="#configuration" id="configuration" style="color: inherit; text-decoration: none;">
+					<h2>Configuration</h2>
+				</a>
+				<p>All configuration is stored in <code>config.json</code>. The shape should look like this:</p>
+				<pre><code class="language-jsonc"><span style="color: #000000">{</span>
+<span style="color: #000000">  </span><span style="color: #0451A5">&quot;discord&quot;</span><span style="color: #000000">: {</span>
+<span style="color: #000000">    </span><span style="color: #0451A5">&quot;token&quot;</span><span style="color: #000000">: </span><span style="color: #A31515">&quot;ABCD01293ndsljfjlkejw.YLFp_A.ZZFJDSKFL312f&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #0451A5">&quot;appId&quot;</span><span style="color: #000000">: </span><span style="color: #A31515">&quot;098765432123456789&quot;</span>
+<span style="color: #000000">  },</span>
+<span style="color: #000000">  </span><span style="color: #0451A5">&quot;mongodb&quot;</span><span style="color: #000000">: {</span>
+<span style="color: #000000">    </span><span style="color: #0451A5">&quot;url&quot;</span><span style="color: #000000">: </span><span style="color: #A31515">&quot;mongodb://admin:DATABASE_PASSWORD123@127.0.0.1:27017/?authSource=admin&amp;readPreference=primary&amp;ssl=false&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #0451A5">&quot;db&quot;</span><span style="color: #000000">: </span><span style="color: #A31515">&quot;example&quot;</span><span style="color: #000000"> </span><span style="color: #008000">// A unique database prefix to prevent conflicts. The bot creates a new database for every server ID: e.g., &quot;example-123456789098765432&quot;.</span>
+<span style="color: #000000">  }</span>
+<span style="color: #000000">}</span>
+</code></pre>
+				<p>⚠️ Do not commit this file to the repo! By default, it is included in the <code>.gitignore</code> file to be ignored by Git.</p>
+				<a href="#structure" id="structure" style="color: inherit; text-decoration: none;">
+					<h2>Structure</h2>
+				</a>
+				<pre><code><span style="color: #000000">.</span>
+<span style="color: #000000">├── </span><span style="color: #0070C1">COMMANDS</span><span style="color: #000000">.</span><span style="color: #001080">md</span>
+<span style="color: #000000">├── </span><span style="color: #001080">package</span><span style="color: #000000">.</span><span style="color: #001080">json</span>
+<span style="color: #000000">├── </span><span style="color: #0070C1">README</span><span style="color: #000000">.</span><span style="color: #795E26">md</span><span style="color: #000000"> (</span><span style="color: #0000FF">this</span><span style="color: #000000">)</span>
+<span style="color: #000000">└── </span><span style="color: #001080">src</span>
+<span style="color: #000000">    ├── </span><span style="color: #001080">commands</span>
+<span style="color: #000000">    ├── </span><span style="color: #001080">database</span>
+<span style="color: #000000">    ├── </span><span style="color: #001080">Discord</span>
+<span style="color: #000000">    ├── </span><span style="color: #001080">triggers</span>
+<span style="color: #000000">    └── </span><span style="color: #001080">config</span><span style="color: #000000">.</span><span style="color: #001080">ts</span>
+</code></pre>
+				<a href="#getting-started" id="getting-started" style="color: inherit; text-decoration: none;">
+					<h2>Getting Started</h2>
+				</a>
+				<blockquote>
+					<p>How to set up Hoosky Bot locally</p>
+				</blockquote>
+				<a href="#obtaining-the-language-and-code" id="obtaining-the-language-and-code" style="color: inherit; text-decoration: none;">
+					<h3>Obtaining the language and code</h3>
+				</a>
+				<ol>
+					<li>Make sure your computer has <code>git</code>, and run</li>
+				</ol>
+				<pre><code class="language-bash"><span style="color: #000000">git clone git@github.com:nu25/hoosky-bot.git</span>
+</code></pre>
+				<p>in the directory where you want to clone the bot.</p>
+				<ol start="2">
+					<li><p>Ensure Node.js and NPM (the package manager for Node.js) are installed. Install from here: <a href="https://nodejs.org/en/">https://nodejs.org/en/</a></p>
+					</li>
+					<li><p>In the code folder, run</p>
+					</li>
+				</ol>
+				<pre><code class="language-bash"><span style="color: #000000">npm install</span>
+</code></pre>
+				<p>to install all necessary dependencies and libraries.</p>
+				<ol start="4">
+					<li>You&#39;re done!</li>
+				</ol>
+				<a href="#creating-a-test-discord-application" id="creating-a-test-discord-application" style="color: inherit; text-decoration: none;">
+					<h3>Creating a test Discord application</h3>
+				</a>
+				<ol>
+					<li><p>Turn on Developer Mode by going to your Discord settings &gt; &quot;Advanced&quot; &gt; &quot;Developer Mode&quot;.</p>
+					</li>
+					<li><p>Create a new Discord server for testing the bot yourself. Right click on the server icon and &quot;Copy ID&quot;. Save this somewhere.</p>
+					</li>
+					<li><p>Go to <a href="https://discord.com/developers/applications">https://discord.com/developers/applications</a> and click &quot;New Application&quot;. Enter any name. Click &quot;Copy&quot; under &quot;Application ID&quot;, and save this somewhere.</p>
+					</li>
+					<li><p>On the left panel, click &quot;Bot&quot; and then &quot;Add Bot&quot;. On the Bot page, click &quot;Copy&quot; to copy the bot&#39;s token. Save this somewhere.</p>
+					</li>
+					<li><p>Go to &quot;OAuth2&quot;, and in the &quot;Scopes&quot; section, check &quot;bot&quot; and &quot;applications.commands&quot;. Scroll down to &quot;Bot Permissions&quot; and check &quot;Administrator&quot;. Click &quot;Copy&quot; to copy the generated URL.</p>
+					</li>
+					<li><p>Navigate to the copied URL and invite the bot to your test server.</p>
+					</li>
+					<li><p>You&#39;re done!</p>
+					</li>
+				</ol>
+				<a href="#running-hoosky-bot" id="running-hoosky-bot" style="color: inherit; text-decoration: none;">
+					<h3>Running Hoosky Bot</h3>
+				</a>
+				<ol>
+					<li><p>Set 3 environment variables: <code>APPLICATION_ID</code>, with your saved application ID; <code>DISCORD_TOKEN</code>, with your saved bot token; and <code>GUILD_ID</code>, with your saved server ID.</p>
+					</li>
+					<li><p>In the code folder, run</p>
+					</li>
+				</ol>
+				<pre><code class="language-bash"><span style="color: #000000">npm start</span>
+</code></pre>
+				<ol start="3">
+					<li>The bot should now be running in your server!</li>
+				</ol>
+				<a href="#making-changes-to-the-code" id="making-changes-to-the-code" style="color: inherit; text-decoration: none;">
+					<h3>Making changes to the code</h3>
+				</a>
+				<ol>
+					<li><p>We&#39;ll use GitHub Pull Requests to merge your changes onto the <code>main</code> and <code>dev</code> branches, so commit your changes onto your own branch.</p>
+					</li>
+					<li><p>Branch naming: name your branches as <code>&lt;username&gt;/tiny_description</code>.</p>
+					</li>
+				</ol>
+			</div>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class=" ">
+						<a href="modules.html">Exports</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="assets/js/main.js"></script>
+</body>
+</html>
