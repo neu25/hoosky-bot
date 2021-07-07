@@ -75,7 +75,7 @@ class Client {
    *
    * @param commands The commands to use.
    */
-  handleCommands(commands: Command[]): void {
+  setCommands(commands: Command[]): void {
     // Create a map of names and the corresponding commands.
     const mapping: Record<string, Command> = {};
     for (const cmd of commands) {
@@ -90,7 +90,7 @@ class Client {
    *
    * @param triggers The triggers to use.
    */
-  handleTriggers(triggers: Trigger<any>[]): void {
+  setTriggers(triggers: Trigger<any>[]): void {
     const map: Partial<Record<string, Trigger<any>[]>> = {};
     for (const t of triggers) {
       if (!map[t.event]) {
