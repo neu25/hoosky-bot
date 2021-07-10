@@ -388,7 +388,7 @@ class Api {
     emojiString: string,
     userId?: number,
   ): Promise<void> {
-    const target = userId == null ? '@me' : userId.toString();
+    const target = !userId ? '@me' : userId.toString();
     await performRequest(() =>
       this._http.delete(
         `/channels/${channelId}/messages/${messageId}/reactions/${prepareEmoji(
@@ -413,7 +413,7 @@ class Api {
     await performRequest(() =>
       this._http.delete(
         `/channels/${channelId}/messages/${messageId}/reactions${
-          emojiString == null ? '' : `/${prepareEmoji(emojiString)}`
+          !emojiString ? '' : `/${prepareEmoji(emojiString)}`
         }`,
       ),
     );

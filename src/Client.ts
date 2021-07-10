@@ -48,7 +48,7 @@ class Client {
   private _lastSeqNum: number | null;
   private _sessionId?: string;
 
-  // The axios client to pass to the ExecutionContext
+  // The axios client to pass to the execution context
   private readonly _http: AxiosInstance;
 
   // A callback function to be called when the connection is established.
