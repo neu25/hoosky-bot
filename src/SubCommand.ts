@@ -2,8 +2,8 @@ import * as Discord from './Discord';
 import SubCommandGroup, { SubCommandGroupProps } from './SubCommandGroup';
 import ExecutionContext from './ExecutionContext';
 import TriggerContext from './TriggerContext';
-import { hasPermission } from './permissions';
 import { bold } from './format';
+import { checkCtxPermissions } from './commands/_utils';
 
 export type CommandHandler = (
   ctx: ExecutionContext,
@@ -33,8 +33,8 @@ export type SubCommandOptions = {
 class SubCommand extends SubCommandGroup {
   readonly displayName: string;
   readonly followUpHandlers: Record<string, FollowUpHandler>;
-  private readonly _handler: CommandHandler;
-  private readonly _requiredPerms: Discord.Permission[];
+  readonly requiredPerms: Discord.Permission[];
+  readonly handler: CommandHandler;
 
   constructor(opts: SubCommandOptions) {
     const {
@@ -47,8 +47,8 @@ class SubCommand extends SubCommandGroup {
     super(base);
     this.displayName = displayName;
     this.followUpHandlers = followUpHandlers ?? {};
-    this._handler = handler;
-    this._requiredPerms = requiredPermissions ?? [];
+    this.handler = handler;
+    this.requiredPerms = requiredPermissions ?? [];
   }
 
   /**
@@ -62,7 +62,7 @@ class SubCommand extends SubCommandGroup {
       !(await SubCommand.checkPermissions(
         ctx,
         this.displayName,
-        this._requiredPerms,
+        this.requiredPerms,
       ))
     ) {
       return;
@@ -71,14 +71,14 @@ class SubCommand extends SubCommandGroup {
     // Supply this subcommand's follow-up handlers.
     ctx._setFollowUpHandlers(this.followUpHandlers);
 
-    return this._handler(ctx);
+    return this.handler(ctx);
   }
 
   /**
    * Checks whether the command execution is permitted according to the specified
    * required permissions.
    *
-   * @param ctx The ExecutionContext of the command.
+   * @param ctx The execution context of the command.
    * @param displayName The display name of the command.
    * @param requiredPerms The Discord permissions required to execute the command.
    */
@@ -87,25 +87,18 @@ class SubCommand extends SubCommandGroup {
     displayName: string,
     requiredPerms: Discord.Permission[],
   ): Promise<boolean> {
-    const { interaction } = ctx;
-    if (!interaction.member) {
-      throw new Error('No member found in interaction');
+    const [missingPerm, ok] = checkCtxPermissions(ctx, requiredPerms);
+
+    if (!ok) {
+      await ctx.respondWithError(
+        `The ${bold(displayName)} command requires the ` +
+          `${bold(
+            Discord.PermissionName[missingPerm as Discord.Permission],
+          )} permission, but you don't have it.`,
+      );
     }
 
-    const executorPerms = parseInt(interaction.member.permissions ?? '0');
-    for (const p of requiredPerms) {
-      if (!hasPermission(executorPerms, p)) {
-        await ctx.respondWithError(
-          `The ${bold(displayName)} command requires the ` +
-            `${bold(
-              Discord.PermissionName[p],
-            )} permission, but you don't have it.`,
-        );
-        return false;
-      }
-    }
-
-    return true;
+    return ok;
   }
 
   /**

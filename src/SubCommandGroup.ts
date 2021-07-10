@@ -17,12 +17,12 @@ export type SubCommandGroupProps = Omit<
  * also be `SubCommandGroup`s.
  */
 class SubCommandGroup extends CommandOption {
-  private readonly _subCommands: Record<string, SubCommand | SubCommandGroup>;
+  readonly subCommands: Record<string, SubCommand | SubCommandGroup>;
 
   constructor(props: SubCommandGroupProps) {
     super({ ...props, type: Discord.CommandOptionType.SUB_COMMAND_GROUP });
 
-    this._subCommands = {};
+    this.subCommands = {};
 
     if (props.options) {
       for (const opt of props.options) {
@@ -31,14 +31,14 @@ class SubCommandGroup extends CommandOption {
           const name = opt.name;
 
           // Ensure there isn't already a sub-command group with the same name.
-          if (name in this._subCommands) {
+          if (name in this.subCommands) {
             throw new Error(
               `Two or more sub-commands have the same name: ${name}`,
             );
           }
 
           // Place sub-commands into bins with the command name as the key.
-          this._subCommands[name] = opt;
+          this.subCommands[name] = opt;
         }
       }
     }
@@ -53,7 +53,7 @@ class SubCommandGroup extends CommandOption {
   execute(ctx: ExecutionContext): unknown | Promise<unknown> {
     const cmd = ctx._getCurrentCommand();
 
-    const subCommand = this._subCommands[cmd];
+    const subCommand = this.subCommands[cmd];
     if (subCommand) {
       // Mark the current command group as handled, and execute the sub-command.
       ctx._advanceCommand();
