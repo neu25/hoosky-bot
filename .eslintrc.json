@@ -21,6 +21,7 @@
     "@typescript-eslint/no-unused-vars": "error",
     "@typescript-eslint/explicit-module-boundary-types": "error",
     "@typescript-eslint/ban-ts-comment": "off",
-    "import/order": "error"
+    "import/order": "error",
+    "eqeqeq": "error"
   }
 }

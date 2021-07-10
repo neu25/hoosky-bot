@@ -7,6 +7,6 @@ import pfp from './pfp';
 import bot from './bot';
 import say from './say';
 
-const commandsList: Command[] = [ping, mute, poll, course, pfp, bot, say];
+const commandList: Command[] = [ping, mute, poll, course, pfp, bot, say];
 
-export default commandsList;
+export default commandList;

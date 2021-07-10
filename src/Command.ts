@@ -19,9 +19,9 @@ type CommandProps = {
 class Command extends SubCommandGroup {
   readonly displayName: string;
   readonly followUpHandlers: Record<string, FollowUpHandler>;
-  private readonly _handler?: CommandHandler;
-  private readonly _requiredPerms: Discord.Permission[];
-  private readonly _defaultPerm: boolean;
+  readonly requiredPerms: Discord.Permission[];
+  readonly defaultPerm: boolean;
+  readonly handler?: CommandHandler;
 
   constructor(props: CommandProps) {
     const {
@@ -35,9 +35,9 @@ class Command extends SubCommandGroup {
     super(base);
     this.displayName = displayName;
     this.followUpHandlers = followUpHandlers ?? {};
-    this._handler = handler;
-    this._defaultPerm = default_permission ?? true;
-    this._requiredPerms = requiredPermissions ?? [];
+    this.handler = handler;
+    this.defaultPerm = default_permission ?? true;
+    this.requiredPerms = requiredPermissions ?? [];
   }
 
   /**
@@ -51,16 +51,16 @@ class Command extends SubCommandGroup {
       !(await SubCommand.checkPermissions(
         ctx,
         this.displayName,
-        this._requiredPerms,
+        this.requiredPerms,
       ))
     ) {
       return;
     }
 
-    if (this._handler) {
+    if (this.handler) {
       // Supply this command's follow-up handlers.
       ctx._setFollowUpHandlers(this.followUpHandlers);
-      return this._handler(ctx);
+      return this.handler(ctx);
     }
 
     ctx._advanceCommand();
@@ -76,8 +76,7 @@ class Command extends SubCommandGroup {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { type, ...serialized } = super.serialize();
     return {
-      default_permission: this._defaultPerm,
-      requiredPerms: this._requiredPerms,
+      default_permission: this.defaultPerm,
       ...serialized,
     };
   }

@@ -16,11 +16,11 @@ export type CommandOptionProps = {
  */
 class CommandOption {
   readonly name: string;
-  private readonly _opts: CommandOptionProps;
+  readonly props: CommandOptionProps;
 
   constructor(opts: CommandOptionProps) {
     this.name = opts.name;
-    this._opts = opts;
+    this.props = opts;
   }
 
   /**
@@ -29,9 +29,9 @@ class CommandOption {
    */
   serialize(): any {
     return {
-      ...this._opts,
-      choices: this._opts.choices?.map(c => c.serialize()),
-      options: this._opts.options?.map(c => c.serialize()),
+      ...this.props,
+      choices: this.props.choices?.map(c => c.serialize()),
+      options: this.props.options?.map(c => c.serialize()),
     };
   }
 }
