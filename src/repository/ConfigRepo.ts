@@ -128,13 +128,6 @@ class ConfigRepo {
     );
   }
 
-  async findBirthdayMessage(
-    guildId: string,
-    _id: number,
-  ): Promise<BirthdayMessage> {
-    return await this.collection(guildId).findOne({ _id });
-  }
-
   /**
    * Inserts a configuration document into the `config` collection if one does
    * not already exist.

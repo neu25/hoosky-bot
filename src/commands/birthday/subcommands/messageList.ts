@@ -24,6 +24,9 @@ export const messageList = new SubCommand({
         type: Discord.EmbedType.RICH,
         title: 'All Birthday Messages',
         description,
+        footer: {
+          text: "`%` characters are placeholders - they'll be automatically replaced to mention the birthday people when sent.",
+        },
       });
     }
   },
