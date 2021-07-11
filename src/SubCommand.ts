@@ -1,21 +1,17 @@
 import * as Discord from './Discord';
 import SubCommandGroup, { SubCommandGroupProps } from './SubCommandGroup';
 import ExecutionContext from './ExecutionContext';
-import TriggerContext from './TriggerContext';
 import { bold } from './format';
 import { checkCtxPermissions } from './commands/_utils';
+import { MessageFollowUpHandler } from './FollowUpManager';
 
 export type CommandHandler = (
   ctx: ExecutionContext,
 ) => unknown | Promise<unknown>;
-export type FollowUpHandler = (
-  tctx: TriggerContext<Discord.Message>,
-  ectx: ExecutionContext,
-) => unknown | Promise<unknown>;
 
 export type SubCommandOptions = {
   handler: CommandHandler;
-  followUpHandlers?: Record<string, FollowUpHandler>;
+  msgFollowUpHandlers?: Record<string, MessageFollowUpHandler>;
   displayName: string;
   requiredPermissions?: Discord.Permission[];
 } & SubCommandGroupProps;
@@ -32,7 +28,7 @@ export type SubCommandOptions = {
  */
 class SubCommand extends SubCommandGroup {
   readonly displayName: string;
-  readonly followUpHandlers: Record<string, FollowUpHandler>;
+  readonly msgFollowUpHandlers: Record<string, MessageFollowUpHandler>;
   readonly requiredPerms: Discord.Permission[];
   readonly handler: CommandHandler;
 
@@ -41,12 +37,12 @@ class SubCommand extends SubCommandGroup {
       handler,
       requiredPermissions,
       displayName,
-      followUpHandlers,
+      msgFollowUpHandlers,
       ...base
     } = opts;
     super(base);
     this.displayName = displayName;
-    this.followUpHandlers = followUpHandlers ?? {};
+    this.msgFollowUpHandlers = msgFollowUpHandlers ?? {};
     this.handler = handler;
     this.requiredPerms = requiredPermissions ?? [];
   }
@@ -69,7 +65,7 @@ class SubCommand extends SubCommandGroup {
     }
 
     // Supply this subcommand's follow-up handlers.
-    ctx._setFollowUpHandlers(this.followUpHandlers);
+    ctx.msgFollowUpHandlers = this.msgFollowUpHandlers;
 
     return this.handler(ctx);
   }
@@ -90,7 +86,7 @@ class SubCommand extends SubCommandGroup {
     const [missingPerm, ok] = checkCtxPermissions(ctx, requiredPerms);
 
     if (!ok) {
-      await ctx.respondWithError(
+      await ctx.interactionApi.respondWithError(
         `The ${bold(displayName)} command requires the ` +
           `${bold(
             Discord.PermissionName[missingPerm as Discord.Permission],

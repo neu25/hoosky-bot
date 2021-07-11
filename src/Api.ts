@@ -178,6 +178,72 @@ class Api {
     });
   }
 
+  async getChannel(channelId: string): Promise<Discord.Channel> {
+    const cached = Api._tryCache('channels', () =>
+      this._cache.getChannel(channelId),
+    );
+    if (cached) return cached;
+
+    return performRequest(async () => {
+      const res = await this._http.get(`/channels/${channelId}`);
+      const channel = res.data as Discord.Channel;
+      this._cache._updateChannel(channel);
+      return channel;
+    });
+  }
+
+  /**
+   * Creates a new channel in a guild.
+   *
+   * @param guildId The ID of the guild in which the channel will be created.
+   * @param data The channel data.
+   */
+  async createChannel(
+    guildId: string,
+    data: Discord.CreateChannelPayload,
+  ): Promise<Discord.Channel> {
+    return performRequest(async () => {
+      const res = await this._http.post(`/guilds/${guildId}/channels`, data);
+      const channel = res.data as Discord.Channel;
+      this._cache._updateChannel(channel);
+      return channel;
+    });
+  }
+
+  /**
+   * Modifies a new channel in a guild.
+   *
+   * @param channelId The ID of the channel.
+   * @param data The channel update data.
+   */
+  async modifyChannel(
+    channelId: string,
+    data: Discord.ModifyChannelPayload,
+  ): Promise<Discord.Channel> {
+    return performRequest(async () => {
+      const res = await this._http.patch(`/channels/${channelId}`, data);
+      const channel = res.data as Discord.Channel;
+      this._cache._updateChannel(channel);
+      return channel;
+    });
+  }
+
+  /**
+   * Deletes a new channel in a guild.
+   *
+   * @param channelId The ID of the channel.
+   */
+  async deleteChannel(channelId: string): Promise<Discord.Channel> {
+    return performRequest(async () => {
+      const res = await this._http.delete(`/channels/${channelId}`);
+      const channel = res.data as Discord.Channel;
+      if (channel.guild_id) {
+        this._cache._deleteChannel(channel.guild_id, channel.id);
+      }
+      return channel;
+    });
+  }
+
   /**
    * Gets a list of all the channels in the guild.
    *
@@ -314,6 +380,27 @@ class Api {
   }
 
   /**
+   * Edits a message in the specified channel.
+   *
+   * @param channelId The ID of the channel.
+   * @param messageId The ID of the message.
+   * @param data The message update data.
+   */
+  editMessage(
+    channelId: string,
+    messageId: string,
+    data: Discord.EditMessagePayload,
+  ): Promise<Discord.Message> {
+    return performRequest(async () => {
+      const res = await this._http.patch(
+        `/channels/${channelId}/messages/${messageId}`,
+        data,
+      );
+      return res.data as Discord.Message;
+    });
+  }
+
+  /**
    * Deletes a message in the specified channel.
    *
    * @param channelId The ID of the channel.
@@ -322,6 +409,20 @@ class Api {
   deleteMessage(channelId: string, messageId: string): Promise<void> {
     return performRequest(async () => {
       await this._http.delete(`/channels/${channelId}/messages/${messageId}`);
+    });
+  }
+
+  /**
+   * Deletes anywhere from 2 to 100 messages in the specified channel.
+   *
+   * @param channelId The ID of the channel.
+   * @param messageIds The array of message IDs.
+   */
+  bulkDeleteMessages(channelId: string, messageIds: string[]): Promise<void> {
+    return performRequest(async () => {
+      await this._http.post(`/channels/${channelId}/messages/bulk-delete`, {
+        messages: messageIds,
+      });
     });
   }
 

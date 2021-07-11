@@ -24,7 +24,7 @@ const listJoined = new SubCommand({
   ],
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
-    const chosenUserId = ctx.getArgument<string>('user') as string;
+    const chosenUserId = ctx.getArgument<string>('user')!;
 
     let userId: string;
     if (chosenUserId) {
@@ -83,7 +83,7 @@ const listJoined = new SubCommand({
       value: sub.list, // The course list.
     }));
 
-    await ctx.respondSilentlyWithEmbed({
+    await ctx.interactionApi.respondSilentlyWithEmbed({
       type: Discord.EmbedType.RICH,
       title: `${username}’s Course List`,
       fields,

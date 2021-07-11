@@ -26,14 +26,14 @@ const create = new SubCommand({
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
 
-    const courseName = ctx.getArgument<string>('name')?.trim() as string;
-    const courseId = ctx.getArgument<string>('id')?.trim() as string;
+    const courseName = ctx.getArgument<string>('name')!.trim();
+    const courseId = ctx.getArgument<string>('id')!.trim();
 
     if (!validCourseId(courseId)) {
-      return ctx.respondWithError('Invalid course ID.');
+      return ctx.interactionApi.respondWithError('Invalid course ID.');
     }
     if (await ctx.courses().exists(guildId, courseId)) {
-      return ctx.respondWithError('Course already exists.');
+      return ctx.interactionApi.respondWithError('Course already exists.');
     }
 
     // Create the course role.
@@ -57,7 +57,7 @@ const create = new SubCommand({
     await ctx.courses().create(guildId, course);
 
     // Notify of successful course creation.
-    return ctx.respondWithMessage(
+    return ctx.interactionApi.respondWithMessage(
       `Created role for course ${boldCourse(course)}`,
     );
   },

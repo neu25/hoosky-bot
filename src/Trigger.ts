@@ -1,5 +1,6 @@
 import * as Discord from './Discord';
 import TriggerContext from './TriggerContext';
+import { MessageFollowUpHandler } from './FollowUpManager';
 
 type TriggerHandler<E extends Discord.Event> = (
   // @ts-ignore
@@ -9,6 +10,7 @@ type TriggerHandler<E extends Discord.Event> = (
 type TriggerProps<E extends Discord.Event> = {
   event: E;
   handler?: TriggerHandler<E>;
+  msgFollowUpHandlers?: Record<string, MessageFollowUpHandler>;
 };
 
 type EventTypeMap = {
@@ -33,14 +35,19 @@ export type EventData<E extends keyof EventTypeMap> = EventTypeMap[E];
 
 class Trigger<E extends Discord.Event> {
   readonly event: Discord.Event;
+  readonly msgFollowUpHandlers: Record<string, MessageFollowUpHandler>;
   private readonly _handler?: TriggerHandler<E>;
 
   constructor(props: TriggerProps<E>) {
     this.event = props.event;
     this._handler = props.handler;
+    this.msgFollowUpHandlers = props.msgFollowUpHandlers ?? {};
   }
 
   execute(ctx: TriggerContext<any>): void | Promise<void> {
+    // Supply this subcommand's follow-up handlers.
+    ctx.msgFollowUpHandlers = this.msgFollowUpHandlers;
+
     if (this._handler) {
       return this._handler(ctx);
     }

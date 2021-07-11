@@ -33,18 +33,18 @@ const join = new SubCommand({
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
     const userId = ctx.mustGetUserId();
-    const roleId = ctx.getArgument<string>('role') as string;
+    const roleId = ctx.getArgument<string>('role')!;
     const sectionNum = ctx.getArgument<string>('section');
 
     const course = await ctx.courses().getByRoleId(guildId, roleId);
     if (!course) {
-      return ctx.respondWithError('That course does not exist.');
+      return ctx.interactionApi.respondWithError('That course does not exist.');
     }
 
     const members = (await ctx.courses().getMembers(guildId, roleId)) ?? [];
     if (members.includes(userId)) {
       if (sectionNum === undefined) {
-        return ctx.respondWithError(
+        return ctx.interactionApi.respondWithError(
           'You are already in that course. ' +
             'Did you intend to join a class section? If so, provide the ' +
             bold('section') +
@@ -62,7 +62,7 @@ const join = new SubCommand({
         userId,
       );
 
-      return ctx.respondWithMessage(
+      return ctx.interactionApi.respondWithMessage(
         `You switched to ${bold(
           `Section ${sectionNum}`,
         )} of course ${boldCourse(course)}.\n${postJoinSectionText}`,
@@ -75,7 +75,7 @@ const join = new SubCommand({
 
     if (sectionNum === undefined) {
       // No section number provided, exit early.
-      return ctx.respondWithMessage(
+      return ctx.interactionApi.respondWithMessage(
         `You joined the course ${boldCourse(course)}.\n${postJoinCourseText}`,
       );
     }
@@ -88,7 +88,7 @@ const join = new SubCommand({
       userId,
     );
 
-    return ctx.respondWithMessage(
+    return ctx.interactionApi.respondWithMessage(
       `You joined ${bold(`Section ${sectionNum}`)} of course ${boldCourse(
         course,
       )}.\n${postJoinSectionText}`,

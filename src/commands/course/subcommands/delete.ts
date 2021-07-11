@@ -18,17 +18,19 @@ const del = new SubCommand({
   ],
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
-    const roleId = ctx.getArgument<string>('role') as string;
+    const roleId = ctx.getArgument<string>('role')!;
     const course = await ctx.courses().getByRoleId(guildId, roleId);
 
     if (!course) {
-      return ctx.respondWithError('That course does not exist');
+      return ctx.interactionApi.respondWithError('That course does not exist');
     }
 
     await ctx.api.deleteGuildRole(guildId, course.roleId);
     await ctx.courses().deleteByRoleId(guildId, course.roleId);
 
-    return ctx.respondWithMessage(`Deleted course ${boldCourse(course)}`);
+    return ctx.interactionApi.respondWithMessage(
+      `Deleted course ${boldCourse(course)}`,
+    );
   },
 });
 
