@@ -2,6 +2,7 @@ import Command from '../Command';
 
 const ping = new Command({
   name: 'ping',
+  displayName: 'Ping',
   description: 'Responds with "pong"',
   handler: async ctx => {
     const startTime = ctx.interactionDate();

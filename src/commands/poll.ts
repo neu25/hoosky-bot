@@ -12,6 +12,7 @@ import CommandOption from '../CommandOption';
  */
 const poll = new Command({
   name: 'poll',
+  displayName: 'Poll',
   description: 'Manage polls',
   options: [
     new SubCommand({
@@ -46,7 +47,7 @@ const poll = new Command({
           }
         }
 
-        if (customEmojis != null)
+        if (customEmojis !== null)
           customEmojis.forEach(element => {
             ctx.api.createReaction(msg.id, msg.channel_id, element);
           });

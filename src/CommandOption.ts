@@ -15,17 +15,12 @@ export type CommandOptionProps = {
  * behavior of a command execution.
  */
 class CommandOption {
-  private readonly _opts: CommandOptionProps;
+  readonly name: string;
+  readonly props: CommandOptionProps;
 
   constructor(opts: CommandOptionProps) {
-    this._opts = opts;
-  }
-
-  /**
-   * Returns the name of the command option.
-   */
-  getName(): string {
-    return this._opts.name;
+    this.name = opts.name;
+    this.props = opts;
   }
 
   /**
@@ -34,9 +29,9 @@ class CommandOption {
    */
   serialize(): any {
     return {
-      ...this._opts,
-      choices: this._opts.choices?.map(c => c.serialize()),
-      options: this._opts.options?.map(c => c.serialize()),
+      ...this.props,
+      choices: this.props.choices?.map(c => c.serialize()),
+      options: this.props.options?.map(c => c.serialize()),
     };
   }
 }

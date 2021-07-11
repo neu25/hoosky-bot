@@ -1,5 +1,3 @@
-import { GuildConfig, RolesConfig, BirthdaysConfig } from './types';
-
 /**
  * Collection names
  */
@@ -17,20 +15,3 @@ export enum Config {
   ROLES = 'roles',
   BIRTHDAYS = 'birthdays',
 }
-
-export const rolesConfig: RolesConfig = {
-  muted: '',
-};
-
-/**
- * Default value of the `guild` configuration
- */
-export const guildConfig: GuildConfig = {
-  commandPrefixes: ['-'],
-};
-
-export const birthdaysConfig: BirthdaysConfig = {
-  schedule: '00 15 10 * * *',
-  channel: '',
-  messages: [{ id: 1, message: 'Happy birthday, %!' }],
-};

@@ -1,5 +1,7 @@
 import util from 'util';
 
+export type Primitive = string | boolean | number | undefined | null;
+
 /**
  * Returns a Promise that resolves after the given time.
  *
@@ -36,8 +38,9 @@ export const performRequest = async <T>(fn: () => Promise<T>): Promise<T> => {
         // Log the entire response object.
         console.error('Response:');
         console.error(util.inspect(e.response.data, false, null, true));
+        throw e.response.data;
       }
-      throw new Error('HTTP request error');
+      throw e.response;
     }
 
     if (e.request) {
@@ -72,4 +75,8 @@ export const padNumber = (number: number, size: number): string => {
     num = '0' + num;
   }
   return num;
+};
+
+export const eliminateDuplicates = <T extends Primitive>(array: T[]): T[] => {
+  return Array.from(new Set(array));
 };

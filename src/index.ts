@@ -1,12 +1,16 @@
 import yargs from 'yargs';
 import axios from 'axios';
 import { hideBin } from 'yargs/helpers';
+import * as Discord from './Discord';
 import Client from './Client';
 import { loadConfig } from './config';
 import commands from './commands';
 import triggers from './triggers';
 import { Database } from './database';
 import Api from './Api';
+import { setupRepos } from './repository';
+import Cache from './Cache';
+import FollowUpManager from './FollowUpManager';
 
 (async () => {
   const argv = await yargs(hideBin(process.argv)).argv;
@@ -19,37 +23,48 @@ import Api from './Api';
     },
   });
 
-  console.log('Fetching list of joined guilds...');
-  const api = new Api(config.discord.appId, reqClient);
+  console.log('[Main] Fetching list of joined guilds...');
+  const cache = new Cache();
+  const api = new Api(config.discord.appId, reqClient, cache);
   const guilds = await api.getCurrentGuilds();
   const guildIds = guilds.map(g => g.id);
   for (let i = 0; i < guilds.length; i++) {
     console.log(`  (${i + 1}) ${guilds[i].name}`);
   }
 
-  console.log('Connecting to database...');
+  console.log('[Main] Connecting to database...');
   const database = new Database(config.mongodb.url, config.mongodb.db);
   await database.connect();
-  await database.initializeConfig(guildIds);
 
-  // console.log('Synchronizing guild commands...');
-  // const commandManager = new CommandManager(config.discord.appId, reqClient);
-  // await commandManager.syncGuildCommands(guildIds, commands);
+  // Set up model repositories, interfaces for operating on data stored in the database.
+  const repos = setupRepos(database);
+  // Insert default configuration values into the database.
+  await repos.config.initialize(guildIds);
 
-  console.log('Connecting to gateway...');
-  const client = new Client(
-    config.discord.appId,
-    config.discord.token,
-    database,
-    reqClient,
-  );
+  console.log('[Main] Connecting to gateway...');
+  const followUpListener = new FollowUpManager(api, repos);
+  const client = new Client({
+    appId: config.discord.appId,
+    token: config.discord.token,
+    http: reqClient,
+    intents: [
+      Discord.Intent.GUILDS,
+      Discord.Intent.GUILD_MEMBERS,
+      Discord.Intent.GUILD_MESSAGES,
+    ],
+    followUpListener,
+    repos,
+    api,
+  });
 
   // Supply the commands we'd like to handle.
   client.handleCommands(commands);
   // Supply the triggers we'd like to handle.
-  client.handleTriggers(triggers);
+  client.handleTriggers([...triggers, ...cache.triggers()]);
 
   client.connect().then(data => {
-    console.log(`${data.user.username}#${data.user.discriminator} connected`);
+    console.log(
+      `[Main] ${data.user.username}#${data.user.discriminator} connected`,
+    );
   });
 })().catch(e => console.error(e));
