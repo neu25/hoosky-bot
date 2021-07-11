@@ -1,7 +1,35 @@
 import * as Discord from '../../Discord';
 import Trigger from '../../Trigger';
-import { Course } from '../../repository';
+import { Birthday, Course } from '../../repository';
 import { eliminateDuplicates } from '../../utils';
+
+/**
+ * Returns whether the serialized representations of two objects are equal.
+ *
+ * @param a The first JSON-serializable object.
+ * @param b The second JSON-serializable object.
+ */
+const compareSerialized = (a: any, b: any) => {
+  return JSON.stringify(a) === JSON.stringify(b);
+};
+
+/**
+ * Resolves data integrity issues of the given birthday.
+ *
+ * @param b The birthday to fix.
+ */
+const normalizeBirthday = (b: Birthday): Birthday => {
+  let { users } = b;
+  users = users ?? [];
+
+  // Eliminate duplicate users in birthdays.
+  users = eliminateDuplicates(users);
+
+  return {
+    _id: b._id,
+    users,
+  };
+};
 
 /**
  * Resolves data integrity issues of the given course.
@@ -33,16 +61,6 @@ const normalizeCourse = (c: Course): Course => {
 };
 
 /**
- * Returns whether the serialized representations of two objects are equal.
- *
- * @param a The first JSON-serializable object.
- * @param b The second JSON-serializable object.
- */
-const compareSerialized = (a: any, b: any) => {
-  return JSON.stringify(a) === JSON.stringify(b);
-};
-
-/**
  * Normalize the database for every guild. This allows us to perform schema migrations.
  */
 const normalizeDatabase = new Trigger({
@@ -59,6 +77,16 @@ const normalizeDatabase = new Trigger({
       if (!compareSerialized(c, n)) {
         console.log(`Corruption in course ${c._id}. Fixing...`);
         await ctx.courses().updateById(guild.id, c._id, n);
+      }
+    }
+
+    const birthdays = await ctx.birthdays().list(guild.id);
+    for (const b of birthdays) {
+      const n = normalizeBirthday(b);
+      // If the birthday changed, then update it.
+      if (!compareSerialized(b, n)) {
+        console.log(`Corruption in birthday ${b._id}.`);
+        await ctx.birthdays().updateById(guild.id, b._id, n);
       }
     }
 

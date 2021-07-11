@@ -64,6 +64,14 @@ class BirthdayRepo {
     }
   }
 
+  async updateById(
+    guildId: string,
+    id: number,
+    birthday: Partial<Omit<Birthday, '_id'>>,
+  ): Promise<void> {
+    await this.collection(guildId).updateOne({ _id: id }, { $set: birthday });
+  }
+
   async unset(guildId: string, userId: string): Promise<void> {
     const birthday = await this.getByUserId(guildId, userId);
     const id = birthday?._id;
