@@ -5,13 +5,20 @@ import {
   startScheduler,
 } from '../../commands/birthday/scheduler';
 
-const birthdayScheduler = new Trigger<Discord.Event.CHANNEL_UPDATE>({
-  event: Discord.Event.CHANNEL_UPDATE,
+const birthdayScheduler = new Trigger({
+  event: Discord.Event.GUILD_CREATE,
   handler: async ctx => {
-    const guildId = ctx.data.id;
+    const guild = ctx.data;
+    console.log(
+      `Setting up birthday scheduler for ${guild.name} (${guild.id})...`,
+    );
 
-    await configureScheduler(ctx, guildId);
+    await configureScheduler(ctx, guild.id);
     await startScheduler();
+
+    console.log(
+      `Birthday scheduler for ${guild.name} (${guild.id}) is configured`,
+    );
   },
 });
 

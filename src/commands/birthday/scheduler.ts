@@ -13,7 +13,7 @@ dayjs.extend(dayOfYear);
 let job: CronJob;
 
 export const configureScheduler = async (
-  ctx: ExecutionContext | TriggerContext<Discord.Channel>,
+  ctx: ExecutionContext | TriggerContext<Discord.Guild>,
   guildId: string,
 ): Promise<void> => {
   const birthdaysCfg = await ctx
@@ -39,7 +39,7 @@ export const configureScheduler = async (
   job = new cron.CronJob(
     schedule,
     async () => {
-      const dayOfYear = dayjs(new Date().toDateString()).dayOfYear();
+      const dayOfYear = dayjs().dayOfYear();
       const birthdays = await ctx.birthdays().getByDay(guildId, dayOfYear);
 
       if (channel && birthdays && birthdays.users.length > 0) {
@@ -79,4 +79,9 @@ export const stopScheduler = (): void => {
   if (job) {
     job.stop();
   }
+};
+
+export const restartScheduler = (): void => {
+  stopScheduler();
+  startScheduler();
 };
