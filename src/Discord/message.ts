@@ -244,7 +244,7 @@ export type Reaction = {
 export type CreateMessagePayload = {
   content?: string;
   tts?: boolean;
-  file?: File;
+  file?: ArrayBuffer;
   embeds?: Embed[];
   // payload_json?: string;
   // allowed_mentions?: [];

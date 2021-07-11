@@ -13,13 +13,16 @@ const reply = new Interaction({
     const { interaction } = ctx;
     const member = interaction.member!;
 
-    console.log(interaction);
-
     await ctx.interactionApi.respondWithMessage(
       `<@${member.user!.id}> Send the message you want HooskBot to forward`,
     );
 
-    return ctx.expectMessageFollowUp(FollowUp.MESSAGE, member.user!.id, 60_000);
+    return ctx.expectMessageFollowUp(
+      FollowUp.MESSAGE,
+      member.user!.id,
+      interaction.channel_id ?? '',
+      60_000,
+    );
   },
   msgFollowUpHandlers: {
     [FollowUp.MESSAGE]: async (tctx, ectx) => {
@@ -27,7 +30,7 @@ const reply = new Interaction({
       const replyMsg = tctx.data;
       const { author } = replyMsg;
 
-      ectx.unexpectFollowUp(replyMsg.author.id);
+      ectx.unexpectFollowUp(replyMsg.author.id, replyMsg.channel_id);
 
       const mailThread = await ectx
         .mail()

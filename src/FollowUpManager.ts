@@ -11,6 +11,7 @@ export type MessageFollowUpHandler = (
 
 type MessageFollowUp = {
   userId: string;
+  channelId: string;
   handler: MessageFollowUpHandler;
   ectx: ExecutionContext;
   expires: number;
@@ -33,7 +34,8 @@ class FollowUpManager {
       for (const f of Object.values(this._msgFollowUps)) {
         // Check if the pending follow-up has expired.
         if (Date.now() > f.expires) {
-          this.removeMsgFollowUp(f.userId);
+          this.removeMsgFollowUp(f.channelId, f.userId);
+
           f.ectx.interactionApi
             .followUpWithError(
               'Timed out while waiting for response. Please execute the command again.',
@@ -48,9 +50,18 @@ class FollowUpManager {
     msg: Discord.Message,
     ctx: TriggerContext<Discord.Message>,
   ): Promise<unknown> {
-    const followUp = this._msgFollowUps[msg.author.id];
+    const followUp =
+      this._msgFollowUps[
+        FollowUpManager.generateFollowUpKey(msg.channel_id, msg.author.id)
+      ];
+
     if (followUp) {
-      console.log('[Client] Handling follow-up for user', msg.author.id);
+      console.log(
+        '[Client] Handling follow-up for user',
+        msg.author.id,
+        'in channel',
+        msg.channel_id,
+      );
       return followUp.handler(ctx, followUp.ectx);
     }
   }
@@ -59,13 +70,30 @@ class FollowUpManager {
     console.log(
       '[Client] Waiting for message follow-up from user',
       followUp.userId,
+      'in channel',
+      followUp.channelId,
     );
-    this._msgFollowUps[followUp.userId] = followUp;
+
+    this._msgFollowUps[
+      FollowUpManager.generateFollowUpKey(followUp.channelId, followUp.userId)
+    ] = followUp;
   }
 
-  removeMsgFollowUp(userId: string): void {
-    console.log('[Client] Deactivated message follow-up from user', userId);
-    delete this._msgFollowUps[userId];
+  removeMsgFollowUp(channelId: string, userId: string): void {
+    console.log(
+      '[Client] Deactivated message follow-up from user',
+      userId,
+      'in channel',
+      channelId,
+    );
+
+    delete this._msgFollowUps[
+      FollowUpManager.generateFollowUpKey(channelId, userId)
+    ];
+  }
+
+  static generateFollowUpKey(channelId: string, userId: string): string {
+    return `${channelId}-${userId}`;
   }
 }
 
