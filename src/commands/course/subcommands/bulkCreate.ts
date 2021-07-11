@@ -20,11 +20,16 @@ const bulkCreate = new SubCommand({
   description: 'Create many courses at once using a CSV file',
   requiredPermissions: [Discord.Permission.MANAGE_ROLES],
   handler: async ctx => {
+    const { interaction } = ctx;
     const userId = ctx.mustGetUserId();
 
     // Expect a follow-up message from the user.
     // Thus, the user's next message will trigger the handler in `followUpHandlers.upload` below.
-    ctx.expectMessageFollowUp(FollowUp.UPLOAD, userId);
+    ctx.expectMessageFollowUp(
+      FollowUp.UPLOAD,
+      userId,
+      interaction.channel_id ?? '',
+    );
 
     await ctx.interactionApi.respondWithMessage(
       `Upload a ${inlineCode('.csv')} file, with each line formatted as ${bold(
@@ -137,7 +142,7 @@ const bulkCreate = new SubCommand({
       }
 
       // Stop treated this user's messages as follow-ups.
-      ectx.unexpectFollowUp(userId);
+      ectx.unexpectFollowUp(channelId, userId);
 
       return tctx.api.createMessage(channelId, {
         content: `Created roles for ${bold(courses.length.toString())} courses`,

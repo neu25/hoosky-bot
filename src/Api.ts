@@ -1,4 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
+import FormData from 'form-data';
 import * as Discord from './Discord';
 import Cache from './Cache';
 import { performRequest, prepareEmoji } from './utils';
@@ -308,7 +309,7 @@ class Api {
    * Sends a message in the specified channel.
    *
    * @param channelId The ID of the channel.
-   * @param data The content of the message.
+   * @param data The message data.
    */
   createMessage(
     channelId: string,
@@ -324,27 +325,38 @@ class Api {
   }
 
   /**
-   * TODO: Work in progress.
+   * Sends a message with an attached file in the specified channel.
+   *
+   * @param channelId The ID of the channel.
+   * @param filename The name of the file.
+   * @param contentType The MIME type of the file.
+   * @param data The message and file data.
    */
-  // createMessageWithFile(
-  //   channelId: string,
-  //   fileName: string,
-  //   data: Discord.CreateMessagePayload & { file: File },
-  // ): Promise<Discord.Message> {
-  //   const { file, ...payload } = data;
-  //
-  //   const formData = new FormData();
-  //   formData.append('file', file, fileName);
-  //   formData.append('payload_json', JSON.stringify(payload));
-  //
-  //   return performRequest(async () => {
-  //     const res = await this._http.post(
-  //       `/channels/${channelId}/messages`,
-  //       formData,
-  //     );
-  //     return res.data as Discord.Message;
-  //   });
-  // }
+  createMessageWithFile(
+    channelId: string,
+    filename: string,
+    contentType: string,
+    data: Discord.CreateMessagePayload & { file: ArrayBuffer },
+  ): Promise<Discord.Message> {
+    const { file, ...payload } = data;
+
+    const formData = new FormData();
+    formData.append('payload_json', JSON.stringify(payload), {
+      contentType: 'application/json',
+    });
+    formData.append('file', file, { filename, contentType });
+
+    return performRequest(async () => {
+      const res = await this._http.post(
+        `/channels/${channelId}/messages`,
+        formData,
+        {
+          headers: formData.getHeaders(),
+        },
+      );
+      return res.data as Discord.Message;
+    });
+  }
 
   /**
    * Sends an error message in the specified channel.
