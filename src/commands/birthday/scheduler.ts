@@ -1,3 +1,5 @@
+import dayjs from 'dayjs';
+import dayOfYear from 'dayjs/plugin/dayOfYear';
 import cron, { CronJob } from 'cron';
 import * as Discord from '../../Discord';
 import { CreateMessage } from '../../Discord/message';
@@ -5,7 +7,8 @@ import ExecutionContext from '../../ExecutionContext';
 import TriggerContext from '../../TriggerContext';
 import { Config } from '../../database';
 import { BirthdaysConfig } from '../../repository';
-import { calculateDayOfYear } from '../../commands/birthday/_common';
+
+dayjs.extend(dayOfYear);
 
 let job: CronJob;
 
@@ -36,7 +39,7 @@ export const configureScheduler = async (
   job = new cron.CronJob(
     schedule,
     async () => {
-      const dayOfYear = calculateDayOfYear(new Date().toDateString());
+      const dayOfYear = dayjs(new Date().toDateString()).dayOfYear();
       const birthdays = await ctx.birthdays().getByDay(guildId, dayOfYear);
 
       if (channel && birthdays && birthdays.users.length > 0) {

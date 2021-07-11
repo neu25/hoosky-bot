@@ -1,12 +1,13 @@
 import dayjs from 'dayjs';
+import dayOfYear from 'dayjs/plugin/dayOfYear';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { CommandOptionType } from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
-import { getTargetUser, calculateDate } from '../_common';
+import { getTargetUser } from '../_common';
 import { bold } from '../../../format';
 
-dayjs.extend(relativeTime);
+dayjs.extend(dayOfYear, relativeTime);
 
 export const show = new SubCommand({
   name: 'show',
@@ -37,7 +38,7 @@ export const show = new SubCommand({
     const birthday = await ctx.birthdays().getByUserId(guildId, targetUser.id);
 
     if (birthday) {
-      const date = await calculateDate(birthday._id);
+      const date = dayjs().dayOfYear(await birthday._id);
 
       return ctx.interactionApi.respondWithMessage(
         `Birthday for <@${targetUser.id}> is set to ${bold(

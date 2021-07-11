@@ -1,7 +1,10 @@
+import dayjs from 'dayjs';
+import dayOfYear from 'dayjs/plugin/dayOfYear';
 import { CommandOptionType } from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
-import { calculateDayOfYear } from '../_common';
+
+dayjs.extend(dayOfYear);
 
 export const set = new SubCommand({
   name: 'set',
@@ -20,7 +23,7 @@ export const set = new SubCommand({
     const targetBirthday = ctx.getArgument<string>('date') as string;
     const requestor = ctx.interaction.member?.user;
 
-    const dayOfYear = calculateDayOfYear(targetBirthday);
+    const dayOfYear = dayjs(targetBirthday).dayOfYear();
 
     if (!dayOfYear || typeof dayOfYear !== 'number') {
       return ctx.interactionApi.respondWithError(`Invalid birthday`);
