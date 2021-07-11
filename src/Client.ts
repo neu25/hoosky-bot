@@ -190,6 +190,8 @@ class Client {
         this._ws?.close();
         break;
       }
+      default:
+        console.log('[Client] Unhandled gateway message:', msg);
     }
   }
 
