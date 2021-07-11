@@ -1,10 +1,7 @@
 import dayjs from 'dayjs';
-import dayOfYear from 'dayjs/plugin/dayOfYear';
 import { CommandOptionType } from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
-
-dayjs.extend(dayOfYear);
 
 export const set = new SubCommand({
   name: 'set',
@@ -23,9 +20,9 @@ export const set = new SubCommand({
     const targetBirthday = ctx.getArgument<string>('date') as string;
     const requestor = ctx.interaction.member?.user;
 
-    const dayOfYear = dayjs(targetBirthday).dayOfYear();
+    const date = dayjs(targetBirthday).format('MMDD');
 
-    if (!dayOfYear || typeof dayOfYear !== 'number') {
+    if (!date) {
       return ctx.interactionApi.respondWithError(`Invalid birthday`);
     }
 
@@ -39,7 +36,7 @@ export const set = new SubCommand({
       );
     }
 
-    await ctx.birthdays().set(guildId, dayOfYear, requestor.id);
+    await ctx.birthdays().set(guildId, date, requestor.id);
     return ctx.interactionApi.respondWithMessage(
       `<@${requestor.id}>, your birthday has been set to ${targetBirthday}!`,
     );

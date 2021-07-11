@@ -2,7 +2,7 @@ import { Collection as MongoCollection, Cursor } from 'mongodb';
 import { Collection, Database } from '../database';
 
 export type Birthday = {
-  _id: number;
+  _id: string;
   users: string[];
 };
 
@@ -18,8 +18,8 @@ class BirthdayRepo {
     this._db = db;
   }
 
-  async getByDay(guildId: string, day: number): Promise<Birthday | null> {
-    return this.collection(guildId).findOne({ _id: day });
+  async getByDay(guildId: string, id: string): Promise<Birthday | null> {
+    return this.collection(guildId).findOne({ _id: id });
   }
 
   async getByUserId(guildId: string, userId: string): Promise<Birthday | null> {
@@ -30,8 +30,8 @@ class BirthdayRepo {
     return !!(await this.getByUserId(guildId, userId));
   }
 
-  async dayExists(guildId: string, day: number): Promise<boolean> {
-    return !!(await this.getByDay(guildId, day));
+  async dayExists(guildId: string, id: string): Promise<boolean> {
+    return !!(await this.getByDay(guildId, id));
   }
 
   async scan(guildId: string): Promise<Cursor<Birthday>> {
@@ -50,15 +50,15 @@ class BirthdayRepo {
     await this.collection(guildId).insertOne(birthday);
   }
 
-  async set(guildId: string, day: number, userId: string): Promise<void> {
-    if (await this.dayExists(guildId, day)) {
+  async set(guildId: string, id: string, userId: string): Promise<void> {
+    if (await this.dayExists(guildId, id)) {
       await this.collection(guildId).updateOne(
-        { _id: day },
+        { _id: id },
         { $push: { users: userId } },
       );
     } else {
       await this.collection(guildId).insertOne({
-        _id: day,
+        _id: id,
         users: [userId],
       });
     }
@@ -66,7 +66,7 @@ class BirthdayRepo {
 
   async updateById(
     guildId: string,
-    id: number,
+    id: string,
     birthday: Partial<Omit<Birthday, '_id'>>,
   ): Promise<void> {
     await this.collection(guildId).updateOne({ _id: id }, { $set: birthday });

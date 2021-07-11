@@ -1,10 +1,7 @@
 import dayjs from 'dayjs';
-import dayOfYear from 'dayjs/plugin/dayOfYear';
 import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import { bold, fancyCenter } from '../../../format';
-
-dayjs.extend(dayOfYear);
 
 type MonthGroup = {
   month: string;
@@ -29,7 +26,7 @@ export const list = new SubCommand({
     let c = await birthdays.next();
     while (c !== null) {
       // If the birthday's month is different, then create a new month group.
-      const formattedMonth = dayjs().dayOfYear(c._id).format('MMMM');
+      const formattedMonth = dayjs(c._id).format('MMMM');
       if (!curGroup || formattedMonth !== curGroup.month) {
         curGroup = {
           month: formattedMonth,
@@ -41,7 +38,7 @@ export const list = new SubCommand({
 
       if (c.users.length > 0) {
         curGroup.list += `${bold(
-          formattedMonth + ' ' + dayjs().dayOfYear(c._id).format('DD'),
+          formattedMonth + ' ' + dayjs(c._id).format('DD'),
         )}: ${c.users
           .map(user => {
             return `<@${user}>`;
