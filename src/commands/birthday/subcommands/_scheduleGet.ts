@@ -1,7 +1,8 @@
 import cronstrue from 'cronstrue';
 import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
-import { Config, BirthdaysConfig } from '../../../database';
+import { Config } from '../../../database';
+import { BirthdaysConfig } from '../../../repository';
 
 export const scheduleGet = new SubCommand({
   name: 'schedule-get',
@@ -12,20 +13,19 @@ export const scheduleGet = new SubCommand({
     const guildId = ctx.mustGetGuildId();
 
     // Fetch the role configuration from the database.
-    const birthdaysCfg = await ctx.db.getConfigValue<BirthdaysConfig>(
-      guildId,
-      Config.BIRTHDAYS,
-    );
+    const birthdaysCfg = await ctx
+      .config()
+      .get<BirthdaysConfig>(guildId, Config.BIRTHDAYS);
 
-    if (birthdaysCfg && birthdaysCfg.schedule) {
-      return ctx.respondWithMessage(
-        `Birthday messages send ${cronstrue
-          .toString(birthdaysCfg.schedule, { verbose: true })
-          .toLowerCase()}`,
-      );
+    if (!birthdaysCfg || !birthdaysCfg.schedule) {
+      return ctx.respondWithError(`Unable to fetch birthdays config`);
     }
 
-    return ctx.respondWithError(`Unable to get the birthdays schedule`);
+    return ctx.respondWithMessage(
+      `Birthday messages send ${cronstrue
+        .toString(birthdaysCfg.schedule, { verbose: true })
+        .toLowerCase()}`,
+    );
   },
 });
 

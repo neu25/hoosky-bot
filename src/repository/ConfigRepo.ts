@@ -13,6 +13,17 @@ export type RolesConfig = {
   muted: string;
 };
 
+export type BirthdayMessage = {
+  id: number;
+  message: string;
+};
+
+export type BirthdaysConfig = {
+  schedule: string;
+  channel: string;
+  messages: BirthdayMessage[];
+};
+
 /**
  * Default config values
  */
@@ -23,6 +34,12 @@ export const rolesConfig: RolesConfig = {
 
 export const guildConfig: GuildConfig = {
   commandPrefixes: ['-'],
+};
+
+export const birthdaysConfig: BirthdaysConfig = {
+  schedule: '00 15 10 * * *',
+  channel: '',
+  messages: [{ id: 1, message: 'Happy birthday, %!' }],
 };
 
 class ConfigRepo {
@@ -40,6 +57,7 @@ class ConfigRepo {
     for (const gId of guildIds) {
       await this.insertIfNotExists(gId, Config.ROLES, rolesConfig);
       await this.insertIfNotExists(gId, Config.GUILD, guildConfig);
+      await this.insertIfNotExists(gId, Config.BIRTHDAYS, birthdaysConfig);
     }
   }
 
@@ -70,6 +88,13 @@ class ConfigRepo {
       },
       { upsert: true },
     );
+  }
+
+  async findBirthdayMessage(
+    guildId: string,
+    _id: number,
+  ): Promise<BirthdayMessage> {
+    return await this.collection(guildId).findOne({ _id });
   }
 
   /**

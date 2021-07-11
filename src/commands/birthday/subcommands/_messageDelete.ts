@@ -2,7 +2,8 @@ import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
 import { CommandOptionType } from '../../../Discord';
-import { Config, BirthdaysConfig } from '../../../database';
+import { Config } from '../../../database';
+import { BirthdaysConfig } from '../../../repository';
 import { bold } from '../../../format';
 
 export const messageDelete = new SubCommand({
@@ -28,34 +29,35 @@ export const messageDelete = new SubCommand({
     }
 
     // Get birthdays config.
-    const birthdaysCfg = await ctx.db.getConfigValue<BirthdaysConfig>(
-      guildId,
-      Config.BIRTHDAYS,
-    );
+    const birthdaysCfg = await ctx
+      .config()
+      .get<BirthdaysConfig>(guildId, Config.BIRTHDAYS);
 
-    if (birthdaysCfg && birthdaysCfg.messages) {
-      const index = birthdaysCfg.messages
-        .map(function (m) {
-          return m.id;
-        })
-        .indexOf(id);
-
-      const message = birthdaysCfg.messages[index].message;
-
-      if (index > -1) {
-        // Remove message.
-        birthdaysCfg.messages.splice(index, 1);
-
-        // Update database.
-        await ctx.db.updateConfigValue(guildId, Config.BIRTHDAYS, birthdaysCfg);
-
-        return ctx.respondWithMessage(
-          `${bold('Birthday message deleted')}:\n${message}`,
-        );
-      }
-
-      return ctx.respondWithError(`Message does not exist:\n${message}`);
+    if (!birthdaysCfg || !birthdaysCfg.messages) {
+      return ctx.respondWithError(`Unable to fetch birthdays config`);
     }
+
+    const index = birthdaysCfg.messages
+      .map(function (m) {
+        return m.id;
+      })
+      .indexOf(id);
+
+    const message = birthdaysCfg.messages[index].message;
+
+    if (index > -1) {
+      // Remove message.
+      birthdaysCfg.messages.splice(index, 1);
+
+      // Update database.
+      await ctx.config().update(guildId, Config.BIRTHDAYS, birthdaysCfg);
+
+      return ctx.respondWithMessage(
+        `${bold('Birthday message deleted')}:\n${message}`,
+      );
+    }
+
+    return ctx.respondWithError(`Message does not exist:\n${message}`);
   },
 });
 

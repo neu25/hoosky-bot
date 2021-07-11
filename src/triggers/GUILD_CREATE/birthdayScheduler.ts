@@ -8,7 +8,7 @@ import {
 const birthdayScheduler = new Trigger<Discord.Event.CHANNEL_UPDATE>({
   event: Discord.Event.CHANNEL_UPDATE,
   handler: async ctx => {
-    const guildId = ctx.getData().id;
+    const guildId = ctx.data.id;
 
     await configureScheduler(ctx, guildId);
     await startScheduler();

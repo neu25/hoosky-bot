@@ -1,12 +1,7 @@
+import { CommandOptionType } from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
-import { CommandOptionType } from '../../../Discord';
-import {
-  getTargetUser,
-  userHasBirthday,
-  getBirthday,
-  calculateDate,
-} from '../_common';
+import { getTargetUser, calculateDate } from '../_common';
 import { bold } from '../../../format';
 
 export const show = new SubCommand({
@@ -29,25 +24,21 @@ export const show = new SubCommand({
 
     const targetUser = await getTargetUser(ctx, requestorId, targetUserId);
 
-    if (targetUser) {
-      if (await userHasBirthday(ctx, guildId, targetUser.id)) {
-        const birthday = await getBirthday(ctx, guildId, targetUser.id);
+    if (!targetUser || !targetUser.id) {
+      return ctx.respondWithError(`Unable to identify the requested user`);
+    }
 
-        if (birthday) {
-          return ctx.respondWithMessage(
-            `Birthday for ${targetUser.username}#${
-              targetUser.discriminator
-            } is set to ${bold(
-              (await calculateDate(birthday._id)).toDateString(),
-            )}`,
-          );
-        }
+    const birthday = await ctx.birthdays().getByUserId(guildId, targetUser.id);
 
-        return ctx.respondWithError(`Error fetching birthday`);
-      }
-
+    if (birthday) {
+      return ctx.respondWithMessage(
+        `Birthday for <@${targetUser.id}> is set to ${bold(
+          (await calculateDate(birthday._id)).toDateString(),
+        )}`,
+      );
+    } else {
       return ctx.respondWithError(
-        `No birthday is set for ${targetUser.username}#${targetUser.discriminator}`,
+        `There is no birthday set for <@${targetUser.id}>`,
       );
     }
   },

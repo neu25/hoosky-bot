@@ -2,8 +2,9 @@ import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
 import { CommandOptionType } from '../../../Discord';
-import { Config, BirthdaysConfig } from '../../../database';
+import { Config } from '../../../database';
 import { bold } from '../../../format';
+import { BirthdaysConfig } from '../../../repository';
 
 export const setup = new SubCommand({
   name: 'setup',
@@ -23,24 +24,23 @@ export const setup = new SubCommand({
     const channel = ctx.getArgument<string>('channel') as string;
 
     // Fetch the role configuration from the database.
-    const birthdaysCfg = await ctx.db.getConfigValue<BirthdaysConfig>(
-      guildId,
-      Config.BIRTHDAYS,
-    );
+    const birthdaysCfg = await ctx
+      .config()
+      .get<BirthdaysConfig>(guildId, Config.BIRTHDAYS);
 
-    if (birthdaysCfg) {
-      // Update the `birthdays` configuration value.
-      birthdaysCfg.channel = channel;
-
-      // Update database.
-      await ctx.db.updateConfigValue(guildId, Config.BIRTHDAYS, birthdaysCfg);
-
-      return ctx.respondWithMessage(
-        `${bold('Birthdays channel updated')} to <#${channel}>`,
-      );
+    if (!birthdaysCfg) {
+      return ctx.respondWithError(`Unable to fetch birthdays config`);
     }
 
-    return ctx.respondWithError(`Unable to update the birthdays channel`);
+    // Update the `birthdays` configuration value.
+    birthdaysCfg.channel = channel;
+
+    // Update database.
+    await ctx.config().update(guildId, Config.BIRTHDAYS, birthdaysCfg);
+
+    return ctx.respondWithMessage(
+      `${bold('Birthdays channel updated')} to <#${channel}>`,
+    );
   },
 });
 

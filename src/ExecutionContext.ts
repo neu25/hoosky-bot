@@ -5,6 +5,7 @@ import { Repositories } from './repository';
 import { performRequest } from './utils';
 import { parseCommand, OptionType, Arguments } from './arguments';
 import Api from './Api';
+import BirthdayRepo from './repository/BirthdayRepo';
 import CourseRepo from './repository/CourseRepo';
 import ConfigRepo from './repository/ConfigRepo';
 import FollowUpManager from './FollowUpManager';
@@ -68,6 +69,10 @@ class ExecutionContext {
       this._args = {};
       this._cmd = [];
     }
+  }
+
+  birthdays(): BirthdayRepo {
+    return this.repos.birthdays;
   }
 
   courses(): CourseRepo {

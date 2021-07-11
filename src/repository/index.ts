@@ -3,11 +3,7 @@ import BirthdayRepo from './BirthdayRepo';
 import CourseRepo from './CourseRepo';
 import ConfigRepo from './ConfigRepo';
 
-export type {
-  Birthday,
-  BirthdayMessage,
-  BirthdaysConfig,
-} from './BirthdayRepo';
+export type { Birthday, BirthdayMessage } from './BirthdayRepo';
 export type { Course, Section } from './CourseRepo';
 
 export type Repositories = {
@@ -26,3 +22,4 @@ export const setupRepos = (db: Database): Repositories => {
 
 export { RolesConfig } from './ConfigRepo';
 export { GuildConfig } from './ConfigRepo';
+export { BirthdaysConfig } from './ConfigRepo';

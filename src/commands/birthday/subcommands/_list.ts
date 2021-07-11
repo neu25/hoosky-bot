@@ -1,6 +1,6 @@
-import SubCommand from '../../../SubCommand';
 import * as Discord from '../../../Discord';
-import { calculateDate, scanBirthdays } from '../_common';
+import SubCommand from '../../../SubCommand';
+import { calculateDate } from '../_common';
 import { bold, fancyCenter } from '../../../format';
 
 type MonthGroup = {
@@ -15,7 +15,7 @@ export const list = new SubCommand({
   description: 'List all stored birthdays',
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
-    const birthdays = (await scanBirthdays(ctx, guildId)).sort({ _id: 1 });
+    const birthdays = (await ctx.birthdays().scan(guildId)).sort({ _id: 1 });
 
     // Hold an array of month groups to output.
     const subGroups: MonthGroup[] = [];

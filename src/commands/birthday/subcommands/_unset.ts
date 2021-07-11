@@ -1,5 +1,4 @@
 import SubCommand from '../../../SubCommand';
-import { userHasBirthday, unsetBirthday } from '../_common';
 
 export const unset = new SubCommand({
   name: 'unset',
@@ -9,25 +8,18 @@ export const unset = new SubCommand({
     const guildId = ctx.mustGetGuildId();
     const requestor = ctx.interaction.member?.user;
 
-    if (requestor) {
-      if (await userHasBirthday(ctx, guildId, requestor.id)) {
-        const birthday = await unsetBirthday(ctx, guildId, requestor.id);
+    if (!requestor || !requestor.id) {
+      return ctx.respondWithError(`Unable to identify you`);
+    }
 
-        if (birthday) {
-          return ctx.respondWithMessage(
-            `Birthday unset for ${requestor.username}#${requestor.discriminator}`,
-          );
-        }
-
-        return ctx.respondWithError(`Error unsetting birthday`);
-      }
-
+    if (!(await ctx.birthdays().exists(guildId, requestor.id))) {
       return ctx.respondWithError(
-        `No birthday is set for ${requestor.username}#${requestor.discriminator}`,
+        `There is no birthday set for <@${requestor.id}>`,
       );
     }
 
-    return ctx.respondWithError(`Unable to identify you`);
+    await ctx.birthdays().unset(guildId, requestor.id);
+    return ctx.respondWithMessage(`Birthday unset for <@${requestor.id}>`);
   },
 });
 

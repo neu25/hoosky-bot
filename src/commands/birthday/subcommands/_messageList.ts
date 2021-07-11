@@ -1,6 +1,7 @@
 import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
-import { Config, BirthdaysConfig } from '../../../database';
+import { Config } from '../../../database';
+import { BirthdaysConfig } from '../../../repository';
 
 export const messageList = new SubCommand({
   name: 'message-list',
@@ -9,10 +10,9 @@ export const messageList = new SubCommand({
   requiredPermissions: [Discord.Permission.MANAGE_ROLES],
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
-    const birthdaysCfg = await ctx.db.getConfigValue<BirthdaysConfig>(
-      guildId,
-      Config.BIRTHDAYS,
-    );
+    const birthdaysCfg = await ctx
+      .config()
+      .get<BirthdaysConfig>(guildId, Config.BIRTHDAYS);
 
     if (birthdaysCfg && birthdaysCfg.messages) {
       let description = '';

@@ -1,7 +1,7 @@
+import { CommandOptionType } from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
-import { CommandOptionType } from '../../../Discord';
-import { calculateDayOfYear, userHasBirthday, setBirthday } from '../_common';
+import { calculateDayOfYear } from '../_common';
 
 export const set = new SubCommand({
   name: 'set',
@@ -10,7 +10,7 @@ export const set = new SubCommand({
   options: [
     new CommandOption({
       name: 'date',
-      description: "User's birthday (MM/DD)",
+      description: 'Your birthday (MM/DD)',
       required: true,
       type: CommandOptionType.STRING,
     }),
@@ -26,30 +26,20 @@ export const set = new SubCommand({
       return ctx.respondWithError(`Invalid birthday`);
     }
 
-    if (requestor) {
-      if (!(await userHasBirthday(ctx, guildId, requestor.id))) {
-        const birthday = await setBirthday(
-          ctx,
-          guildId,
-          dayOfYear,
-          requestor.id,
-        );
+    if (!requestor || !requestor.id) {
+      return ctx.respondWithError(`Unable to identify you`);
+    }
 
-        if (birthday) {
-          return ctx.respondWithMessage(
-            `Birthday (${targetBirthday}) set for ${requestor.username}#${requestor.discriminator}`,
-          );
-        }
-
-        return ctx.respondWithError(`Unable to set birthday`);
-      }
-
+    if (await ctx.birthdays().exists(guildId, requestor.id)) {
       return ctx.respondWithError(
-        `A birthday is already set for ${requestor.username}#${requestor.discriminator}`,
+        `A birthday is already set for <@${requestor.id}>`,
       );
     }
 
-    return ctx.respondWithError(`Unable to identify you`);
+    await ctx.birthdays().set(guildId, dayOfYear, requestor.id);
+    return ctx.respondWithMessage(
+      `<@${requestor.id}>, your birthday has been set to ${targetBirthday}!`,
+    );
   },
 });
 

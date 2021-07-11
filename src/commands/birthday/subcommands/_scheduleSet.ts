@@ -3,9 +3,10 @@ import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
 import { CommandOptionType } from '../../../Discord';
-import { Config, BirthdaysConfig } from '../../../database';
+import { Config } from '../../../database';
 import { bold } from '../../../format';
 import { padNumber } from '../../../utils';
+import { BirthdaysConfig } from '../../../repository';
 import {
   configureScheduler,
   startScheduler,
@@ -41,33 +42,32 @@ export const scheduleSet = new SubCommand({
     const schedule = `00 ${paddedMinute} ${paddedHour} * * *`;
 
     // Fetch the role configuration from the database.
-    const birthdaysCfg = await ctx.db.getConfigValue<BirthdaysConfig>(
-      guildId,
-      Config.BIRTHDAYS,
-    );
+    const birthdaysCfg = await ctx
+      .config()
+      .get<BirthdaysConfig>(guildId, Config.BIRTHDAYS);
 
-    if (birthdaysCfg) {
-      // Update the `birthdays` configuration value.
-      birthdaysCfg.schedule = schedule;
-
-      // Update database.
-      await ctx.db.updateConfigValue(guildId, Config.BIRTHDAYS, birthdaysCfg);
-
-      // Restart scheduler.
-      await stopScheduler();
-      await configureScheduler(ctx, guildId);
-      await startScheduler();
-
-      return ctx.respondWithMessage(
-        `${bold('Birthdays schedule updated!')} Messages will send ${cronstrue
-          .toString(schedule, {
-            verbose: true,
-          })
-          .toLowerCase()}`,
-      );
+    if (!birthdaysCfg) {
+      return ctx.respondWithError(`Unable to fetch birthdays config`);
     }
 
-    return ctx.respondWithError(`Unable to update the birthdays schedule`);
+    // Update the `birthdays` configuration value.
+    birthdaysCfg.schedule = schedule;
+
+    // Update database.
+    await ctx.config().update(guildId, Config.BIRTHDAYS, birthdaysCfg);
+
+    // Restart scheduler.
+    await stopScheduler();
+    await configureScheduler(ctx, guildId);
+    await startScheduler();
+
+    return ctx.respondWithMessage(
+      `${bold('Birthdays schedule updated!')} Messages will send ${cronstrue
+        .toString(schedule, {
+          verbose: true,
+        })
+        .toLowerCase()}`,
+    );
   },
 });
 

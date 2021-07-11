@@ -29,7 +29,7 @@ class Api {
     const cached = Api._tryCache('current guilds', () =>
       this._cache.getGuilds(),
     );
-    if (cached) return cached;
+    if (cached && cached.length > 1) return cached;
 
     return performRequest(async () => {
       const res = await this._http.get(

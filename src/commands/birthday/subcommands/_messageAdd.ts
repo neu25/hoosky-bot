@@ -2,7 +2,8 @@ import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
 import { CommandOptionType } from '../../../Discord';
-import { Config, BirthdaysConfig } from '../../../database';
+import { Config } from '../../../database';
+import { BirthdaysConfig } from '../../../repository';
 import { bold } from '../../../format';
 
 export const messageAdd = new SubCommand({
@@ -31,33 +32,34 @@ export const messageAdd = new SubCommand({
     }
 
     // Get birthdays config.
-    const birthdaysCfg = await ctx.db.getConfigValue<BirthdaysConfig>(
-      guildId,
-      Config.BIRTHDAYS,
-    );
+    const birthdaysCfg = await ctx
+      .config()
+      .get<BirthdaysConfig>(guildId, Config.BIRTHDAYS);
 
-    if (birthdaysCfg) {
-      const messages = birthdaysCfg?.messages;
-      let nextId = 1;
-      if (messages) {
-        nextId = messages[messages.length - 1].id + 1;
-
-        // Ensure all IDs are positive values
-        if (nextId < 1) {
-          nextId = 1;
-        }
-      }
-
-      // Add message.
-      birthdaysCfg.messages?.push({ id: nextId, message });
-
-      // Update database.
-      await ctx.db.updateConfigValue(guildId, Config.BIRTHDAYS, birthdaysCfg);
-
-      return ctx.respondWithMessage(
-        `${bold('Birthday message added')}:\n${message}`,
-      );
+    if (!birthdaysCfg) {
+      return ctx.respondWithError(`Unable to fetch birthdays config`);
     }
+
+    const messages = birthdaysCfg?.messages;
+    let nextId = 1;
+    if (messages) {
+      nextId = messages[messages.length - 1].id + 1;
+
+      // Ensure all IDs are positive values
+      if (nextId < 1) {
+        nextId = 1;
+      }
+    }
+
+    // Add message.
+    birthdaysCfg.messages?.push({ id: nextId, message });
+
+    // Update database.
+    await ctx.config().update(guildId, Config.BIRTHDAYS, birthdaysCfg);
+
+    return ctx.respondWithMessage(
+      `${bold('Birthday message added')}:\n${message}`,
+    );
   },
 });
 
