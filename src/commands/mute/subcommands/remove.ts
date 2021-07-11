@@ -19,7 +19,7 @@ const remove = new SubCommand({
   ],
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
-    const targetUserId = ctx.getArgument<string>('user') as string;
+    const targetUserId = ctx.getArgument<string>('user')!;
 
     if (!(await checkMutePermissionsOrExit(ctx, guildId, targetUserId))) return;
 

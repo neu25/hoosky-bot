@@ -1,6 +1,7 @@
 import * as Discord from '../Discord';
 import Command from '../Command';
 import CommandOption from '../CommandOption';
+import { defaultAvatarUrl, userAvatarUrl } from '../cdn';
 
 const pfp = new Command({
   name: 'pfp',
@@ -16,7 +17,7 @@ const pfp = new Command({
     }),
   ],
   handler: async ctx => {
-    let targetUserId = ctx.getArgument<string>('user') as string;
+    let targetUserId = ctx.getArgument<string>('user')!;
     if (!targetUserId) {
       // With the `user` argument is omitted, get the executor's profile picture.
       targetUserId = ctx.interaction.member?.user?.id ?? '';
@@ -28,12 +29,10 @@ const pfp = new Command({
     const user = await ctx.api.getUser(targetUserId);
     let url: string;
     // Info on image urls at https://discord.com/developers/docs/reference#image-formatting.
-    if (user.avatar !== null) {
-      url = `https://cdn.discordapp.com/avatars/${targetUserId}/${user.avatar}.png?size=4096`;
+    if (user.avatar) {
+      url = userAvatarUrl(targetUserId, user.avatar, 4096);
     } else {
-      url = `https://cdn.discordapp.com/embed/avatars/${
-        Number(user.discriminator) % 5
-      }.png?size=4096`;
+      url = defaultAvatarUrl(user.discriminator, 4096);
     }
 
     return ctx.respondWithEmbed({

@@ -16,9 +16,9 @@ const bulkCreate = new Command({
       'Send the message you want HooskBot to echo. Your message will be deleted.',
     );
     // Wait for a follow-up message for up to 30s.
-    ctx.expectFollowUp(userId, FollowUp.MESSAGE, 30000);
+    ctx.expectMessageFollowUp(FollowUp.MESSAGE, userId, 30000);
   },
-  followUpHandlers: {
+  msgFollowUpHandlers: {
     [FollowUp.MESSAGE]: async (tctx, ectx) => {
       const message = tctx.data;
       const userId = ectx.mustGetUserId();

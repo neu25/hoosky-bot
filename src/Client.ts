@@ -8,6 +8,7 @@ import TriggerContext from './TriggerContext';
 import { Repositories } from './repository';
 import Api from './Api';
 import FollowUpManager from './FollowUpManager';
+import InteractionManager from './InteractionManager';
 
 // The delay between reconnections, in milliseconds.
 const RECONNECT_DELAY = 1000;
@@ -19,7 +20,8 @@ export type ClientOpts = {
   http: AxiosInstance;
   api: Api;
   intents: Discord.Intent[];
-  followUpListener: FollowUpManager;
+  followUpManager: FollowUpManager;
+  interactionManager: InteractionManager;
 };
 
 /**
@@ -28,13 +30,16 @@ export type ClientOpts = {
 class Client {
   // The WebSocket connection object.
   private _ws?: WebSocket;
-  private readonly _api: Api;
-  private readonly _followUpListener: FollowUpManager;
+  readonly api: Api;
+  readonly followUpManager: FollowUpManager;
+  readonly interactionManager: InteractionManager;
 
   // The Discord bot token.
   private readonly _token: string;
   // The Discord bot application ID.
-  private readonly _appId: string;
+  readonly appId: string;
+  // The Discord bot user.
+  user?: Discord.User;
 
   // The commands that the bot should handle.
   private _commands: Record<string, Command>;
@@ -49,24 +54,25 @@ class Client {
   private _sessionId?: string;
 
   // The axios client to pass to the execution context
-  private readonly _http: AxiosInstance;
+  readonly http: AxiosInstance;
 
   // A callback function to be called when the connection is established.
   private _connectCallback?: (data: Discord.ReadyPayload) => void;
 
-  private readonly _repos: Repositories;
+  readonly repos: Repositories;
 
   constructor(opts: ClientOpts) {
-    this._appId = opts.appId;
+    this.appId = opts.appId;
+    this.repos = opts.repos;
     this._token = opts.token;
-    this._repos = opts.repos;
     this._lastSeqNum = null;
     this._commands = {};
     this._triggers = {};
     this._intents = opts.intents.reduce((prev, cur) => prev | cur);
-    this._http = opts.http;
-    this._api = opts.api;
-    this._followUpListener = opts.followUpListener;
+    this.http = opts.http;
+    this.api = opts.api;
+    this.followUpManager = opts.followUpManager;
+    this.interactionManager = opts.interactionManager;
   }
 
   /**
@@ -193,6 +199,7 @@ class Client {
     switch (type) {
       case Discord.Event.READY: {
         const ready = data as Discord.ReadyPayload;
+        this.user = ready.user;
         this._sessionId = ready.session_id;
         if (this._connectCallback) {
           this._connectCallback(ready);
@@ -200,39 +207,69 @@ class Client {
         break;
       }
       case Discord.Event.INTERACTION_CREATE: {
-        const interaction = data as Discord.Interaction;
-
-        if (interaction.data) {
-          const command = this._commands[interaction.data.name];
-          if (command) {
-            console.log('[Client] Handling command', command.name);
-            await command.execute(
-              new ExecutionContext({
-                appId: this._appId,
-                repos: this._repos,
-                http: this._http,
-                api: this._api,
-                client: this,
-                followUpManager: this._followUpListener,
-                interaction,
-              }),
-            );
-          }
-        }
+        await this._handleInteraction(data as Discord.Interaction);
         break;
       }
       case Discord.Event.MESSAGE_CREATE: {
         const msg = data as Discord.Message;
-        this._followUpListener.handleMessage(msg);
+        await this.followUpManager.handleMessage(
+          msg,
+          new TriggerContext<Discord.Message>({
+            botUser: this.user!,
+            api: this.api,
+            repos: this.repos,
+            appId: this.appId,
+            followUpManager: this.followUpManager,
+            data: msg,
+          }),
+        );
+        break;
       }
     }
 
     const triggers = this._triggers[type];
     if (triggers) {
       console.log('[Client] Handling trigger', type);
-      const ctx = new TriggerContext(this._api, this._repos, data);
+      const ctx = new TriggerContext({
+        botUser: this.user!,
+        repos: this.repos,
+        api: this.api,
+        appId: this.appId,
+        followUpManager: this.followUpManager,
+        data,
+      });
       for (const t of triggers) {
         t.execute(ctx);
+      }
+    }
+  }
+
+  private async _handleInteraction(interaction: Discord.Interaction) {
+    if (!interaction.data) return;
+
+    const ctx = new ExecutionContext({
+      botUser: this.user!,
+      appId: this.appId,
+      repos: this.repos,
+      http: this.http,
+      api: this.api,
+      client: this,
+      followUpManager: this.followUpManager,
+      interaction,
+    });
+
+    switch (interaction.type) {
+      case Discord.InteractionType.ApplicationCommand: {
+        const command = this._commands[interaction.data.name];
+        if (command) {
+          console.log('[Client] Handling command', command.name);
+          await command.execute(ctx);
+        }
+        break;
+      }
+      case Discord.InteractionType.MessageComponent: {
+        await this.interactionManager.handleInteraction(interaction, ctx);
+        break;
       }
     }
   }

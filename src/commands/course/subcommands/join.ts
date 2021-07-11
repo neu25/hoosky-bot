@@ -33,7 +33,7 @@ const join = new SubCommand({
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
     const userId = ctx.mustGetUserId();
-    const roleId = ctx.getArgument<string>('role') as string;
+    const roleId = ctx.getArgument<string>('role')!;
     const sectionNum = ctx.getArgument<string>('section');
 
     const course = await ctx.courses().getByRoleId(guildId, roleId);

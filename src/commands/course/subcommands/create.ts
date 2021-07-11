@@ -26,8 +26,8 @@ const create = new SubCommand({
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
 
-    const courseName = ctx.getArgument<string>('name')?.trim() as string;
-    const courseId = ctx.getArgument<string>('id')?.trim() as string;
+    const courseName = ctx.getArgument<string>('name')!.trim();
+    const courseId = ctx.getArgument<string>('id')!.trim();
 
     if (!validCourseId(courseId)) {
       return ctx.respondWithError('Invalid course ID.');

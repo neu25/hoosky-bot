@@ -17,7 +17,7 @@ const leave = new SubCommand({
   ],
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
-    const roleId = ctx.getArgument<string>('role') as string;
+    const roleId = ctx.getArgument<string>('role')!;
 
     const course = await ctx.courses().getByRoleId(guildId, roleId);
     if (!course) {

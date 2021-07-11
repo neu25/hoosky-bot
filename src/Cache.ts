@@ -2,10 +2,12 @@ import * as Discord from './Discord';
 import Trigger from './Trigger';
 
 class Cache {
+  private readonly _dms: Record<string, Discord.Channel>;
   private _guilds: Record<string, Discord.Guild>;
 
   constructor() {
     this._guilds = {};
+    this._dms = {};
   }
 
   triggers(): Trigger<any>[] {
@@ -46,11 +48,11 @@ class Cache {
        */
       new Trigger<Discord.Event.CHANNEL_CREATE>({
         event: Discord.Event.CHANNEL_CREATE,
-        handler: ctx => this._updateChannel(ctx.data.guild_id!, ctx.data),
+        handler: ctx => this._updateChannel(ctx.data),
       }),
       new Trigger<Discord.Event.CHANNEL_UPDATE>({
         event: Discord.Event.CHANNEL_UPDATE,
-        handler: ctx => this._updateChannel(ctx.data.guild_id!, ctx.data),
+        handler: ctx => this._updateChannel(ctx.data),
       }),
       new Trigger<Discord.Event.CHANNEL_DELETE>({
         event: Discord.Event.CHANNEL_DELETE,
@@ -106,6 +108,12 @@ class Cache {
   }
 
   getChannel(channelId: string): Discord.Channel | undefined {
+    // First check the DMs cache.
+    if (this._dms[channelId]) {
+      return this._dms[channelId];
+    }
+
+    // Then check each guild for that channel.
     for (const guildId of Object.keys(this._guilds)) {
       const c = this.getChannelInGuild(guildId, channelId);
       if (c) return c;
@@ -173,10 +181,17 @@ class Cache {
     guild.roles.splice(i, 1);
   }
 
-  _updateChannel(guildId: string, channel: Discord.Channel): void {
+  _updateChannel(channel: Discord.Channel): void {
     console.log('[Cache] Updating channel', channel.id);
-    const guild = this.getGuild(guildId);
-    if (!guild || !guild.channels) return;
+
+    const guild = channel.guild_id
+      ? this.getGuild(channel.guild_id)
+      : undefined;
+    // If no guild was found, save the channel to the DMs cache.
+    if (!guild || !guild.channels) {
+      this._dms[channel.id] = channel;
+      return;
+    }
 
     for (let i = 0; i < guild.channels.length; ++i) {
       const c = guild.channels[i];
@@ -210,16 +225,18 @@ class Cache {
 
   _replaceChannels(guildId: string, channels: Discord.Channel[]): void {
     console.log('[Cache] Replacing guild channels');
+
     const guild = this.getGuild(guildId);
     if (!guild) return;
+
     guild.channels = channels;
   }
 
   _deleteChannel(guildId: string, channelId: string): void {
     console.log('[Cache] Deleting channel', channelId);
+
     const guild = this.getGuild(guildId);
-    if (!guild) return;
-    if (!guild.channels) return;
+    if (!guild || !guild.channels) return;
 
     const i = guild.channels.findIndex(c => c.id === channelId);
     if (i === -1) return;
@@ -229,9 +246,9 @@ class Cache {
 
   _updateGuildMember(guildId: string, member: Discord.GuildMember): void {
     console.log('[Cache] Updating guild member', member.user?.id);
+
     const guild = this.getGuild(guildId);
-    if (!guild) return;
-    if (!guild.members) return;
+    if (!guild || !guild.members) return;
 
     for (let i = 0; i < guild.members.length; ++i) {
       const m = guild.members[i];
@@ -246,9 +263,9 @@ class Cache {
 
   _addRoleToGuildMember(guildId: string, userId: string, roleId: string): void {
     console.log(`[Cache] Adding role ${roleId} to guild member`, userId);
+
     const guild = this.getGuild(guildId);
-    if (!guild) return;
-    if (!guild.members) return;
+    if (!guild || !guild.members) return;
 
     const m = guild.members.find(m => m.user?.id === userId);
     if (!m) return;
@@ -264,9 +281,9 @@ class Cache {
     roleId: string,
   ): void {
     console.log(`[Cache] Removing role ${roleId} from guild member`, userId);
+
     const guild = this.getGuild(guildId);
-    if (!guild) return;
-    if (!guild.members) return;
+    if (!guild || !guild.members) return;
 
     const m = guild.members.find(m => m.user?.id === userId);
     if (!m) return;
@@ -279,9 +296,9 @@ class Cache {
 
   _removeGuildMember(guildId: string, userId: string): void {
     console.log('[Cache] Removing guild member', userId);
+
     const guild = this.getGuild(guildId);
-    if (!guild) return;
-    if (!guild.members) return;
+    if (!guild || !guild.members) return;
 
     const i = guild.members.findIndex(m => m.user?.id === userId);
     if (i === -1) return;

@@ -24,7 +24,7 @@ const listJoined = new SubCommand({
   ],
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
-    const chosenUserId = ctx.getArgument<string>('user') as string;
+    const chosenUserId = ctx.getArgument<string>('user')!;
 
     let userId: string;
     if (chosenUserId) {

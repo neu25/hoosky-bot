@@ -1,33 +1,39 @@
 import * as Discord from './Discord';
-import { FollowUpHandler } from './SubCommand';
 import TriggerContext from './TriggerContext';
 import Api from './Api';
 import { Repositories } from './repository';
 import ExecutionContext from './ExecutionContext';
 
-type PendingFollowUp = {
+export type MessageFollowUpHandler = (
+  tctx: TriggerContext<Discord.Message>,
+  ectx: ExecutionContext,
+) => unknown | Promise<unknown>;
+
+type MessageFollowUp = {
   userId: string;
-  handler: FollowUpHandler;
+  handler: MessageFollowUpHandler;
   ectx: ExecutionContext;
   expires: number;
 };
 
 class FollowUpManager {
-  private readonly _pendingFollowUps: Record<string, PendingFollowUp>;
+  private readonly _msgFollowUps: Record<string, MessageFollowUp>;
   private readonly _api: Api;
   private readonly _repos: Repositories;
+  private readonly _appId: string;
 
-  constructor(api: Api, repos: Repositories) {
-    this._pendingFollowUps = {};
+  constructor(api: Api, repos: Repositories, appId: string) {
+    this._msgFollowUps = {};
     this._api = api;
     this._repos = repos;
+    this._appId = appId;
 
     // Periodically prune follow-ups.
     setInterval(() => {
-      for (const f of Object.values(this._pendingFollowUps)) {
+      for (const f of Object.values(this._msgFollowUps)) {
         // Check if the pending follow-up has expired.
         if (Date.now() > f.expires) {
-          this.removePendingFollowUp(f.userId);
+          this.removeMsgFollowUp(f.userId);
           f.ectx
             .followUpWithError(
               'Timed out while waiting for response. Please execute the command again.',
@@ -38,25 +44,28 @@ class FollowUpManager {
     }, 500);
   }
 
-  handleMessage(msg: Discord.Message): void {
-    const followUp = this._pendingFollowUps[msg.author.id];
+  async handleMessage(
+    msg: Discord.Message,
+    ctx: TriggerContext<Discord.Message>,
+  ): Promise<unknown> {
+    const followUp = this._msgFollowUps[msg.author.id];
     if (followUp) {
       console.log('[Client] Handling follow-up for user', msg.author.id);
-      followUp.handler(
-        new TriggerContext<Discord.Message>(this._api, this._repos, msg),
-        followUp.ectx,
-      );
+      return followUp.handler(ctx, followUp.ectx);
     }
   }
 
-  addPendingFollowUp(followUp: PendingFollowUp): void {
-    console.log('[Client] Waiting for follow-up from user', followUp.userId);
-    this._pendingFollowUps[followUp.userId] = followUp;
+  addMsgFollowUp(followUp: MessageFollowUp): void {
+    console.log(
+      '[Client] Waiting for message follow-up from user',
+      followUp.userId,
+    );
+    this._msgFollowUps[followUp.userId] = followUp;
   }
 
-  removePendingFollowUp(userId: string): void {
-    console.log('[Client] Deactivated follow-up from user', userId);
-    delete this._pendingFollowUps[userId];
+  removeMsgFollowUp(userId: string): void {
+    console.log('[Client] Deactivated message follow-up from user', userId);
+    delete this._msgFollowUps[userId];
   }
 }
 

@@ -1,5 +1,7 @@
 import { Db, MongoClient } from 'mongodb';
 
+const GLOBAL_GUILD = 'global';
+
 class Database {
   private readonly _client: MongoClient;
   private readonly _dbName: string;
@@ -29,10 +31,17 @@ class Database {
   }
 
   /**
-   * Returns the MongoDB database instance.
+   * Returns the MongoDB database instance for the specified guild.
    */
   getDb(guildId: string): Db {
     return this._client.db(`${this._dbName}-${guildId}`);
+  }
+
+  /**
+   * Returns the MongoDB database instance for all guilds.
+   */
+  getGlobalDb(): Db {
+    return this.getDb(GLOBAL_GUILD);
   }
 }
 

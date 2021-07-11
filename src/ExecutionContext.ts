@@ -1,25 +1,16 @@
 import { AxiosInstance } from 'axios';
 import * as Discord from './Discord';
 import Snowflake from './Snowflake';
-import { Repositories } from './repository';
 import { performRequest } from './utils';
 import { parseCommand, OptionType, Arguments } from './arguments';
-import Api from './Api';
-import CourseRepo from './repository/CourseRepo';
-import ConfigRepo from './repository/ConfigRepo';
-import FollowUpManager from './FollowUpManager';
-import { FollowUpHandler } from './SubCommand';
 import Client from './Client';
+import BaseContext, { BaseContextOpts } from './BaseContext';
 
 export type ExecutionContextOpts = {
-  appId: string;
-  repos: Repositories;
   interaction: Discord.Interaction;
   client: Client;
   http: AxiosInstance;
-  api: Api;
-  followUpManager: FollowUpManager;
-};
+} & BaseContextOpts;
 
 /**
  * ExecutionContext is a helper class with a straightforward interface for
@@ -34,31 +25,22 @@ export type ExecutionContextOpts = {
  * For more information about possible responses to an Interaction, see
  * https://discord.com/developers/docs/interactions/slash-commands#responding-to-an-interaction.
  */
-class ExecutionContext {
-  readonly api: Api;
-  readonly repos: Repositories;
+class ExecutionContext extends BaseContext {
   readonly interaction: Discord.Interaction;
   readonly client: Client;
-  private _followUpHandlers: Record<string, FollowUpHandler>;
-  private readonly _appId: string;
   private readonly _args: Arguments;
   private readonly _http: AxiosInstance;
-  private readonly _followUpManager: FollowUpManager;
 
   // For internal use.
   private readonly _cmd: string[];
   private _cmdIndex: number;
 
   constructor(opts: ExecutionContextOpts) {
-    this.api = opts.api;
-    this.repos = opts.repos;
+    super(opts);
     this.interaction = opts.interaction;
     this.client = opts.client;
-    this._appId = opts.appId;
     this._cmdIndex = 0;
     this._http = opts.http;
-    this._followUpManager = opts.followUpManager;
-    this._followUpHandlers = {};
 
     if (opts.interaction.data) {
       const { command, args } = parseCommand(opts.interaction.data);
@@ -68,14 +50,6 @@ class ExecutionContext {
       this._args = {};
       this._cmd = [];
     }
-  }
-
-  courses(): CourseRepo {
-    return this.repos.courses;
-  }
-
-  config(): ConfigRepo {
-    return this.repos.config;
   }
 
   /**
@@ -119,16 +93,20 @@ class ExecutionContext {
    * Primes the follow-up handler with the provided ID for the user who executed the command.
    * Thus, the user's next message will trigger the follow-up handler.
    *
-   * @param userId The ID of the user to listen to.
    * @param followUpId The ID of the handler in the `followUpHandlers` map.
-   * @param ttl The number of milliseconds to keep the follow-up listener open. (Default: 10,000ms).
+   * @param userId The ID of the user to listen to.
+   * @param ttl? The number of milliseconds to keep the follow-up listener open. (Default: 10,000ms).
    */
-  expectFollowUp(userId: string, followUpId: string, ttl?: number): void {
-    const handler = this._followUpHandlers[followUpId];
+  expectMessageFollowUp(
+    followUpId: string,
+    userId: string,
+    ttl?: number,
+  ): void {
+    const handler = this.msgFollowUpHandlers[followUpId];
     if (!handler) {
       throw new Error(`No follow-up handler with ID ${followUpId}`);
     }
-    this._followUpManager.addPendingFollowUp({
+    this._followUpManager.addMsgFollowUp({
       handler,
       userId,
       ectx: this,
@@ -143,7 +121,7 @@ class ExecutionContext {
    * @param userId The ID of the user to un-listen to.
    */
   unexpectFollowUp(userId: string): void {
-    this._followUpManager.removePendingFollowUp(userId);
+    this._followUpManager.removeMsgFollowUp(userId);
   }
 
   /**
@@ -265,7 +243,7 @@ class ExecutionContext {
   getResponse(): Promise<Discord.Message> {
     return performRequest(async () => {
       const res = await this._http.get(
-        `/webhooks/${this._appId}/${this.interaction.token}/messages/@original`,
+        `/webhooks/${this.appId}/${this.interaction.token}/messages/@original`,
       );
       return res.data;
     });
@@ -295,7 +273,7 @@ class ExecutionContext {
   followUp(data: Discord.FollowUpMessage): Promise<Discord.Message> {
     return performRequest(async () => {
       const res = await this._http.post(
-        `/webhooks/${this._appId}/${this.interaction.token}`,
+        `/webhooks/${this.appId}/${this.interaction.token}`,
         data,
       );
       return res.data;
@@ -332,7 +310,7 @@ class ExecutionContext {
   ): Promise<Discord.Message> {
     return performRequest(async () => {
       const res = await this._http.patch(
-        `/webhooks/${this._appId}/${this.interaction.token}/messages/${messageId}`,
+        `/webhooks/${this.appId}/${this.interaction.token}/messages/${messageId}`,
         edit,
       );
       return res.data;
@@ -348,13 +326,9 @@ class ExecutionContext {
     return performRequest(
       async () =>
         await this._http.delete(
-          `/webhooks/${this._appId}/${this.interaction.token}/messages/${messageId}`,
+          `/webhooks/${this.appId}/${this.interaction.token}/messages/${messageId}`,
         ),
     );
-  }
-
-  _setFollowUpHandlers(handlers: Record<string, FollowUpHandler>): void {
-    this._followUpHandlers = handlers;
   }
 
   /**

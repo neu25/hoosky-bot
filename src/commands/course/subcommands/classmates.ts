@@ -33,7 +33,7 @@ const classmates = new SubCommand({
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
     const targetUserId = ctx.mustGetUserId();
-    // const chosenUserId = ctx.getArgument<string>('user') as string;
+    // const chosenUserId = ctx.getArgument<string>('user')!;
 
     const classmates: Record<string, Classmate> = {};
 

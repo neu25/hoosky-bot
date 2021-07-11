@@ -31,7 +31,7 @@ const roster = new SubCommand({
   ],
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
-    const roleId = ctx.getArgument<string>('role') as string;
+    const roleId = ctx.getArgument<string>('role')!;
     const sectionNum = ctx.getArgument<string>('section');
     const sectionPhrase = sectionNum
       ? bold(`Section ${sectionNum}`) + ' of '
