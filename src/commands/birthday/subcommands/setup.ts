@@ -21,13 +21,12 @@ export const setup = new SubCommand({
   ],
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
-    const channel = ctx.getArgument<string>('channel') as string;
+    const channel = ctx.getArgument<string>('channel')!;
 
     // Fetch the role configuration from the database.
     const birthdaysCfg = await ctx
       .config()
       .get<BirthdaysConfig>(guildId, Config.BIRTHDAYS);
-
     if (!birthdaysCfg) {
       return ctx.interactionApi.respondWithError(
         `Unable to fetch birthdays config`,

@@ -23,11 +23,10 @@ export const show = new SubCommand({
   ],
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
-    const requestor = ctx.interaction.member?.user;
-    const requestorId = requestor?.id;
-    const targetUserId = ctx.getArgument<string>('user') as string;
+    const requesterId = ctx.mustGetUserId();
+    const targetUserId = ctx.getArgument<string>('user')!;
 
-    const targetUser = await getTargetUser(ctx, requestorId, targetUserId);
+    const targetUser = await getTargetUser(ctx, requesterId, targetUserId);
 
     if (!targetUser || !targetUser.id) {
       return ctx.interactionApi.respondWithError(
@@ -36,9 +35,8 @@ export const show = new SubCommand({
     }
 
     const birthday = await ctx.birthdays().getByUserId(guildId, targetUser.id);
-
     if (birthday) {
-      const date = dayjs().dayOfYear(await birthday._id);
+      const date = dayjs().dayOfYear(birthday._id);
 
       return ctx.interactionApi.respondWithMessage(
         `Birthday for <@${targetUser.id}> is set to ${bold(
