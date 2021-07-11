@@ -180,6 +180,9 @@ class Client {
         this._sendHeartbeat();
         break;
       }
+      case Discord.Opcode.HeartbeatACK: {
+        break;
+      }
       case Discord.Opcode.Dispatch: {
         this._lastSeqNum = msg.s as number;
         if (!msg.t) return;
