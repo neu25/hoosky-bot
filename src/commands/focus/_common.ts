@@ -31,6 +31,27 @@ export const getFocusHardRoleOrExit = async (
   return rolesCfg.focusHard;
 };
 
+export const getFocusSoftRoleOrExit = async (
+  ctx: ExecutionContext,
+  guildId: string,
+): Promise<string | undefined> => {
+  // Fetch the roles configuration from the server.
+  const rolesCfg = await mustGetRolesConfig(ctx, guildId);
+  if (!rolesCfg.focusHard) {
+    await respondSetupError(ctx);
+    return;
+  }
+
+  // Get a list of all guild roles, and make sure the focusSoft role still exists.
+  const guildRoles = await ctx.api.getGuildRoles(guildId);
+  if (!guildRoles.find(r => r.id === rolesCfg.focusSoft)) {
+    await respondSetupError(ctx);
+    return;
+  }
+
+  return rolesCfg.focusSoft;
+};
+
 export const mustGetRolesConfig = async (
   ctx: ExecutionContext,
   guildId: string,
