@@ -123,6 +123,7 @@ export type FollowUpMessage = {
 export enum MessageComponentType {
   ActionRow = 1,
   Button,
+  SelectMenu,
 }
 
 export type MessageComponent = {
@@ -133,6 +134,7 @@ export type MessageComponent = {
   custom_id?: string;
   url?: string;
   disabled?: boolean;
+  components?: MessageComponent[];
 };
 
 export enum ButtonStyle {
@@ -232,8 +234,8 @@ export type EmbedProvider = {
 };
 
 export type EmbedAuthor = {
+  name?: string;
   url?: string;
-  proxy_url?: string;
   icon_url?: string;
   proxy_icon_url?: string;
 };
@@ -260,3 +262,9 @@ export type CreateMessagePayload = {
   message_reference?: MessageReference;
   components?: MessageComponent[];
 };
+
+export type EditMessagePayload = {
+  payload_json?: string;
+} & Partial<
+  Pick<Message, 'content' | 'embeds' | 'flags' | 'attachments' | 'components'>
+>;

@@ -72,7 +72,7 @@ const help = new Command({
         value: sec.description, // The section description
       }));
 
-      return ctx.respondSilentlyWithEmbed({
+      return ctx.interactionApi.respondSilentlyWithEmbed({
         type: Discord.EmbedType.RICH,
         title: `Usage information for ${bold('/' + command.name)}`,
         description: command.props.description + (heading && bold(heading)),
@@ -118,7 +118,7 @@ const help = new Command({
       value: cmd.description + cmd.subCommands, // The command description
     }));
 
-    return await ctx.respondSilentlyWithEmbed({
+    return await ctx.interactionApi.respondSilentlyWithEmbed({
       type: Discord.EmbedType.RICH,
       title: 'Command List',
       description:

@@ -25,19 +25,21 @@ export const show = new SubCommand({
     const targetUser = await getTargetUser(ctx, requestorId, targetUserId);
 
     if (!targetUser || !targetUser.id) {
-      return ctx.respondWithError(`Unable to identify the requested user`);
+      return ctx.interactionApi.respondWithError(
+        `Unable to identify the requested user`,
+      );
     }
 
     const birthday = await ctx.birthdays().getByUserId(guildId, targetUser.id);
 
     if (birthday) {
-      return ctx.respondWithMessage(
+      return ctx.interactionApi.respondWithMessage(
         `Birthday for <@${targetUser.id}> is set to ${bold(
           (await calculateDate(birthday._id)).toDateString(),
         )}`,
       );
     } else {
-      return ctx.respondWithError(
+      return ctx.interactionApi.respondWithError(
         `There is no birthday set for <@${targetUser.id}>`,
       );
     }

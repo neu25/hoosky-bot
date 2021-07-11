@@ -7,7 +7,7 @@ import { RolesConfig } from '../../repository';
 export const respondSetupError = async (
   ctx: ExecutionContext,
 ): Promise<void> => {
-  await ctx.respondWithError(
+  await ctx.interactionApi.respondWithError(
     'Muted role not set up yet. Try running `/mute setup`.',
   );
 };
@@ -61,7 +61,7 @@ export const checkMutePermissionsOrExit = async (
   // Make sure the executor is ranked above the target.
   if (targetMember.roles.length > 0) {
     if (compareRank(guildRoles, targetMember, executorMember) >= 0) {
-      await ctx.respondWithError(
+      await ctx.interactionApi.respondWithError(
         `You can only use moderation commands on users ranked lower than you.`,
       );
       return false;

@@ -12,13 +12,13 @@ const bulkCreate = new Command({
   requiredPermissions: [Discord.Permission.ADMINISTRATOR],
   handler: async ctx => {
     const userId = ctx.mustGetUserId();
-    await ctx.respondSilently(
+    await ctx.interactionApi.respondSilently(
       'Send the message you want HooskBot to echo. Your message will be deleted.',
     );
     // Wait for a follow-up message for up to 30s.
-    ctx.expectFollowUp(userId, FollowUp.MESSAGE, 30000);
+    ctx.expectMessageFollowUp(FollowUp.MESSAGE, userId, 30000);
   },
-  followUpHandlers: {
+  msgFollowUpHandlers: {
     [FollowUp.MESSAGE]: async (tctx, ectx) => {
       const message = tctx.data;
       const userId = ectx.mustGetUserId();

@@ -47,7 +47,9 @@ export const scheduleSet = new SubCommand({
       .get<BirthdaysConfig>(guildId, Config.BIRTHDAYS);
 
     if (!birthdaysCfg) {
-      return ctx.respondWithError(`Unable to fetch birthdays config`);
+      return ctx.interactionApi.respondWithError(
+        `Unable to fetch birthdays config`,
+      );
     }
 
     // Update the `birthdays` configuration value.
@@ -61,7 +63,7 @@ export const scheduleSet = new SubCommand({
     await configureScheduler(ctx, guildId);
     await startScheduler();
 
-    return ctx.respondWithMessage(
+    return ctx.interactionApi.respondWithMessage(
       `${bold('Birthdays schedule updated!')} Messages will send ${cronstrue
         .toString(schedule, {
           verbose: true,

@@ -1,3 +1,4 @@
+export { Color } from './color';
 export { Permission, PermissionName } from './permission';
 export { Application, ClientStatus } from './application';
 export {
@@ -17,6 +18,8 @@ export {
   GuildMemberAddPayload,
   GuildMemberUpdatePayload,
   GuildMemberRemovePayload,
+  CreateChannelPayload,
+  ModifyChannelPayload,
 } from './guild';
 export {
   Interaction,
@@ -57,6 +60,7 @@ export {
   EmbedThumbnail,
   EmbedFooter,
   CreateMessagePayload,
+  EditMessagePayload,
 } from './message';
 export {
   CommandOption,

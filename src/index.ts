@@ -11,6 +11,8 @@ import Api from './Api';
 import { setupRepos } from './repository';
 import Cache from './Cache';
 import FollowUpManager from './FollowUpManager';
+import InteractionManager from './InteractionManager';
+import interactions from './interactions';
 
 (async () => {
   const argv = await yargs(hideBin(process.argv)).argv;
@@ -42,7 +44,10 @@ import FollowUpManager from './FollowUpManager';
   await repos.config.initialize(guildIds);
 
   console.log('[Main] Connecting to gateway...');
-  const followUpListener = new FollowUpManager(api, repos);
+  const followUpManager = new FollowUpManager(api, repos, config.discord.appId);
+  const interactionManager = new InteractionManager();
+  interactionManager.setInteractions(interactions);
+
   const client = new Client({
     appId: config.discord.appId,
     token: config.discord.token,
@@ -51,8 +56,10 @@ import FollowUpManager from './FollowUpManager';
       Discord.Intent.GUILDS,
       Discord.Intent.GUILD_MEMBERS,
       Discord.Intent.GUILD_MESSAGES,
+      Discord.Intent.DIRECT_MESSAGES,
     ],
-    followUpListener,
+    followUpManager,
+    interactionManager,
     repos,
     api,
   });

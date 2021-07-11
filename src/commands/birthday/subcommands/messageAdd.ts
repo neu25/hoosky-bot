@@ -26,7 +26,7 @@ export const messageAdd = new SubCommand({
 
     // Ensure message includes one "%"
     if (!message.includes('%') || (message.match(/%/g) || []).length > 1) {
-      return ctx.respondWithError(
+      return ctx.interactionApi.respondWithError(
         'Invalid message. Make sure to include one `%`.',
       );
     }
@@ -37,7 +37,9 @@ export const messageAdd = new SubCommand({
       .get<BirthdaysConfig>(guildId, Config.BIRTHDAYS);
 
     if (!birthdaysCfg) {
-      return ctx.respondWithError(`Unable to fetch birthdays config`);
+      return ctx.interactionApi.respondWithError(
+        `Unable to fetch birthdays config`,
+      );
     }
 
     const messages = birthdaysCfg?.messages;
@@ -57,7 +59,7 @@ export const messageAdd = new SubCommand({
     // Update database.
     await ctx.config().update(guildId, Config.BIRTHDAYS, birthdaysCfg);
 
-    return ctx.respondWithMessage(
+    return ctx.interactionApi.respondWithMessage(
       `${bold('Birthday message added')}:\n${message}`,
     );
   },

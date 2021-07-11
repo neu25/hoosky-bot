@@ -9,7 +9,7 @@ import { setup } from './setup';
 import { show } from './show';
 import { unset } from './unset';
 
-export const subcommands = [
+const subcommands = [
   list,
   messageAdd,
   messageDelete,

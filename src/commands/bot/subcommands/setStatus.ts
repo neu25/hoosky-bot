@@ -31,23 +31,38 @@ const setStatus = new SubCommand({
           }),
       ),
     }),
+    new CommandOption({
+      name: 'message',
+      description: 'Show a "Playing [message]" status message',
+      type: Discord.CommandOptionType.STRING,
+    }),
   ],
   handler: async ctx => {
+    const message = ctx.getArgument<string>('message');
     const status = ctx.getArgument<string>('status') as Discord.StatusType;
-    ctx.client.updatePresence({
-      activities: [
-        {
+
+    const activity: Discord.Activity = message
+      ? {
+          // Discord only allows status messages for bots if they are prefixed by
+          // "Playing", "Listening to", "Streaming", etc.
+          name: message,
+          type: Discord.ActivityType.Game,
+          created_at: Date.now(),
+        }
+      : {
           name: '',
           type: Discord.ActivityType.Custom,
           created_at: Date.now(),
-        },
-      ],
+        };
+
+    ctx.client.updatePresence({
+      activities: [activity],
       since: null,
       afk: false,
       status,
     });
-    return ctx.respondWithMessage(
-      `Bot status updated to ${bold(STATUSES[status])}`,
+    return ctx.interactionApi.respondWithMessage(
+      'Bot status updated to ' + bold(`${STATUSES[status]} - ${message}`),
     );
   },
 });

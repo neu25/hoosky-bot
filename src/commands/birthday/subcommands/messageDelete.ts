@@ -25,7 +25,7 @@ export const messageDelete = new SubCommand({
     const id = parseInt(providedId, 10);
 
     if (!id || typeof id !== 'number') {
-      return ctx.respondWithError(`ID is invalid`);
+      return ctx.interactionApi.respondWithError(`ID is invalid`);
     }
 
     // Get birthdays config.
@@ -34,7 +34,9 @@ export const messageDelete = new SubCommand({
       .get<BirthdaysConfig>(guildId, Config.BIRTHDAYS);
 
     if (!birthdaysCfg || !birthdaysCfg.messages) {
-      return ctx.respondWithError(`Unable to fetch birthdays config`);
+      return ctx.interactionApi.respondWithError(
+        `Unable to fetch birthdays config`,
+      );
     }
 
     const index = birthdaysCfg.messages
@@ -52,12 +54,14 @@ export const messageDelete = new SubCommand({
       // Update database.
       await ctx.config().update(guildId, Config.BIRTHDAYS, birthdaysCfg);
 
-      return ctx.respondWithMessage(
+      return ctx.interactionApi.respondWithMessage(
         `${bold('Birthday message deleted')}:\n${message}`,
       );
     }
 
-    return ctx.respondWithError(`Message does not exist:\n${message}`);
+    return ctx.interactionApi.respondWithError(
+      `Message does not exist:\n${message}`,
+    );
   },
 });
 

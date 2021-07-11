@@ -29,7 +29,9 @@ export const setup = new SubCommand({
       .get<BirthdaysConfig>(guildId, Config.BIRTHDAYS);
 
     if (!birthdaysCfg) {
-      return ctx.respondWithError(`Unable to fetch birthdays config`);
+      return ctx.interactionApi.respondWithError(
+        `Unable to fetch birthdays config`,
+      );
     }
 
     // Update the `birthdays` configuration value.
@@ -38,7 +40,7 @@ export const setup = new SubCommand({
     // Update database.
     await ctx.config().update(guildId, Config.BIRTHDAYS, birthdaysCfg);
 
-    return ctx.respondWithMessage(
+    return ctx.interactionApi.respondWithMessage(
       `${bold('Birthdays channel updated')} to <#${channel}>`,
     );
   },

@@ -1,3 +1,4 @@
+import SubCommand from '../../../SubCommand';
 import create from './create';
 import del from './delete';
 import join from './join';
@@ -8,7 +9,7 @@ import roster from './roster';
 import classmates from './classmates';
 import bulkCreate from './bulkCreate';
 
-const subcommands = [
+const subcommands: SubCommand[] = [
   create,
   del,
   join,

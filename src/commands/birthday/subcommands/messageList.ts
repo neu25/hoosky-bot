@@ -20,7 +20,7 @@ export const messageList = new SubCommand({
         description += `\`${m.id}\`: ${m.message}\n`;
       });
 
-      await ctx.respondSilentlyWithEmbed({
+      await ctx.interactionApi.respondSilentlyWithEmbed({
         type: Discord.EmbedType.RICH,
         title: 'All Birthday Messages',
         description,

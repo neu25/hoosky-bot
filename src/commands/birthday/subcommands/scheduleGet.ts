@@ -18,10 +18,12 @@ export const scheduleGet = new SubCommand({
       .get<BirthdaysConfig>(guildId, Config.BIRTHDAYS);
 
     if (!birthdaysCfg || !birthdaysCfg.schedule) {
-      return ctx.respondWithError(`Unable to fetch birthdays config`);
+      return ctx.interactionApi.respondWithError(
+        `Unable to fetch birthdays config`,
+      );
     }
 
-    return ctx.respondWithMessage(
+    return ctx.interactionApi.respondWithMessage(
       `Birthday messages send ${cronstrue
         .toString(birthdaysCfg.schedule, { verbose: true })
         .toLowerCase()}`,
