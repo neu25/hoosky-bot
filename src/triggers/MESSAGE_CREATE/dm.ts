@@ -1,3 +1,5 @@
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
 import * as Discord from '../../Discord';
 import { ButtonStyle, MessageComponentType } from '../../Discord';
 import TriggerContext from '../../TriggerContext';
@@ -8,8 +10,9 @@ import { MailThread } from '../../repository/MailRepo';
 import { generateChannelData } from '../../commands/mail/_common';
 import { authorAvatarUrl } from '../../cdn';
 import Snowflake from '../../Snowflake';
-import { dateToUnixTime } from '../../utils';
 import { transformAttachmentsToEmbeds } from './_utils';
+
+dayjs.extend(relativeTime);
 
 const sendTopControlsMessage = (
   ctx: TriggerContext<Discord.Message>,
@@ -17,6 +20,8 @@ const sendTopControlsMessage = (
   userId: string,
   accountCreation: Date,
 ): Promise<Discord.Message> => {
+  const day = dayjs(accountCreation);
+
   return ctx.api.createMessage(threadChannel.id, {
     embeds: [
       {
@@ -30,7 +35,9 @@ const sendTopControlsMessage = (
           },
           {
             name: 'Account Created',
-            value: `<t:${dateToUnixTime(accountCreation)}:R>`,
+            value: `${day.format(
+              'ddd, MMM D, YYYY h:mm A',
+            )} (${day.fromNow()})`,
           },
         ],
       },
