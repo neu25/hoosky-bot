@@ -34,7 +34,7 @@ class FollowUpManager {
         // Check if the pending follow-up has expired.
         if (Date.now() > f.expires) {
           this.removeMsgFollowUp(f.userId);
-          f.ectx
+          f.ectx.interactionApi
             .followUpWithError(
               'Timed out while waiting for response. Please execute the command again.',
             )

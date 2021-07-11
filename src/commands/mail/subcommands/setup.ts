@@ -24,7 +24,7 @@ const setup = new SubCommand({
 
     const channel = await ctx.api.getChannel(categoryId);
     if (channel.type !== Discord.ChannelType.GUILD_CATEGORY) {
-      return ctx.respondWithError(
+      return ctx.interactionApi.respondWithError(
         `<#${categoryId}> is not a channel category.`,
       );
     }
@@ -36,7 +36,9 @@ const setup = new SubCommand({
     };
     await ctx.config().updateGlobal(Config.MAIL, mailCfg);
 
-    return ctx.respondWithMessage('Successfully set up server mail');
+    return ctx.interactionApi.respondWithMessage(
+      'Successfully set up server mail',
+    );
   },
 });
 

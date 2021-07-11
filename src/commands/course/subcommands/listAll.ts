@@ -47,7 +47,7 @@ const listAll = new SubCommand({
       value: sub.list, // The course list.
     }));
 
-    await ctx.respondSilentlyWithEmbed({
+    await ctx.interactionApi.respondSilentlyWithEmbed({
       type: Discord.EmbedType.RICH,
       title: 'Course List',
       fields,

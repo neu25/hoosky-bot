@@ -22,7 +22,7 @@ const pfp = new Command({
       // With the `user` argument is omitted, get the executor's profile picture.
       targetUserId = ctx.interaction.member?.user?.id ?? '';
       if (!targetUserId) {
-        return ctx.respondWithError('Unable to identify user.');
+        return ctx.interactionApi.respondWithError('Unable to identify user.');
       }
     }
 
@@ -35,7 +35,7 @@ const pfp = new Command({
       url = defaultAvatarUrl(user.discriminator, 4096);
     }
 
-    return ctx.respondWithEmbed({
+    return ctx.interactionApi.respondWithEmbed({
       type: Discord.EmbedType.RICH,
       title: `${user.username}’s Profile Picture`,
       image: { url },

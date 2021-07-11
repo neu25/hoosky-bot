@@ -15,7 +15,7 @@ const reply = new Interaction({
 
     console.log(interaction);
 
-    await ctx.respondWithMessage(
+    await ctx.interactionApi.respondWithMessage(
       `<@${member.user!.id}> Send the message you want HooskBot to forward`,
     );
 
@@ -58,7 +58,7 @@ const reply = new Interaction({
       });
 
       // Delete the bot's response prompting for user input.
-      await ectx.deleteResponse();
+      await ectx.interactionApi.deleteResponse();
 
       // Delete the user's message that was forwarded.
       await ectx.api.deleteMessage(replyMsg.channel_id, replyMsg.id);

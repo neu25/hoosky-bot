@@ -12,7 +12,7 @@ const bulkCreate = new Command({
   requiredPermissions: [Discord.Permission.ADMINISTRATOR],
   handler: async ctx => {
     const userId = ctx.mustGetUserId();
-    await ctx.respondSilently(
+    await ctx.interactionApi.respondSilently(
       'Send the message you want HooskBot to echo. Your message will be deleted.',
     );
     // Wait for a follow-up message for up to 30s.

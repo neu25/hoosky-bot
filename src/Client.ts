@@ -9,6 +9,7 @@ import { Repositories } from './repository';
 import Api from './Api';
 import FollowUpManager from './FollowUpManager';
 import InteractionManager from './InteractionManager';
+import InteractionApi from './InteractionApi';
 
 // The delay between reconnections, in milliseconds.
 const RECONNECT_DELAY = 1000;
@@ -218,7 +219,6 @@ class Client {
             botUser: this.user!,
             api: this.api,
             repos: this.repos,
-            appId: this.appId,
             followUpManager: this.followUpManager,
             data: msg,
           }),
@@ -234,7 +234,6 @@ class Client {
         botUser: this.user!,
         repos: this.repos,
         api: this.api,
-        appId: this.appId,
         followUpManager: this.followUpManager,
         data,
       });
@@ -249,12 +248,15 @@ class Client {
 
     const ctx = new ExecutionContext({
       botUser: this.user!,
-      appId: this.appId,
       repos: this.repos,
-      http: this.http,
       api: this.api,
       client: this,
       followUpManager: this.followUpManager,
+      interactionApi: new InteractionApi({
+        interaction,
+        http: this.http,
+        appId: this.appId,
+      }),
       interaction,
     });
 

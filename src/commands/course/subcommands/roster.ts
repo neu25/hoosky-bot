@@ -39,7 +39,7 @@ const roster = new SubCommand({
 
     const course = await ctx.courses().getByRoleId(guildId, roleId);
     if (!course) {
-      return ctx.respondWithError('That course does not exist');
+      return ctx.interactionApi.respondWithError('That course does not exist');
     }
 
     const roster: Roster = {};
@@ -79,7 +79,7 @@ const roster = new SubCommand({
       }
     }
     if (Object.values(roster).length === 0) {
-      return ctx.respondSilently(
+      return ctx.interactionApi.respondSilently(
         `There are no members in ${sectionPhrase}${boldCourse(course)}`,
       );
     }
@@ -95,7 +95,7 @@ const roster = new SubCommand({
       ++n;
     }
 
-    return ctx.respondWithEmbed({
+    return ctx.interactionApi.respondWithEmbed({
       type: Discord.EmbedType.RICH,
       title: `Members in ${sectionPhrase}${boldCourse(course)}`,
       description: memberList,

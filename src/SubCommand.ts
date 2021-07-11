@@ -86,7 +86,7 @@ class SubCommand extends SubCommandGroup {
     const [missingPerm, ok] = checkCtxPermissions(ctx, requiredPerms);
 
     if (!ok) {
-      await ctx.respondWithError(
+      await ctx.interactionApi.respondWithError(
         `The ${bold(displayName)} command requires the ` +
           `${bold(
             Discord.PermissionName[missingPerm as Discord.Permission],

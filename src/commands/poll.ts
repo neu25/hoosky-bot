@@ -34,9 +34,11 @@ const poll = new Command({
         }),
       ],
       handler: async ctx => {
-        await ctx.respondWithMessage(ctx.getArgument('question')!);
+        await ctx.interactionApi.respondWithMessage(
+          ctx.getArgument('question')!,
+        );
 
-        const msg = await ctx.getResponse();
+        const msg = await ctx.interactionApi.getResponse();
         const emojis = ctx.getArgument<string>('emojis')!;
         const customEmojiRegex = /<a:.+?:\d+>|<:.+?:\d+>/g;
         const customEmojis = emojis.match(customEmojiRegex);

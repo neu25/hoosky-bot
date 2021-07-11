@@ -10,7 +10,6 @@ export type State = Record<string, any>;
 
 export type BaseContextOpts = {
   botUser: Discord.User;
-  appId: string;
   repos: Repositories;
   api: Api;
   followUpManager: FollowUpManager;
@@ -20,7 +19,6 @@ class BaseContext {
   msgFollowUpHandlers: Record<string, MessageFollowUpHandler>;
   readonly botUser: Discord.User;
   readonly api: Api;
-  readonly appId: string;
   readonly repos: Repositories;
   protected readonly _followUpManager: FollowUpManager;
   protected readonly _state: State;
@@ -29,7 +27,6 @@ class BaseContext {
     this.botUser = opts.botUser;
     this.repos = opts.repos;
     this.api = opts.api;
-    this.appId = opts.appId;
     this.msgFollowUpHandlers = {};
     this._state = {};
     this._followUpManager = opts.followUpManager;
