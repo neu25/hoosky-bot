@@ -24,15 +24,15 @@ const bulkCreate = new SubCommand({
 
     // Expect a follow-up message from the user.
     // Thus, the user's next message will trigger the handler in `followUpHandlers.upload` below.
-    ctx.expectFollowUp(userId, FollowUp.UPLOAD);
+    ctx.expectMessageFollowUp(FollowUp.UPLOAD, userId);
 
-    await ctx.respondWithMessage(
+    await ctx.interactionApi.respondWithMessage(
       `Upload a ${inlineCode('.csv')} file, with each line formatted as ${bold(
         'Course Code, Course Name',
       )}.\nFor example, ${italics('“ENGW 1111, First-Year Writing”')}.`,
     );
   },
-  followUpHandlers: {
+  msgFollowUpHandlers: {
     [FollowUp.UPLOAD]: async (tctx, ectx) => {
       const {
         attachments,

@@ -1,13 +1,17 @@
 import CHANNEL_UPDATE from './CHANNEL_UPDATE';
+import CHANNEL_DELETE from './CHANNEL_DELETE';
 import GUILD_CREATE from './GUILD_CREATE';
 import GUILD_ROLE_DELETE from './GUILD_ROLE_DELETE';
 import GUILD_MEMBER_UPDATE from './GUILD_MEMBER_UPDATE';
+import MESSAGE_CREATE from './MESSAGE_CREATE';
 
 const triggers = [
   ...CHANNEL_UPDATE,
+  ...CHANNEL_DELETE,
   ...GUILD_CREATE,
   ...GUILD_ROLE_DELETE,
   ...GUILD_MEMBER_UPDATE,
+  ...MESSAGE_CREATE,
 ];
 
 export default triggers;

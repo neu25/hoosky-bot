@@ -33,7 +33,7 @@ const classmates = new SubCommand({
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
     const targetUserId = ctx.mustGetUserId();
-    // const chosenUserId = ctx.getArgument<string>('user') as string;
+    // const chosenUserId = ctx.getArgument<string>('user')!;
 
     const classmates: Record<string, Classmate> = {};
 
@@ -75,7 +75,9 @@ const classmates = new SubCommand({
 
     const classmateArr = Object.values(classmates);
     if (classmateArr.length === 0) {
-      return ctx.respondSilently(`${username} has no classmates`);
+      return ctx.interactionApi.respondSilently(
+        `${username} has no classmates`,
+      );
     }
 
     // Sort classmates in order of descending number of shared classes.
@@ -91,7 +93,7 @@ const classmates = new SubCommand({
       ++n;
     }
 
-    await ctx.respondWithEmbed({
+    await ctx.interactionApi.respondWithEmbed({
       type: Discord.EmbedType.RICH,
       title: `${username}’s Classmates`,
       description: classmateList,

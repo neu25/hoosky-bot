@@ -46,7 +46,7 @@ const setStatus = new SubCommand({
       afk: false,
       status,
     });
-    return ctx.respondWithMessage(
+    return ctx.interactionApi.respondWithMessage(
       `Bot status updated to ${bold(STATUSES[status])}`,
     );
   },
