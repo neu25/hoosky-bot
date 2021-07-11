@@ -15,7 +15,7 @@ const mailThread = new Trigger({
       throw new Error('No guild ID found in trigger data');
     }
 
-    const mailCfg = await ctx.config().get<MailConfig>(guildId, Config.MAIL);
+    const mailCfg = await ctx.config().getGlobal<MailConfig>(Config.MAIL);
     if (!mailCfg) {
       throw new Error('No mail configuration found');
     }

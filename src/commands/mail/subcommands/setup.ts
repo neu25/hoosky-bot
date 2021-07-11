@@ -33,6 +33,7 @@ const setup = new SubCommand({
     const mailCfg: MailConfig = {
       categoryId,
       guildId,
+      blockedUserIds: [],
     };
     await ctx.config().updateGlobal(Config.MAIL, mailCfg);
 

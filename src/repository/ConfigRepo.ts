@@ -16,6 +16,7 @@ export type RolesConfig = {
 export type MailConfig = {
   guildId: string;
   categoryId: string;
+  blockedUserIds: string[];
 };
 
 /**
@@ -33,6 +34,7 @@ export const guildConfig: GuildConfig = {
 export const mailConfig: MailConfig = {
   guildId: '',
   categoryId: '',
+  blockedUserIds: [],
 };
 
 class ConfigRepo {

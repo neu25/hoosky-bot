@@ -45,9 +45,9 @@ const reply = new Interaction({
         embeds: [
           {
             title: 'New message',
+            description: replyMsg.content,
             type: Discord.EmbedType.RICH,
             color: Discord.Color.SUCCESS,
-            description: replyMsg.content,
             timestamp: replyMsg.timestamp,
             author: {
               name: `Mods`,

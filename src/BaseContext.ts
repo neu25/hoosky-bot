@@ -5,10 +5,12 @@ import FollowUpManager, { MessageFollowUpHandler } from './FollowUpManager';
 import CourseRepo from './repository/CourseRepo';
 import MailRepo from './repository/MailRepo';
 import ConfigRepo from './repository/ConfigRepo';
+import Debouncer from './Debouncer';
 
 export type State = Record<string, any>;
 
 export type BaseContextOpts = {
+  debouncer: Debouncer;
   botUser: Discord.User;
   repos: Repositories;
   api: Api;
@@ -17,6 +19,7 @@ export type BaseContextOpts = {
 
 class BaseContext {
   msgFollowUpHandlers: Record<string, MessageFollowUpHandler>;
+  readonly debouncer: Debouncer;
   readonly botUser: Discord.User;
   readonly api: Api;
   readonly repos: Repositories;
@@ -24,6 +27,7 @@ class BaseContext {
   protected readonly _state: State;
 
   constructor(opts: BaseContextOpts) {
+    this.debouncer = opts.debouncer;
     this.botUser = opts.botUser;
     this.repos = opts.repos;
     this.api = opts.api;

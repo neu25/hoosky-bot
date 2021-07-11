@@ -30,10 +30,6 @@ class MailRepo {
     return this.collection(guildId).findOne({ threadChannelId });
   }
 
-  async create(guildId: string, thread: MailThread): Promise<void> {
-    await this.collection(guildId).insertOne(thread);
-  }
-
   async updateByUserId(
     guildId: string,
     userId: string,
@@ -44,6 +40,7 @@ class MailRepo {
       {
         $set: thread,
       },
+      { upsert: true },
     );
   }
 
