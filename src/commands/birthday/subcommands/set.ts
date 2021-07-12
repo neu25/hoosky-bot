@@ -20,7 +20,15 @@ export const set = new SubCommand({
     const targetBirthday = ctx.getArgument<string>('date') as string;
     const requestor = ctx.interaction.member?.user;
 
-    const date = dayjs(targetBirthday).format('MMDD');
+    let date;
+    let formattedDate;
+    if (targetBirthday === '02/29' || targetBirthday === '2/29') {
+      date = dayjs('2/29/2000').format('MMDD');
+      formattedDate = dayjs('2/29/2000').format('MMMM D');
+    } else {
+      date = dayjs(targetBirthday).format('MMDD');
+      formattedDate = dayjs(targetBirthday).format('MMMM D');
+    }
 
     if (!date) {
       return ctx.interactionApi.respondWithError(`Invalid birthday`);
@@ -38,7 +46,7 @@ export const set = new SubCommand({
 
     await ctx.birthdays().set(guildId, date, requestor.id);
     return ctx.interactionApi.respondWithMessage(
-      `<@${requestor.id}>, your birthday has been set to ${targetBirthday}!`,
+      `<@${requestor.id}>, your birthday has been set to ${formattedDate}!`,
     );
   },
 });
