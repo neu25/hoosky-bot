@@ -27,8 +27,8 @@ const bulkCreate = new SubCommand({
     // Thus, the user's next message will trigger the handler in `followUpHandlers.upload` below.
     ctx.expectMessageFollowUp(
       FollowUp.UPLOAD,
-      userId,
       interaction.channel_id ?? '',
+      userId,
     );
 
     await ctx.interactionApi.respondWithMessage(
@@ -49,6 +49,9 @@ const bulkCreate = new SubCommand({
         throw new Error('No guild ID found in message data');
       }
       const userId = ectx.mustGetUserId();
+
+      // Stop treating this user's messages as follow-ups.
+      ectx.unexpectFollowUp(channelId, userId);
 
       if (attachments.length === 0) {
         return tctx.api.createErrorReply(
@@ -140,9 +143,6 @@ const bulkCreate = new SubCommand({
         // Create course in database.
         await tctx.courses().create(guildId, course);
       }
-
-      // Stop treated this user's messages as follow-ups.
-      ectx.unexpectFollowUp(channelId, userId);
 
       return tctx.api.createMessage(channelId, {
         content: `Created roles for ${bold(courses.length.toString())} courses`,

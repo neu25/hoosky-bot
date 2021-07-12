@@ -19,8 +19,8 @@ const reply = new Interaction({
 
     return ctx.expectMessageFollowUp(
       FollowUp.MESSAGE,
-      member.user!.id,
       interaction.channel_id ?? '',
+      member.user!.id,
       60_000,
     );
   },
@@ -30,7 +30,7 @@ const reply = new Interaction({
       const replyMsg = tctx.data;
       const { author } = replyMsg;
 
-      ectx.unexpectFollowUp(replyMsg.author.id, replyMsg.channel_id);
+      ectx.unexpectFollowUp(replyMsg.channel_id, author.id);
 
       const mailThread = await ectx
         .mail()

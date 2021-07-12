@@ -29,8 +29,8 @@ const bulkCreate = new Command({
     // Wait for a follow-up message for up to 30s.
     ctx.expectMessageFollowUp(
       FollowUp.MESSAGE,
-      userId,
       interaction.channel_id ?? '',
+      userId,
       60_000,
     );
   },
@@ -38,6 +38,9 @@ const bulkCreate = new Command({
     [FollowUp.MESSAGE]: async (tctx, ectx) => {
       const message = tctx.data;
       const userId = ectx.mustGetUserId();
+
+      // Stop treating this user's messages as follow-ups.
+      ectx.unexpectFollowUp(message.channel_id, userId);
 
       let attachment: Discord.Attachment | undefined;
       let arrayBuffer: ArrayBuffer | undefined;
@@ -73,9 +76,6 @@ const bulkCreate = new Command({
           components: message.components,
         });
       }
-
-      // Stop treated this user's messages as follow-ups.
-      ectx.unexpectFollowUp(message.channel_id, userId);
     },
   },
 });

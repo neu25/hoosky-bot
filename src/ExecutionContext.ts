@@ -93,14 +93,14 @@ class ExecutionContext extends BaseContext {
    * Thus, the user's next message will trigger the follow-up handler.
    *
    * @param followUpId The ID of the handler in the `followUpHandlers` map.
-   * @param userId The ID of the user to listen to.
    * @param channelId The ID of the channel to listen in.
-   * @param ttl? The number of milliseconds to keep the follow-up listener open. (Default: 10,000ms).
+   * @param userId The ID of the user to listen to.
+   * @param ttl?? The number of milliseconds to keep the follow-up listener open. (Default: 10,000ms).
    */
   expectMessageFollowUp(
     followUpId: string,
-    userId: string,
     channelId: string,
+    userId: string,
     ttl?: number,
   ): void {
     const handler = this.msgFollowUpHandlers[followUpId];
