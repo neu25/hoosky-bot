@@ -4,6 +4,7 @@ import CommandOption from '../../../CommandOption';
 import { CommandOptionType } from '../../../Discord';
 import { Config } from '../../../database';
 import { bold } from '../../../format';
+import { restartScheduler } from '../scheduler';
 import { BirthdaysConfig } from '../../../repository';
 
 export const setup = new SubCommand({
@@ -39,6 +40,9 @@ export const setup = new SubCommand({
 
     // Update database.
     await ctx.config().update(guildId, Config.BIRTHDAYS, birthdaysCfg);
+
+    // Restart scheduler.
+    restartScheduler();
 
     return ctx.interactionApi.respondWithMessage(
       `${bold('Birthdays channel updated')} to <#${channel}>`,
