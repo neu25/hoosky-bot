@@ -11,7 +11,7 @@ import {
   configureScheduler,
   startScheduler,
   stopScheduler,
-} from '../scheduler';
+} from '../messageScheduler';
 
 export const setSchedule = new SubCommand({
   name: 'set-schedule',

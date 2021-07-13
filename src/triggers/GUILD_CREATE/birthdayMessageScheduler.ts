@@ -3,9 +3,9 @@ import Trigger from '../../Trigger';
 import {
   configureScheduler,
   startScheduler,
-} from '../../commands/birthday/scheduler';
+} from '../../commands/birthday/messageScheduler';
 
-const birthdayScheduler = new Trigger({
+const birthdayMessageScheduler = new Trigger({
   event: Discord.Event.GUILD_CREATE,
   handler: async ctx => {
     const guild = ctx.data;
@@ -22,4 +22,4 @@ const birthdayScheduler = new Trigger({
   },
 });
 
-export default birthdayScheduler;
+export default birthdayMessageScheduler;

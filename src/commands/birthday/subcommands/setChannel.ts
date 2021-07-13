@@ -4,7 +4,7 @@ import CommandOption from '../../../CommandOption';
 import { CommandOptionType } from '../../../Discord';
 import { Config } from '../../../database';
 import { bold } from '../../../format';
-import { restartScheduler } from '../scheduler';
+import { restartScheduler } from '../messageScheduler';
 import { BirthdaysConfig } from '../../../repository';
 
 export const setChannel = new SubCommand({

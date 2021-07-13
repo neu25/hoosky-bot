@@ -5,6 +5,7 @@ import { CommandOptionType } from '../../../Discord';
 import { Config } from '../../../database';
 import { bold } from '../../../format';
 import { RolesConfig } from '../../../repository';
+import { restartSchedulers } from '../roleScheduler';
 
 export const setRole = new SubCommand({
   name: 'set-role',
@@ -24,9 +25,7 @@ export const setRole = new SubCommand({
     const roleId = ctx.getArgument<string>('role')!;
 
     // Fetch the role configuration from the database.
-    const rolesCfg = await ctx
-      .config()
-      .get<RolesConfig>(guildId, Config.BIRTHDAYS);
+    const rolesCfg = await ctx.config().get<RolesConfig>(guildId, Config.ROLES);
 
     if (!rolesCfg) {
       return ctx.interactionApi.respondWithError(
@@ -38,7 +37,10 @@ export const setRole = new SubCommand({
     rolesCfg.birthday = roleId;
 
     // Update database.
-    await ctx.config().update(guildId, Config.BIRTHDAYS, rolesCfg);
+    await ctx.config().update(guildId, Config.ROLES, rolesCfg);
+
+    // Restart schedulers.
+    restartSchedulers();
 
     return ctx.interactionApi.respondWithMessage(
       `${bold('Birthday role updated')} to <@${roleId}>`,
