@@ -7,7 +7,18 @@ import pfp from './pfp';
 import bot from './bot';
 import say from './say';
 import mail from './mail';
+import focus from './focus';
 
-const commandList: Command[] = [ping, mute, poll, course, pfp, bot, say, mail];
+const commandList: Command[] = [
+  ping,
+  mute,
+  poll,
+  course,
+  pfp,
+  bot,
+  say,
+  mail,
+  focus,
+];
 
 export default commandList;

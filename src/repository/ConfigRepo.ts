@@ -11,6 +11,8 @@ export type GuildConfig = {
 
 export type RolesConfig = {
   muted: string;
+  focusHard: string;
+  focusSoft: string;
 };
 
 export type MailConfig = {
@@ -25,6 +27,8 @@ export type MailConfig = {
 
 export const rolesConfig: RolesConfig = {
   muted: '',
+  focusHard: '',
+  focusSoft: '',
 };
 
 export const guildConfig: GuildConfig = {

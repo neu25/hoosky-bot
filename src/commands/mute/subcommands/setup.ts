@@ -32,6 +32,8 @@ const setup = new SubCommand({
 
       const newRolesCfg = {
         muted: mutedRole.id,
+        focusHard: rolesCfg?.focusHard ?? '',
+        focusSoft: rolesCfg?.focusSoft ?? '',
       };
 
       // Update the `roles` configuration value.
