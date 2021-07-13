@@ -4,8 +4,8 @@ import SubCommand from '../../../SubCommand';
 import { Config } from '../../../database';
 import { BirthdaysConfig } from '../../../repository';
 
-export const scheduleGet = new SubCommand({
-  name: 'schedule-get',
+export const showSchedule = new SubCommand({
+  name: 'show-schedule',
   displayName: 'Get Schedule',
   description: 'Get schedule for sending birthday messages',
   requiredPermissions: [Discord.Permission.MANAGE_ROLES],
@@ -31,4 +31,4 @@ export const scheduleGet = new SubCommand({
   },
 });
 
-export default scheduleGet;
+export default showSchedule;

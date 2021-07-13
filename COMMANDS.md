@@ -13,12 +13,12 @@ This is a list of commands currently implemented in Hoosky Bot.
 | `/birthday message-add [message]`        | Adds a birthday message.                               | `MANAGE_ROLES` |
 | `/birthday message-delete [message]`     | Deletes a birthday message.                            | `MANAGE_ROLES` |
 | `/birthday message-list`                 | Lists all birthday messages.                           | `MANAGE_ROLES` |
-| `/birthday schedule-get`                 | Gets the birthdays schedule.                           | `MANAGE_ROLES` |
-| `/birthday schedule-set [hour] [minute]` | Sets the birthdays schedule.                           | `MANAGE_ROLES` |
 | `/birthday set [date]`                   | Sets the command executor's birthday.                  | any            |
 | `/birthday set-channel [channel]`        | Sets the birthdays channel.                            | `MANAGE_ROLES` |
 | `/birthday set-role [@role]`             | Sets the birthday role.                                | `MANAGE_ROLES` |
+| `/birthday set-schedule [hour] [minute]` | Sets the birthdays schedule.                           | `MANAGE_ROLES` |
 | `/birthday show [user?]`                 | Shows a user's birthday. Defaults to command executor. | any            |
+| `/birthday show-schedule`                | Gets the birthdays schedule.                           | `MANAGE_ROLES` |
 | `/birthday unset`                        | Unsets the command executor's birthday.                | any            |
 
 ## `/ping`
