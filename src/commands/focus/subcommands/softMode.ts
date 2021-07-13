@@ -1,6 +1,7 @@
 import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
+import { parseDuration } from '../_common';
 
 const softMode = new SubCommand({
   name: 'soft-mode',
@@ -16,8 +17,13 @@ const softMode = new SubCommand({
     }),
   ],
   handler: async ctx => {
+    // const guildId = ctx.mustGetGuildId();
+    const duration = ctx.getArgument<string>('duration')!.trim();
+
     return ctx.interactionApi.respondWithError(
-      `This command is still in development.`,
+      `This command is still in development [Soft mode focus, ${parseDuration(
+        duration,
+      )} seconds]`,
     );
   },
 });

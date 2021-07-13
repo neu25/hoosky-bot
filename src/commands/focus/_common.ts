@@ -2,6 +2,22 @@ import ExecutionContext from '../../ExecutionContext';
 import { Config } from '../../database';
 import { RolesConfig } from '../../repository';
 
+export const parseDuration = (duration: string): number => {
+  let seconds = 0;
+  const hours = duration.match(/(\d+)\s*h/);
+  const minutes = duration.match(/(\d+)\s*m/);
+
+  if (hours) {
+    seconds += parseInt(hours[1]) * 3600;
+  }
+
+  if (minutes) {
+    seconds += parseInt(minutes[1]) * 60;
+  }
+
+  return seconds;
+};
+
 export const respondSetupError = async (
   ctx: ExecutionContext,
 ): Promise<void> => {
