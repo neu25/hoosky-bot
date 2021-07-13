@@ -1,30 +1,15 @@
-import Api from './Api';
-import { Repositories } from './repository';
-import ConfigRepo from './repository/ConfigRepo';
-import CourseRepo from './repository/CourseRepo';
-import PollRepo from './repository/PollRepo';
+import BaseContext, { BaseContextOpts } from './BaseContext';
 
-class TriggerContext<T> {
-  readonly api: Api;
-  readonly repos: Repositories;
+export type TriggerContextOpts<T> = {
+  data: T;
+} & BaseContextOpts;
+
+class TriggerContext<T> extends BaseContext {
   readonly data: T;
 
-  constructor(api: Api, repos: Repositories, data: T) {
-    this.api = api;
-    this.repos = repos;
-    this.data = data;
-  }
-
-  courses(): CourseRepo {
-    return this.repos.courses;
-  }
-
-  config(): ConfigRepo {
-    return this.repos.config;
-  }
-
-  poll(): PollRepo {
-    return this.repos.poll;
+  constructor(opts: TriggerContextOpts<T>) {
+    super(opts);
+    this.data = opts.data;
   }
 }
 

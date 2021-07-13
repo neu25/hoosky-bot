@@ -1,5 +1,7 @@
 import util from 'util';
 
+export type Primitive = string | boolean | number | undefined | null;
+
 /**
  * Returns a Promise that resolves after the given time.
  *
@@ -62,4 +64,12 @@ export const prepareEmoji = (emojiString: string): string => {
   return encodeURIComponent(
     emojiString.split('<:').join('').split('>').join(''),
   );
+};
+
+export const eliminateDuplicates = <T extends Primitive>(array: T[]): T[] => {
+  return Array.from(new Set(array));
+};
+
+export const dateToUnixTime = (date: Date): number => {
+  return Math.floor(date.getTime() / 1000);
 };

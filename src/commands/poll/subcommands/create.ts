@@ -33,7 +33,7 @@ const create = new SubCommand({
     const userId = ctx.interaction.member?.user?.id;
     const question = ctx.getArgument('question') as string;
     if (!userId) {
-      return ctx.respondWithError('Unable to identify you');
+      return ctx.interactionApi.respondWithError('Unable to identify you');
     }
 
     const emojis = ctx.getArgument('emojis') as string;
@@ -47,13 +47,13 @@ const create = new SubCommand({
       }
     }
 
-    if (customEmojis != null)
+    if (customEmojis !== null)
       customEmojis.forEach(element => {
         reactions.push(element);
       });
 
     const descriptions =
-      ctx.getArgument('descriptions') != undefined
+      ctx.getArgument('descriptions') !== undefined
         ? (ctx.getArgument('descriptions') as string)
             .split(',')
             .map(function (segment) {
@@ -62,18 +62,18 @@ const create = new SubCommand({
         : undefined;
 
     const embedFields: Discord.EmbedField[] = [];
-    if (descriptions != undefined && descriptions.length > reactions.length) {
-      ctx.respondWithError(
+    if (descriptions !== undefined && descriptions.length > reactions.length) {
+      ctx.interactionApi.respondWithError(
         'There are too many descriptions for the specified amount of emojis',
       );
     } else if (
-      descriptions != undefined &&
+      descriptions !== undefined &&
       descriptions.length < reactions.length
     ) {
-      ctx.respondWithError(
+      ctx.interactionApi.respondWithError(
         'There are too few descriptions for the specified amount of emojis',
       );
-    } else if (descriptions != undefined) {
+    } else if (descriptions !== undefined) {
       for (let i = 0, len = descriptions.length; i < len; i++) {
         embedFields.push({
           name: ` - ${descriptions[i]}`,
@@ -86,13 +86,13 @@ const create = new SubCommand({
     const embed: Discord.Embed = {
       type: Discord.EmbedType.RICH,
       title: question,
-      description: descriptions != undefined ? 'Options: ' : undefined,
+      description: descriptions !== undefined ? 'Options: ' : undefined,
       fields: embedFields,
     };
 
-    await ctx.respondWithEmbed(embed);
+    await ctx.interactionApi.respondWithEmbed(embed);
 
-    const msg = await ctx.getResponse();
+    const msg = await ctx.interactionApi.getResponse();
 
     reactions.forEach(emoji => {
       ctx.api.createReaction(msg.id, msg.channel_id, emoji);
@@ -107,6 +107,8 @@ const create = new SubCommand({
       reactionCounts: [],
       closed: false,
       embeds: [embed],
+      createdAt: new Date(Date.now()).toLocaleString(),
+      createdBy: ctx.interaction.member?.user?.username,
     };
 
     ctx.poll().create(guildId, poll);

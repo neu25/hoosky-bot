@@ -5,6 +5,7 @@ export enum Collection {
   CONFIG = 'config',
   POLL = 'poll',
   COURSES = 'courses',
+  MAIL = 'mail',
 }
 
 /**
@@ -13,4 +14,5 @@ export enum Collection {
 export enum Config {
   GUILD = 'guild',
   ROLES = 'roles',
+  MAIL = 'mail',
 }

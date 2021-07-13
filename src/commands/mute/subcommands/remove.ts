@@ -19,7 +19,7 @@ const remove = new SubCommand({
   ],
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
-    const targetUserId = ctx.getArgument<string>('user') as string;
+    const targetUserId = ctx.getArgument<string>('user')!;
 
     if (!(await checkMutePermissionsOrExit(ctx, guildId, targetUserId))) return;
 
@@ -33,7 +33,7 @@ const remove = new SubCommand({
     } catch (e) {
       // Error code 50013:	You lack permissions to perform that action.
       if (e.code === 50013) {
-        await ctx.respondWithError(
+        await ctx.interactionApi.respondWithError(
           `Couldn't remove the Muted role. Move HooskBot's role higher.`,
         );
         return;
@@ -44,7 +44,7 @@ const remove = new SubCommand({
 
     // Get info about the user and provide a response message.
     const user = await ctx.api.getUser(targetUserId);
-    return ctx.respondWithMessage(
+    return ctx.interactionApi.respondWithMessage(
       `Unmuted ${bold(`${user.username}#${user.discriminator}`)}`,
     );
   },

@@ -9,6 +9,8 @@ export type Poll = {
   question: string;
   reactions: string[];
   embeds: Discord.Embed[];
+  createdAt: string;
+  createdBy?: string;
   reactionCounts?: number[];
   closed?: boolean;
 };
@@ -33,7 +35,7 @@ class PollRepo {
       _id: pollId,
       userId: userId,
     });
-    if (poll != null) {
+    if (poll !== null) {
       return poll;
     } else {
       return null;

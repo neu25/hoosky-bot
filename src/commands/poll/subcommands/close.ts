@@ -25,18 +25,22 @@ const close = new SubCommand({
     const userId = ctx.interaction.member?.user?.id;
     const pollId = ctx.getArgument('id') as string;
     if (!userId) {
-      return ctx.respondWithError('Unable to identify you');
+      return ctx.interactionApi.respondWithError('Unable to identify you');
     }
 
     const poll = await ctx.poll().getById(guildId, pollId, userId);
-    if (poll == null) {
+    if (poll === null) {
+      ctx.interactionApi.respondWithError("Could't find poll");
       return;
     }
 
     if (ctx.getArgument('delete') as boolean) {
       ctx.poll().deleteById(guildId, pollId);
       await ctx.api.deleteMessage(poll._id, poll.channelId);
-      return await ctx.respondWithMessage('Poll deleted succesfully', true);
+      return await ctx.interactionApi.respondWithMessage(
+        'Poll deleted succesfully',
+        true,
+      );
     }
 
     closePoll(ctx, guildId, poll);

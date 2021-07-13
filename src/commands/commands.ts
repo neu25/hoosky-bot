@@ -6,7 +6,8 @@ import course from './course';
 import pfp from './pfp';
 import bot from './bot';
 import say from './say';
+import mail from './mail';
 
-const commandsList: Command[] = [ping, mute, poll, course, pfp, bot, say];
+const commandList: Command[] = [ping, mute, poll, course, pfp, bot, say, mail];
 
-export default commandsList;
+export default commandList;

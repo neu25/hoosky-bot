@@ -1,8 +1,8 @@
 import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
-import { semiBoldCourse } from '../_common';
-import { fancyCenter } from '../../../format';
+import { findUserSection, semiBoldCourse } from '../_common';
+import { fancyCenter, italics, underline } from '../../../format';
 
 type SubjectGroup = {
   subject: string;
@@ -24,10 +24,9 @@ const listJoined = new SubCommand({
   ],
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
-    const courses = (await ctx.courses().scan(guildId)).sort({ _id: 1 });
-    const chosenUserId = ctx.getArgument<string>('user') as string;
-    let userId;
+    const chosenUserId = ctx.getArgument<string>('user')!;
 
+    let userId: string;
     if (chosenUserId) {
       userId = chosenUserId;
     } else {
@@ -46,8 +45,10 @@ const listJoined = new SubCommand({
     let curGroup: SubjectGroup | null = null;
 
     // Iterate over every course.
-    let c = await courses.next();
-    while (c !== null) {
+    const courses = await (await ctx.courses().scan(guildId))
+      .sort({ _id: 1 })
+      .toArray();
+    for (const c of courses) {
       const members = c.members;
       // If the current member is in the course
       if (members.includes(userId)) {
@@ -61,10 +62,19 @@ const listJoined = new SubCommand({
           subGroups.push(curGroup);
         }
 
+        // Find the section the user is in, if any.
+        const userSection = findUserSection(c, userId);
+
         // Write the course to the subject group.
-        curGroup.list += semiBoldCourse(c) + '\n';
+        curGroup.list += semiBoldCourse(c);
+        curGroup.list += ' - ';
+        curGroup.list += italics(
+          userSection
+            ? `Section ${userSection.number}`
+            : underline('No section'),
+        );
+        curGroup.list += '\n';
       }
-      c = await courses.next();
     }
 
     // Map subject groups to Discord embed fields.
@@ -73,9 +83,9 @@ const listJoined = new SubCommand({
       value: sub.list, // The course list.
     }));
 
-    await ctx.respondSilentlyWithEmbed({
+    await ctx.interactionApi.respondSilentlyWithEmbed({
       type: Discord.EmbedType.RICH,
-      title: `Course List for ${username}`,
+      title: `${username}’s Course List`,
       fields,
     });
   },

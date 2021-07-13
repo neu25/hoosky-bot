@@ -1,4 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
+import FormData from 'form-data';
 import * as Discord from './Discord';
 import Cache from './Cache';
 import { performRequest, prepareEmoji } from './utils';
@@ -29,7 +30,7 @@ class Api {
     const cached = Api._tryCache('current guilds', () =>
       this._cache.getGuilds(),
     );
-    if (cached) return cached;
+    if (cached && cached.length > 0) return cached;
 
     return performRequest(async () => {
       const res = await this._http.get(
@@ -178,6 +179,72 @@ class Api {
     });
   }
 
+  async getChannel(channelId: string): Promise<Discord.Channel> {
+    const cached = Api._tryCache('channels', () =>
+      this._cache.getChannel(channelId),
+    );
+    if (cached) return cached;
+
+    return performRequest(async () => {
+      const res = await this._http.get(`/channels/${channelId}`);
+      const channel = res.data as Discord.Channel;
+      this._cache._updateChannel(channel);
+      return channel;
+    });
+  }
+
+  /**
+   * Creates a new channel in a guild.
+   *
+   * @param guildId The ID of the guild in which the channel will be created.
+   * @param data The channel data.
+   */
+  async createChannel(
+    guildId: string,
+    data: Discord.CreateChannelPayload,
+  ): Promise<Discord.Channel> {
+    return performRequest(async () => {
+      const res = await this._http.post(`/guilds/${guildId}/channels`, data);
+      const channel = res.data as Discord.Channel;
+      this._cache._updateChannel(channel);
+      return channel;
+    });
+  }
+
+  /**
+   * Modifies a new channel in a guild.
+   *
+   * @param channelId The ID of the channel.
+   * @param data The channel update data.
+   */
+  async modifyChannel(
+    channelId: string,
+    data: Discord.ModifyChannelPayload,
+  ): Promise<Discord.Channel> {
+    return performRequest(async () => {
+      const res = await this._http.patch(`/channels/${channelId}`, data);
+      const channel = res.data as Discord.Channel;
+      this._cache._updateChannel(channel);
+      return channel;
+    });
+  }
+
+  /**
+   * Deletes a new channel in a guild.
+   *
+   * @param channelId The ID of the channel.
+   */
+  async deleteChannel(channelId: string): Promise<Discord.Channel> {
+    return performRequest(async () => {
+      const res = await this._http.delete(`/channels/${channelId}`);
+      const channel = res.data as Discord.Channel;
+      if (channel.guild_id) {
+        this._cache._deleteChannel(channel.guild_id, channel.id);
+      }
+      return channel;
+    });
+  }
+
   /**
    * Gets a list of all the channels in the guild.
    *
@@ -242,7 +309,7 @@ class Api {
    * Sends a message in the specified channel.
    *
    * @param channelId The ID of the channel.
-   * @param data The content of the message.
+   * @param data The message data.
    */
   createMessage(
     channelId: string,
@@ -258,27 +325,38 @@ class Api {
   }
 
   /**
-   * TODO: Work in progress.
+   * Sends a message with an attached file in the specified channel.
+   *
+   * @param channelId The ID of the channel.
+   * @param filename The name of the file.
+   * @param contentType The MIME type of the file.
+   * @param data The message and file data.
    */
-  // createMessageWithFile(
-  //   channelId: string,
-  //   fileName: string,
-  //   data: Discord.CreateMessagePayload & { file: File },
-  // ): Promise<Discord.Message> {
-  //   const { file, ...payload } = data;
-  //
-  //   const formData = new FormData();
-  //   formData.append('file', file, fileName);
-  //   formData.append('payload_json', JSON.stringify(payload));
-  //
-  //   return performRequest(async () => {
-  //     const res = await this._http.post(
-  //       `/channels/${channelId}/messages`,
-  //       formData,
-  //     );
-  //     return res.data as Discord.Message;
-  //   });
-  // }
+  createMessageWithFile(
+    channelId: string,
+    filename: string,
+    contentType: string,
+    data: Discord.CreateMessagePayload & { file: ArrayBuffer },
+  ): Promise<Discord.Message> {
+    const { file, ...payload } = data;
+
+    const formData = new FormData();
+    formData.append('payload_json', JSON.stringify(payload), {
+      contentType: 'application/json',
+    });
+    formData.append('file', file, { filename, contentType });
+
+    return performRequest(async () => {
+      const res = await this._http.post(
+        `/channels/${channelId}/messages`,
+        formData,
+        {
+          headers: formData.getHeaders(),
+        },
+      );
+      return res.data as Discord.Message;
+    });
+  }
 
   /**
    * Sends an error message in the specified channel.
@@ -310,6 +388,53 @@ class Api {
       message_reference: {
         message_id: messageId,
       },
+    });
+  }
+
+  /**
+   * Edits a message in the specified channel.
+   *
+   * @param channelId The ID of the channel.
+   * @param messageId The ID of the message.
+   * @param data The message update data.
+   */
+  editMessage(
+    channelId: string,
+    messageId: string,
+    data: Discord.EditMessagePayload,
+  ): Promise<Discord.Message> {
+    return performRequest(async () => {
+      const res = await this._http.patch(
+        `/channels/${channelId}/messages/${messageId}`,
+        data,
+      );
+      return res.data as Discord.Message;
+    });
+  }
+
+  /**
+   * Deletes a message in the specified channel.
+   *
+   * @param channelId The ID of the channel.
+   * @param messageId The ID of the message.
+   */
+  deleteMessage(channelId: string, messageId: string): Promise<void> {
+    return performRequest(async () => {
+      await this._http.delete(`/channels/${channelId}/messages/${messageId}`);
+    });
+  }
+
+  /**
+   * Deletes anywhere from 2 to 100 messages in the specified channel.
+   *
+   * @param channelId The ID of the channel.
+   * @param messageIds The array of message IDs.
+   */
+  bulkDeleteMessages(channelId: string, messageIds: string[]): Promise<void> {
+    return performRequest(async () => {
+      await this._http.post(`/channels/${channelId}/messages/bulk-delete`, {
+        messages: messageIds,
+      });
     });
   }
 
@@ -376,7 +501,7 @@ class Api {
     emojiString: string,
     userId?: number,
   ): Promise<void> {
-    const target = userId == null ? '@me' : userId.toString();
+    const target = !userId ? '@me' : userId.toString();
     await performRequest(() =>
       this._http.delete(
         `/channels/${channelId}/messages/${messageId}/reactions/${prepareEmoji(
@@ -401,7 +526,7 @@ class Api {
     await performRequest(() =>
       this._http.delete(
         `/channels/${channelId}/messages/${messageId}/reactions${
-          emojiString == null ? '' : `/${prepareEmoji(emojiString)}`
+          !emojiString ? '' : `/${prepareEmoji(emojiString)}`
         }`,
       ),
     );
@@ -447,60 +572,6 @@ class Api {
           emojiString,
         )}/@me`,
       ),
-    );
-  }
-
-  /**
-   * Edits a message
-   *
-   * @param messageId The message ID of the message.
-   * @param channelId The channel ID of the channel.
-   * @param content The message contents (up to 2000 characters)
-   * @param embeds Array of embedded rich content (up to 6000 characters total)
-   * @param embed Embedded rich content, deprecated in favor of embeds
-   * @param flags Edit the flags of a message (only SUPPRESS_EMBEDS can currently be set/unset)
-   * @param payload_json JSON encoded body of non-file params (multipart/form-data only)
-   * @param allowed_mentions Allowed mentions for the message
-   * @param attachments Array of attached files to keep
-   * @param components Array of components to include in the message
-   */
-  async editMessage(
-    //https://discord.com/developers/docs/resources/channel#edit-message
-    messageId: string,
-    channelId: string,
-    content?: string,
-    embeds?: Discord.Embed[],
-    embed?: Discord.Embed, // deprecated...
-    flags?: number,
-    /* file?: to be implemented...,*/
-    payload_json?: string,
-    allowed_mentions?: Discord.AllowedMentions,
-    attachments?: Discord.Attachment[],
-    components?: Discord.MessageComponent[],
-  ): Promise<void> {
-    await performRequest(() =>
-      this._http.patch(`/channels/${channelId}/messages/${messageId}`, {
-        content: content,
-        embeds: embeds,
-        embed: embed,
-        flags: flags,
-        payload_json: payload_json,
-        allowed_mentions: allowed_mentions,
-        attachments: attachments,
-        components: components,
-      }),
-    );
-  }
-
-  /**
-   * Deletes a message
-   *
-   * @param messageId The message ID of the message.
-   * @param channelId The channel ID of the channel.
-   */
-  async deleteMessage(messageId: string, channelId: string): Promise<void> {
-    await performRequest(() =>
-      this._http.delete(`/channels/${channelId}/messages/${messageId}`),
     );
   }
 

@@ -16,7 +16,7 @@ const setup = new SubCommand({
     const guildId = ctx.mustGetGuildId();
 
     // Respond with a loader, as this command may take longer time on large servers.
-    ctx.respondLater().catch(err => {
+    ctx.interactionApi.respondLater().catch(err => {
       throw err;
     });
 
@@ -71,7 +71,7 @@ const setup = new SubCommand({
       });
     }
 
-    await ctx.editResponse({
+    await ctx.interactionApi.editResponse({
       content: 'Successfully set up the muted role',
     });
   },

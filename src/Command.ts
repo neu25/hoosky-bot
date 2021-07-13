@@ -1,14 +1,15 @@
 import * as Discord from './Discord';
-import SubCommand, { CommandHandler, FollowUpHandler } from './SubCommand';
+import SubCommand, { CommandHandler } from './SubCommand';
 import SubCommandGroup, { SubCommandGroupProps } from './SubCommandGroup';
 import ExecutionContext from './ExecutionContext';
+import { MessageFollowUpHandler } from './FollowUpManager';
 
 type CommandProps = {
   displayName: string;
   default_permission?: boolean;
   permissions?: Discord.CommandPermission[];
   handler?: CommandHandler;
-  followUpHandlers?: Record<string, FollowUpHandler>;
+  msgFollowUpHandlers?: Record<string, MessageFollowUpHandler>;
   requiredPermissions?: Discord.Permission[];
 } & SubCommandGroupProps;
 
@@ -18,10 +19,10 @@ type CommandProps = {
  */
 class Command extends SubCommandGroup {
   readonly displayName: string;
-  readonly followUpHandlers: Record<string, FollowUpHandler>;
-  private readonly _handler?: CommandHandler;
-  private readonly _requiredPerms: Discord.Permission[];
-  private readonly _defaultPerm: boolean;
+  readonly msgFollowUpHandlers: Record<string, MessageFollowUpHandler>;
+  readonly requiredPerms: Discord.Permission[];
+  readonly defaultPerm: boolean;
+  readonly handler?: CommandHandler;
 
   constructor(props: CommandProps) {
     const {
@@ -29,15 +30,15 @@ class Command extends SubCommandGroup {
       displayName,
       handler,
       default_permission,
-      followUpHandlers,
+      msgFollowUpHandlers,
       ...base
     } = props;
     super(base);
     this.displayName = displayName;
-    this.followUpHandlers = followUpHandlers ?? {};
-    this._handler = handler;
-    this._defaultPerm = default_permission ?? true;
-    this._requiredPerms = requiredPermissions ?? [];
+    this.msgFollowUpHandlers = msgFollowUpHandlers ?? {};
+    this.handler = handler;
+    this.defaultPerm = default_permission ?? true;
+    this.requiredPerms = requiredPermissions ?? [];
   }
 
   /**
@@ -51,16 +52,16 @@ class Command extends SubCommandGroup {
       !(await SubCommand.checkPermissions(
         ctx,
         this.displayName,
-        this._requiredPerms,
+        this.requiredPerms,
       ))
     ) {
       return;
     }
 
-    if (this._handler) {
+    if (this.handler) {
       // Supply this command's follow-up handlers.
-      ctx._setFollowUpHandlers(this.followUpHandlers);
-      return this._handler(ctx);
+      ctx.msgFollowUpHandlers = this.msgFollowUpHandlers;
+      return this.handler(ctx);
     }
 
     ctx._advanceCommand();
@@ -76,7 +77,7 @@ class Command extends SubCommandGroup {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { type, ...serialized } = super.serialize();
     return {
-      default_permission: this._defaultPerm,
+      default_permission: this.defaultPerm,
       ...serialized,
     };
   }

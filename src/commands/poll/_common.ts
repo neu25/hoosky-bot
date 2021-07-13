@@ -50,12 +50,14 @@ export const closePoll = async (
     ctx.poll().setClosed(guildId, poll._id, true);
     ctx.poll().setEmbeds(guildId, poll._id, embeds);
 
-    ctx.api.editMessage(poll._id, poll.channelId, undefined, embeds);
+    ctx.api.editMessage(poll.channelId, poll._id, {
+      embeds: embeds,
+    });
 
     ctx.api.deleteAllReactions(poll._id, poll.channelId);
 
-    ctx.respondWithMessage('Poll closed succesfully.', true);
+    ctx.interactionApi.respondWithMessage('Poll closed succesfully.', true);
   } else {
-    ctx.respondWithError('That poll is already closed.');
+    ctx.interactionApi.respondWithError('That poll is already closed.');
   }
 };
