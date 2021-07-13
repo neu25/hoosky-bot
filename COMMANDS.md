@@ -16,7 +16,8 @@ This is a list of commands currently implemented in Hoosky Bot.
 | `/birthday schedule-get`                 | Gets the birthdays schedule.                           | `MANAGE_ROLES` |
 | `/birthday schedule-set [hour] [minute]` | Sets the birthdays schedule.                           | `MANAGE_ROLES` |
 | `/birthday set [date]`                   | Sets the command executor's birthday.                  | any            |
-| `/birthday setup [channel]`              | Sets the birthdays channel.                            | `MANAGE_ROLES` |
+| `/birthday set-channel [channel]`        | Sets the birthdays channel.                            | `MANAGE_ROLES` |
+| `/birthday set-role [@role]`             | Sets the birthday role.                                | `MANAGE_ROLES` |
 | `/birthday show [user?]`                 | Shows a user's birthday. Defaults to command executor. | any            |
 | `/birthday unset`                        | Unsets the command executor's birthday.                | any            |
 

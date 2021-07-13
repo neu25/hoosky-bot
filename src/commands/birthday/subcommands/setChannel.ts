@@ -7,8 +7,8 @@ import { bold } from '../../../format';
 import { restartScheduler } from '../scheduler';
 import { BirthdaysConfig } from '../../../repository';
 
-export const setup = new SubCommand({
-  name: 'setup',
+export const setChannel = new SubCommand({
+  name: 'set-channel',
   displayName: 'Set Up Birthdays Channel',
   description: 'Set up channel for birthday messages',
   requiredPermissions: [Discord.Permission.MANAGE_ROLES],
@@ -50,4 +50,4 @@ export const setup = new SubCommand({
   },
 });
 
-export default setup;
+export default setChannel;

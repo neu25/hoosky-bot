@@ -32,6 +32,7 @@ const setup = new SubCommand({
 
       const newRolesCfg = {
         muted: mutedRole.id,
+        birthday: rolesCfg?.birthday || '',
       };
 
       // Update the `roles` configuration value.

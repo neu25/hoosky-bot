@@ -11,6 +11,7 @@ export type GuildConfig = {
 
 export type RolesConfig = {
   muted: string;
+  birthday: string;
 };
 
 export type MailConfig = {
@@ -36,6 +37,7 @@ export type BirthdaysConfig = {
 
 export const rolesConfig: RolesConfig = {
   muted: '',
+  birthday: '',
 };
 
 export const guildConfig: GuildConfig = {

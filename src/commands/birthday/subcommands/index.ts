@@ -5,7 +5,8 @@ import { messageList } from './messageList';
 import { scheduleGet } from './scheduleGet';
 import { scheduleSet } from './scheduleSet';
 import { set } from './set';
-import { setup } from './setup';
+import { setChannel } from './setChannel';
+import { setRole } from './setRole';
 import { show } from './show';
 import { unset } from './unset';
 
@@ -17,7 +18,8 @@ const subcommands = [
   scheduleGet,
   scheduleSet,
   set,
-  setup,
+  setChannel,
+  setRole,
   show,
   unset,
 ];
