@@ -19,11 +19,14 @@ const hardMode = new SubCommand({
   handler: async ctx => {
     // const guildId = ctx.mustGetGuildId();
     const duration = ctx.getArgument<string>('duration')!.trim();
+    const parsedDuration = parseDuration(duration);
+
+    if (!parsedDuration || parsedDuration === 0) {
+      return ctx.interactionApi.respondWithError(`Invalid duration`);
+    }
 
     return ctx.interactionApi.respondWithError(
-      `This command is still in development [Hard mode focus, ${parseDuration(
-        duration,
-      )} seconds]`,
+      `This command is still in development [Soft mode focus, ${parsedDuration} seconds]`,
     );
   },
 });

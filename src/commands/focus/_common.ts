@@ -4,8 +4,13 @@ import { RolesConfig } from '../../repository';
 
 export const parseDuration = (duration: string): number => {
   let seconds = 0;
+  const days = duration.match(/(\d+)\s*d/);
   const hours = duration.match(/(\d+)\s*h/);
   const minutes = duration.match(/(\d+)\s*m/);
+
+  if (days) {
+    seconds += parseInt(days[1]) * 86400;
+  }
 
   if (hours) {
     seconds += parseInt(hours[1]) * 3600;
