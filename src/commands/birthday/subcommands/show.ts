@@ -37,7 +37,8 @@ export const show = new SubCommand({
     const birthday = await ctx.birthdays().getByUserId(guildId, targetUser.id);
 
     if (birthday) {
-      const date = dayjs(await birthday._id);
+      const currentYear = dayjs().format('YYYY');
+      const date = dayjs(`${await birthday._id}/${currentYear}`);
 
       return ctx.interactionApi.respondWithMessage(
         `Birthday for <@${targetUser.id}> is set to ${bold(

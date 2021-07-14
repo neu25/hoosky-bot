@@ -23,10 +23,10 @@ export const set = new SubCommand({
     let date;
     let formattedDate;
     if (targetBirthday === '02/29' || targetBirthday === '2/29') {
-      date = dayjs('2/29/2000').format('MMDD');
+      date = dayjs('2/29/2000').format('MM/DD');
       formattedDate = dayjs('2/29/2000').format('MMMM D');
     } else {
-      date = dayjs(targetBirthday).format('MMDD');
+      date = dayjs(targetBirthday).format('MM/DD');
       formattedDate = dayjs(targetBirthday).format('MMMM D');
     }
 
