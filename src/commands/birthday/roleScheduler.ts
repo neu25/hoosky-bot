@@ -45,7 +45,7 @@ export const configureSchedulers = async (
         }
 
         // Handle leap years
-        if (!isLeapYear && today === '0228') {
+        if (!isLeapYear && today === '02/28') {
           const leapYearBirthdays = await ctx
             .birthdays()
             .getByDay(guildId, dayjs('2/29/2000').format('MM/DD'));
@@ -85,7 +85,7 @@ export const configureSchedulers = async (
         }
 
         // Handle leap years
-        if (!isLeapYear && today === '0228') {
+        if (!isLeapYear && today === '02/28') {
           const leapYearBirthdays = await ctx
             .birthdays()
             .getByDay(guildId, dayjs('2/29/2000').format('MM/DD'));
