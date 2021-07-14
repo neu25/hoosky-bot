@@ -64,6 +64,20 @@ export const prepareEmoji = (emojiString: string): string => {
   return encodeURI(emojiString.split('<:').join('').split('>').join(''));
 };
 
+/**
+ * Helper method to format a number to have leading zeros
+ *
+ * @param number The number
+ * @param size The length of the final string
+ */
+export const padNumber = (number: number, size: number): string => {
+  let num: string = number.toString();
+  while (num.length < size) {
+    num = '0' + num;
+  }
+  return num;
+};
+
 export const eliminateDuplicates = <T extends Primitive>(array: T[]): T[] => {
   return Array.from(new Set(array));
 };
