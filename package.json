@@ -23,6 +23,8 @@
   "homepage": "https://github.com/nu25/hoosky-bot#readme",
   "dependencies": {
     "axios": "^0.21.1",
+    "cron": "^1.8.2",
+    "cronstrue": "^1.114.0",
     "csv-parse": "^4.16.0",
     "dayjs": "^1.10.6",
     "form-data": "^4.0.0",
@@ -31,6 +33,7 @@
     "yargs": "^17.0.1"
   },
   "devDependencies": {
+    "@types/cron": "^1.7.2",
     "@types/mongodb": "^3.6.17",
     "@types/ws": "^7.4.4",
     "@types/yargs": "^17.0.0",

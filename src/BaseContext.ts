@@ -6,6 +6,7 @@ import CourseRepo from './repository/CourseRepo';
 import MailRepo from './repository/MailRepo';
 import ConfigRepo from './repository/ConfigRepo';
 import Debouncer from './Debouncer';
+import BirthdayRepo from './repository/BirthdayRepo';
 
 export type State = Record<string, any>;
 
@@ -42,6 +43,10 @@ class BaseContext {
 
   mail(): MailRepo {
     return this.repos.mail;
+  }
+
+  birthdays(): BirthdayRepo {
+    return this.repos.birthdays;
   }
 
   config(): ConfigRepo {

@@ -11,6 +11,7 @@ export type GuildConfig = {
 
 export type RolesConfig = {
   muted: string;
+  birthday: string;
 };
 
 export type MailConfig = {
@@ -19,12 +20,24 @@ export type MailConfig = {
   blockedUserIds: string[];
 };
 
+export type BirthdayMessage = {
+  id: number;
+  message: string;
+};
+
+export type BirthdaysConfig = {
+  schedule: string;
+  channel: string;
+  messages: BirthdayMessage[];
+};
+
 /**
  * Default config values
  */
 
 export const rolesConfig: RolesConfig = {
   muted: '',
+  birthday: '',
 };
 
 export const guildConfig: GuildConfig = {
@@ -35,6 +48,12 @@ export const mailConfig: MailConfig = {
   guildId: '',
   categoryId: '',
   blockedUserIds: [],
+};
+
+export const birthdaysConfig: BirthdaysConfig = {
+  schedule: '00 15 10 * * *',
+  channel: '',
+  messages: [{ id: 1, message: 'Happy birthday, %!' }],
 };
 
 class ConfigRepo {
@@ -52,6 +71,7 @@ class ConfigRepo {
     for (const gId of guildIds) {
       await this.insertIfNotExists(gId, Config.ROLES, rolesConfig);
       await this.insertIfNotExists(gId, Config.GUILD, guildConfig);
+      await this.insertIfNotExists(gId, Config.BIRTHDAYS, birthdaysConfig);
       await this.insertGlobalIfNotExists(Config.MAIL, mailConfig);
     }
   }
