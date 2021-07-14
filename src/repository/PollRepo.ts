@@ -1,4 +1,4 @@
-import { Collection as MongoCollection } from 'mongodb';
+import { Cursor, Collection as MongoCollection } from 'mongodb';
 import { Collection, Database } from '../database';
 import * as Discord from '../Discord';
 
@@ -31,15 +31,19 @@ class PollRepo {
     pollId: string,
     userId?: string,
   ): Promise<Poll | null> => {
-    const poll = await this.collection(guildId).findOne({
+    return this.collection(guildId).findOne({
       _id: pollId,
       userId: userId,
     });
-    if (poll !== null) {
-      return poll;
-    } else {
-      return null;
-    }
+  };
+
+  getAllByUserId = async (
+    guildId: string,
+    userId: string,
+  ): Promise<Cursor<Poll>> => {
+    return this.collection(guildId).find({
+      userId: userId,
+    });
   };
 
   deleteById = async (guildId: string, pollId: string): Promise<void> => {
@@ -49,6 +53,17 @@ class PollRepo {
         throw err;
       }
     });
+  };
+
+  setId = async (
+    guildId: string,
+    pollId: string,
+    newId: string,
+  ): Promise<void> => {
+    this.collection(guildId).updateOne(
+      { _id: pollId },
+      { $set: { _id: newId } },
+    );
   };
 
   setReactionCounts = async (
