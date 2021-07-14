@@ -4,6 +4,7 @@ import CourseRepo from './CourseRepo';
 import ConfigRepo from './ConfigRepo';
 import PollRepo from './PollRepo';
 import MailRepo from './MailRepo';
+import CountdownRepo from './CountdownRepo';
 import JobRepo from './JobRepo';
 
 export type { Birthday, BirthdayMessage } from './BirthdayRepo';
@@ -15,6 +16,7 @@ export type Repositories = {
   jobs: JobRepo;
   mail: MailRepo;
   config: ConfigRepo;
+  countdowns: CountdownRepo;
   poll: PollRepo;
 };
 
@@ -25,6 +27,7 @@ export const setupRepos = (db: Database): Repositories => {
     jobs: new JobRepo(db),
     mail: new MailRepo(db),
     config: new ConfigRepo(db),
+    countdowns: new CountdownRepo(db),
     poll: new PollRepo(db),
   };
 };

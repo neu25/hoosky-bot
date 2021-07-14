@@ -8,6 +8,7 @@ import ConfigRepo from './repository/ConfigRepo';
 import Debouncer from './Debouncer';
 import PollRepo from './repository/PollRepo';
 import BirthdayRepo from './repository/BirthdayRepo';
+import CountdownRepo from './repository/CountdownRepo';
 import MasterScheduler from './MasterScheduler';
 import AuditLogger from './auditLogger';
 
@@ -44,6 +45,10 @@ class BaseContext {
     this.msgFollowUpHandlers = {};
     this._state = {};
     this._followUpManager = opts.followUpManager;
+  }
+
+  countdowns(): CountdownRepo {
+    return this.repos.countdowns;
   }
 
   courses(): CourseRepo {
