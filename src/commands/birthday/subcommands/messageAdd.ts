@@ -23,7 +23,7 @@ export const messageAdd = new SubCommand({
   ],
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
-    const message = ctx.getArgument<string>('message') as string;
+    const message = ctx.getArgument<string>('message')!;
 
     // Ensure message includes one "%"
     if (!message.includes('%') || (message.match(/%/g) || []).length > 1) {

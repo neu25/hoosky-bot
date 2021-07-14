@@ -22,7 +22,7 @@ export const messageDelete = new SubCommand({
   ],
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
-    const providedId = ctx.getArgument<string>('id') as string;
+    const providedId = ctx.getArgument<string>('id')!;
     const id = parseInt(providedId, 10);
 
     if (!id || typeof id !== 'number') {
