@@ -3,12 +3,12 @@ import ExecutionContext from '../../ExecutionContext';
 
 export const getTargetUser = async (
   ctx: ExecutionContext,
-  requestorId: string | undefined,
+  requesterId: string | undefined,
   targetUserId: string | undefined,
 ): Promise<User | undefined> => {
   if (targetUserId) {
-    return await ctx.api.getUser(targetUserId);
-  } else if (requestorId) {
-    return await ctx.api.getUser(requestorId);
+    return ctx.api.getUser(targetUserId);
+  } else if (requesterId) {
+    return ctx.api.getUser(requesterId);
   }
 };

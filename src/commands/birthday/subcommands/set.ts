@@ -1,10 +1,21 @@
-import dayjs from 'dayjs';
-import dayOfYear from 'dayjs/plugin/dayOfYear';
+import dayjs, { Dayjs } from 'dayjs';
 import { CommandOptionType } from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
+import { bold } from '../../../format';
+import ExecutionContext from '../../../ExecutionContext';
 
-dayjs.extend(dayOfYear);
+const validateBirthday = (birthday: string): boolean => {
+  return /^\d{1,2}\/\d{1,2}$/.test(birthday);
+};
+
+const respondWithInvalidBirthday = (ctx: ExecutionContext): Promise<void> => {
+  return ctx.interactionApi.respondWithError(
+    `Invalid birthday. Make sure your birthday is in the format ${bold(
+      'MM/DD',
+    )}.`,
+  );
+};
 
 export const set = new SubCommand({
   name: 'set',
@@ -21,22 +32,36 @@ export const set = new SubCommand({
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
     const userId = ctx.mustGetUserId();
-    const targetBirthday = ctx.getArgument<string>('date') as string;
+    const targetBirthday = ctx.getArgument<string>('date')!.trim();
 
-    const dayOfYear = dayjs(targetBirthday).dayOfYear();
-    if (!dayOfYear || typeof dayOfYear !== 'number') {
-      return ctx.interactionApi.respondWithError(`Invalid birthday`);
+    // 1st validation pass using regex.
+    if (!validateBirthday(targetBirthday)) {
+      return respondWithInvalidBirthday(ctx);
     }
 
+    let day: Dayjs;
+    if (targetBirthday === '02/29' || targetBirthday === '2/29') {
+      day = dayjs('2/29/2000');
+    } else {
+      day = dayjs(targetBirthday);
+    }
+
+    // 2nd validation pass using dayjs parsing.
+    if (!day.isValid()) {
+      return respondWithInvalidBirthday(ctx);
+    }
+
+    const dateKey = day.format('MMDD');
+    const prettyDate = day.format('MMMM D');
+
+    // If they've already set their birthday, unset it.
     if (await ctx.birthdays().exists(guildId, userId)) {
-      return ctx.interactionApi.respondWithError(
-        `A birthday is already set for <@${userId}>`,
-      );
+      await ctx.birthdays().unset(guildId, userId);
     }
 
-    await ctx.birthdays().set(guildId, dayOfYear, userId);
+    await ctx.birthdays().set(guildId, dateKey, userId);
     return ctx.interactionApi.respondWithMessage(
-      `<@${userId}>, your birthday has been set to ${targetBirthday}!`,
+      `Your birthday has been set to ${prettyDate}!`,
     );
   },
 });

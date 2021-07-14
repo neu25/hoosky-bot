@@ -4,7 +4,7 @@ import CommandOption from '../../../CommandOption';
 import { CommandOptionType } from '../../../Discord';
 import { Config } from '../../../database';
 import { BirthdaysConfig } from '../../../repository';
-import { restartScheduler } from '../scheduler';
+import { restartScheduler } from '../messageScheduler';
 import { bold } from '../../../format';
 
 export const messageAdd = new SubCommand({

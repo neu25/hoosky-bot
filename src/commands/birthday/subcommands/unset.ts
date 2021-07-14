@@ -6,21 +6,21 @@ export const unset = new SubCommand({
   description: 'Unset your birthday',
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
-    const requestor = ctx.interaction.member?.user;
+    const requester = ctx.interaction.member?.user;
 
-    if (!requestor || !requestor.id) {
+    if (!requester || !requester.id) {
       return ctx.interactionApi.respondWithError(`Unable to identify you`);
     }
 
-    if (!(await ctx.birthdays().exists(guildId, requestor.id))) {
+    if (!(await ctx.birthdays().exists(guildId, requester.id))) {
       return ctx.interactionApi.respondWithError(
-        `There is no birthday set for <@${requestor.id}>`,
+        `There is no birthday set for <@${requester.id}>`,
       );
     }
 
-    await ctx.birthdays().unset(guildId, requestor.id);
+    await ctx.birthdays().unset(guildId, requester.id);
     return ctx.interactionApi.respondWithMessage(
-      `Birthday unset for <@${requestor.id}>`,
+      `Birthday unset for <@${requester.id}>`,
     );
   },
 });

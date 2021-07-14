@@ -11,10 +11,10 @@ import {
   configureScheduler,
   startScheduler,
   stopScheduler,
-} from '../scheduler';
+} from '../messageScheduler';
 
-export const scheduleSet = new SubCommand({
-  name: 'schedule-set',
+export const setSchedule = new SubCommand({
+  name: 'set-schedule',
   displayName: 'Set Schedule',
   description: 'Set schedule for sending birthday messages',
   requiredPermissions: [Discord.Permission.MANAGE_ROLES],
@@ -73,4 +73,4 @@ export const scheduleSet = new SubCommand({
   },
 });
 
-export default scheduleSet;
+export default setSchedule;
