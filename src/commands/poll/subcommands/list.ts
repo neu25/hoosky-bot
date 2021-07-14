@@ -8,9 +8,11 @@ const list = new SubCommand({
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
     const userId = ctx.mustGetUserId();
-    const polls = (await ctx.poll().getAllByUserId(guildId, userId)).sort({
-      question: 1,
-    });
+    const polls = (await ctx.poll().getAllByUserId(guildId, userId))
+      .filter({ closed: false })
+      .sort({
+        question: 1,
+      });
 
     const embedFields: Discord.EmbedField[] = [];
 
@@ -25,6 +27,7 @@ const list = new SubCommand({
 
       p = await polls.next();
     }
+    polls.close();
 
     const embed: Discord.Embed = {
       title: 'Your active polls',
@@ -33,7 +36,7 @@ const list = new SubCommand({
       fields: embedFields,
     };
 
-    if (embedFields === []) {
+    if (embedFields.length < 1) {
       embed.description = "You don't have any active polls";
     }
 
