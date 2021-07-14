@@ -40,7 +40,7 @@ export const show = new SubCommand({
 
       return ctx.interactionApi.respondWithMessage(
         `Birthday for <@${targetUser.id}> is set to ${bold(
-          dayjs(date).format('dddd, MMMM D, YYYY'),
+          dayjs(date).format('MMMM D'),
         )} (${dayjs(date).fromNow()})`,
       );
     } else {
