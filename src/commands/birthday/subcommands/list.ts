@@ -31,7 +31,7 @@ export const list = new SubCommand({
       if (!curGroup || formattedMonth !== curGroup.month) {
         curGroup = {
           month: formattedMonth,
-          heading: fancyCenter(formattedMonth, 50),
+          heading: fancyCenter(`${formattedMonth} - ${b.users.length}`, 50),
           list: '',
         };
         subGroups.push(curGroup);
@@ -39,7 +39,7 @@ export const list = new SubCommand({
 
       if (b.users.length > 0) {
         curGroup.list += `${bold(
-          formattedMonth + ' ' + dayjs(b._id).format('DD'),
+          formattedMonth + ' ' + dayjs(b._id).format('D'),
         )}: ${b.users
           .map(user => {
             return `<@${user}>`;
