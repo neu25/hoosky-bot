@@ -30,27 +30,23 @@ const create = new SubCommand({
   ],
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
-    const userId = ctx.interaction.member?.user?.id;
+    const userId = ctx.mustGetUserId();
+    const username = ctx.interaction.member?.user?.username;
+    const date = new Date(Date.now()).toLocaleString();
     const question = ctx.getArgument('question') as string;
     if (!userId) {
       return ctx.interactionApi.respondWithError('Unable to identify you');
     }
 
     const emojis = ctx.getArgument('emojis') as string;
-    const customEmojiRegex = /<a:.+?:\d+>|<:.+?:\d+>/g;
-    const customEmojis = emojis.match(customEmojiRegex);
-    const reactions = [];
+    const emojiRegexAbomination =
+      /<a:.+?:\d+>|\p{Extended_Pictographic}|<:.+?:\d+>/gu;
+    const reactions = emojis.match(emojiRegexAbomination);
 
-    for (const c of emojis) {
-      if (/\p{Extended_Pictographic}/u.test(c)) {
-        reactions.push(c);
-      }
+    if (reactions === null) {
+      ctx.interactionApi.respondWithError('Please define valid emojis');
+      return;
     }
-
-    if (customEmojis !== null)
-      customEmojis.forEach(element => {
-        reactions.push(element);
-      });
 
     const descriptions =
       ctx.getArgument('descriptions') !== undefined
@@ -82,12 +78,17 @@ const create = new SubCommand({
         });
       }
     }
+    embedFields.push({
+      name: `Created by: ${username}`,
+      value: `*${date}*`,
+    });
 
     const embed: Discord.Embed = {
       type: Discord.EmbedType.RICH,
       title: question,
-      description: descriptions !== undefined ? 'Options: ' : undefined,
+      description: descriptions !== undefined ? 'Choices: ' : undefined,
       fields: embedFields,
+      color: Discord.Color.PRIMARY,
     };
 
     await ctx.interactionApi.respondWithEmbed(embed);
@@ -107,8 +108,8 @@ const create = new SubCommand({
       reactionCounts: [],
       closed: false,
       embeds: [embed],
-      createdAt: new Date(Date.now()).toLocaleString(),
-      createdBy: ctx.interaction.member?.user?.username,
+      createdAt: date,
+      createdBy: username,
     };
 
     ctx.poll().create(guildId, poll);

@@ -44,17 +44,16 @@ export const closePoll = async (
         type: Discord.EmbedType.RICH,
         title: '***Poll closed!***\n**Results:**\n',
         fields: embedFields,
+        color: Discord.Color.SUCCESS,
       },
     ];
 
     ctx.poll().setClosed(guildId, poll._id, true);
     ctx.poll().setEmbeds(guildId, poll._id, embeds);
 
-    ctx.api.editMessage(poll.channelId, poll._id, {
-      embeds: embeds,
-    });
+    ctx.interactionApi.respondWithEmbeds(embeds);
 
-    ctx.api.deleteAllReactions(poll._id, poll.channelId);
+    ctx.api.deleteAllReactions(poll.channelId, poll._id);
 
     ctx.interactionApi.respondWithMessage('Poll closed succesfully.', true);
   } else {
