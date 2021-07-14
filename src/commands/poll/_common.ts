@@ -1,8 +1,9 @@
 import ExecutionContext from '../../ExecutionContext';
 import { Poll } from '../../repository/PollRepo';
 import * as Discord from '../../Discord';
+import { bold, EM_SPACE, pluralize } from '../../format';
 
-export const calculateReactionCounts = async (
+export const fetchReactionCounts = async (
   ctx: ExecutionContext,
   poll: Poll,
 ): Promise<number[]> => {
@@ -10,9 +11,9 @@ export const calculateReactionCounts = async (
 
   for (const emoji of poll.reactions) {
     let count = 0;
-    const users = await ctx.api.getReactions(poll._id, poll.channelId, emoji);
-    for (const user of users) {
-      if (!user.bot) ++count;
+    const users = await ctx.api.getReactions(poll.channelId, poll._id, emoji);
+    for (const u of users) {
+      if (!u.bot) ++count;
     }
     reactionCounts.push(count);
   }
@@ -20,43 +21,38 @@ export const calculateReactionCounts = async (
   return reactionCounts;
 };
 
-export const closePoll = async (
+export const closePollAndShowResults = async (
   ctx: ExecutionContext,
-  guildId: string,
   poll: Poll,
 ): Promise<void> => {
-  if (!poll.closed) {
-    const reactionCounts: number[] = await calculateReactionCounts(ctx, poll);
-    ctx.poll().setReactionCounts(guildId, poll._id, reactionCounts);
+  const guildId = ctx.mustGetGuildId();
 
-    const embedFields: Discord.EmbedField[] = [];
-    for (let i = 0; i < reactionCounts.length; ++i) {
-      embedFields.push({
-        name: poll.reactions[i],
-        value: `· ${reactionCounts[i]}`,
-        inline: true,
-      });
-    }
+  const reactionCounts = await fetchReactionCounts(ctx, poll);
+  const maxCount = Math.max(...reactionCounts);
 
-    const embeds: Discord.Embed[] = [
-      poll.embeds[0],
-      {
-        type: Discord.EmbedType.RICH,
-        title: '***Poll closed!***\n**Results:**\n',
-        fields: embedFields,
-        color: Discord.Color.SUCCESS,
-      },
-    ];
+  const body = reactionCounts!
+    .map((count, i) => {
+      const reaction = poll.reactions[i];
 
-    ctx.poll().setClosed(guildId, poll._id, true);
-    ctx.poll().setEmbeds(guildId, poll._id, embeds);
+      // The most-voted for choices should have bold labels.
+      let label = count.toLocaleString() + ' ' + pluralize('vote', count);
+      if (count === maxCount) {
+        label = bold(label);
+      }
 
-    ctx.interactionApi.respondWithEmbeds(embeds);
+      return reaction + EM_SPACE + label;
+    })
+    .join('\n\n');
 
-    ctx.api.deleteAllReactions(poll.channelId, poll._id);
+  const embed: Discord.Embed = {
+    type: Discord.EmbedType.RICH,
+    color: Discord.Color.SUCCESS,
+    title: `Poll results for: ${bold(poll.question)}`,
+    description: body,
+    timestamp: new Date().toISOString(),
+  };
 
-    ctx.interactionApi.respondWithMessage('Poll closed succesfully.', true);
-  } else {
-    ctx.interactionApi.respondWithError('That poll is already closed.');
-  }
+  await ctx.interactionApi.respondWithEmbed(embed);
+  await ctx.poll().deleteById(guildId, poll._id);
+  return ctx.api.deleteAllReactions(poll.channelId, poll._id);
 };

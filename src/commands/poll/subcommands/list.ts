@@ -3,31 +3,23 @@ import * as Discord from '../../../Discord';
 
 const list = new SubCommand({
   name: 'list',
-  displayName: 'List',
-  description: 'Lists all of your active polls and gives you their ids',
+  displayName: 'Poll List',
+  description: 'List your active polls and their IDs',
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
     const userId = ctx.mustGetUserId();
-    const polls = (await ctx.poll().getAllByUserId(guildId, userId))
-      .filter({ closed: false })
+    const polls = await (
+      await ctx.poll().getAllByUserId(guildId, userId)
+    )
       .sort({
         question: 1,
-      });
+      })
+      .toArray();
 
-    const embedFields: Discord.EmbedField[] = [];
-
-    let p = await polls.next();
-    while (p !== null) {
-      console.log(p.question);
-
-      embedFields.push({
-        name: p.question,
-        value: `ID: ${p._id}`,
-      });
-
-      p = await polls.next();
-    }
-    polls.close();
+    const embedFields: Discord.EmbedField[] = polls.map(p => ({
+      name: p.question,
+      value: `ID: ${p._id}`,
+    }));
 
     const embed: Discord.Embed = {
       title: 'Your active polls',
@@ -35,12 +27,11 @@ const list = new SubCommand({
       color: Discord.Color.PRIMARY,
       fields: embedFields,
     };
-
     if (embedFields.length < 1) {
       embed.description = "You don't have any active polls";
     }
 
-    ctx.interactionApi.respondWithEmbeds([embed], true);
+    return ctx.interactionApi.respondWithEmbed(embed);
   },
 });
 

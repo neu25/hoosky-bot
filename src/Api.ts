@@ -3,6 +3,7 @@ import FormData from 'form-data';
 import * as Discord from './Discord';
 import Cache from './Cache';
 import { performRequest, prepareEmoji } from './utils';
+import { User } from './Discord';
 
 export type GuildRoleData = {
   name?: string;
@@ -490,14 +491,14 @@ class Api {
   /**
    * Deletes a reaction made by an user or by the bot
    *
-   * @param messageId The message ID of the message.
    * @param channelId The channel ID of the channel.
+   * @param messageId The message ID of the message.
    * @param emojiString The emoji string of the reaction.
-   * @param userId The id of the user. (If ommitted deletes the reaction made by the bot)
+   * @param userId? The id of the user. (If ommitted deletes the reaction made by the bot)
    */
   async deleteUserReaction(
-    messageId: string,
     channelId: string,
+    messageId: string,
     emojiString: string,
     userId?: number,
   ): Promise<void> {
@@ -514,19 +515,19 @@ class Api {
   /**
    * Deletes all reactions on a message for an emoji or all emojis
    *
-   * @param messageId The message ID of the message.
    * @param channelId The channel ID of the channel.
-   * @param emojiString The emoji string of the reaction. (if ommitted deletes all emojis)
+   * @param messageId The message ID of the message.
+   * @param emojiString? The emoji string of the reaction. (if ommitted deletes all emojis)
    */
   async deleteAllReactions(
-    messageId: string,
     channelId: string,
+    messageId: string,
     emojiString?: string,
   ): Promise<void> {
     await performRequest(() =>
       this._http.delete(
         `/channels/${channelId}/messages/${messageId}/reactions${
-          !emojiString ? '' : `/${prepareEmoji(emojiString)}`
+          emojiString ? `/${prepareEmoji(emojiString)}` : ''
         }`,
       ),
     );
@@ -535,15 +536,15 @@ class Api {
   /**
    * Fetches all the users that reacted to a message
    *
-   * @param messageId The message ID of the message.
    * @param channelId The channel ID of the channel.
+   * @param messageId The message ID of the message.
    * @param emojiString The emoji string of the reaction.
    */
   getReactions(
-    messageId: string,
     channelId: string,
+    messageId: string,
     emojiString: string,
-  ): Promise<Discord.User[]> {
+  ): Promise<User[]> {
     return performRequest(async () => {
       const res = await this._http.get(
         `/channels/${channelId}/messages/${messageId}/reactions/${prepareEmoji(
@@ -557,13 +558,13 @@ class Api {
   /**
    * Creates a reaction to a message
    *
-   * @param messageId The message ID of the message.
    * @param channelId The channel ID of the channel.
+   * @param messageId The message ID of the message.
    * @param emojiString The emoji string of the reaction.
    */
   async createReaction(
-    messageId: string,
     channelId: string,
+    messageId: string,
     emojiString: string,
   ): Promise<void> {
     await performRequest(() =>

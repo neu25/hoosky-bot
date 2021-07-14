@@ -1,16 +1,29 @@
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
 import * as Discord from '../../../Discord';
-import { Poll } from '../../../repository/PollRepo';
+import { authorAvatarUrl } from '../../../cdn';
+import { EM_SPACE } from '../../../format';
+import ExecutionContext from '../../../ExecutionContext';
+
+const respondWithCountMismatch = (
+  ctx: ExecutionContext,
+  emojiCount: number,
+  descriptionCount: number,
+): Promise<void> => {
+  return ctx.interactionApi.respondWithError(
+    `You supplied ${emojiCount} emojis but ${descriptionCount} descriptions. ` +
+      `There should be exactly 1 description for each emoji, or no descriptions at all.`,
+  );
+};
 
 const create = new SubCommand({
   name: 'create',
-  displayName: 'Create',
+  displayName: 'Poll Create',
   description: 'Create a new poll',
   options: [
     new CommandOption({
       name: 'question',
-      description: "The poll's message",
+      description: 'The poll question',
       required: true,
       type: Discord.CommandOptionType.STRING,
     }),
@@ -23,96 +36,77 @@ const create = new SubCommand({
     new CommandOption({
       name: 'descriptions',
       description:
-        'Description for each emoji. Separate each description with a comma.',
+        'Descriptions, separated by commas, corresponding to each emoji (the order matters)',
       required: false,
       type: Discord.CommandOptionType.STRING,
     }),
   ],
   handler: async ctx => {
+    const { interaction } = ctx;
+    const user = interaction.member!.user!;
+    const date = new Date();
     const guildId = ctx.mustGetGuildId();
     const userId = ctx.mustGetUserId();
-    const username = ctx.interaction.member?.user?.username;
-    const date = new Date(Date.now()).toLocaleString();
-    const question = ctx.getArgument('question') as string;
-    if (!userId) {
-      return ctx.interactionApi.respondWithError('Unable to identify you');
-    }
 
-    const emojis = ctx.getArgument('emojis') as string;
+    const question = ctx.getArgument<string>('question')!;
+    const emojis = ctx.getArgument<string>('emojis')!;
+    const descriptionsArg = ctx.getArgument<string>('descriptions');
+
     const emojiRegexAbomination =
       /<a:.+?:\d+>|\p{Extended_Pictographic}|<:.+?:\d+>/gu;
     const reactions = emojis.match(emojiRegexAbomination);
 
     if (reactions === null) {
-      ctx.interactionApi.respondWithError('Please define valid emojis');
-      return;
+      return ctx.interactionApi.respondWithError('Please define valid emojis');
     }
 
     const descriptions =
-      ctx.getArgument('descriptions') !== undefined
-        ? (ctx.getArgument('descriptions') as string)
-            .split(',')
-            .map(function (segment) {
-              return segment.trim();
-            })
+      descriptionsArg !== undefined
+        ? descriptionsArg.split(',').map(segment => segment.trim())
         : undefined;
 
-    const embedFields: Discord.EmbedField[] = [];
-    if (descriptions !== undefined && descriptions.length > reactions.length) {
-      ctx.interactionApi.respondWithError(
-        'There are too many descriptions for the specified amount of emojis',
-      );
-    } else if (
+    let body = '';
+    if (
       descriptions !== undefined &&
-      descriptions.length < reactions.length
+      descriptions.length !== reactions.length
     ) {
-      ctx.interactionApi.respondWithError(
-        'There are too few descriptions for the specified amount of emojis',
+      return respondWithCountMismatch(
+        ctx,
+        reactions.length,
+        descriptions.length,
       );
     } else if (descriptions !== undefined) {
-      for (let i = 0, len = descriptions.length; i < len; i++) {
-        embedFields.push({
-          name: ` - ${descriptions[i]}`,
-          value: ` → ${reactions[i]}`,
-          inline: true,
-        });
-      }
+      body = reactions
+        .map((r, i) => `${r}${EM_SPACE}${descriptions[i]}`)
+        .join('\n\n');
     }
-    embedFields.push({
-      name: `Created by: ${username}`,
-      value: `*${date}*`,
-    });
 
     const embed: Discord.Embed = {
       type: Discord.EmbedType.RICH,
-      title: question,
-      description: descriptions !== undefined ? 'Choices: ' : undefined,
-      fields: embedFields,
       color: Discord.Color.PRIMARY,
+      author: {
+        name: `${user.username}#${user.discriminator}`,
+        icon_url: authorAvatarUrl(user),
+      },
+      title: question,
+      description: body,
+      timestamp: date.toISOString(),
     };
 
     await ctx.interactionApi.respondWithEmbed(embed);
-
     const msg = await ctx.interactionApi.getResponse();
 
-    reactions.forEach(emoji => {
-      ctx.api.createReaction(msg.id, msg.channel_id, emoji);
-    });
-
-    const poll: Poll = {
+    await ctx.poll().create(guildId, {
       _id: msg.id,
       userId: userId,
       channelId: msg.channel_id,
       question: question,
       reactions: reactions,
-      reactionCounts: [],
-      closed: false,
-      embeds: [embed],
-      createdAt: date,
-      createdBy: username,
-    };
+    });
 
-    ctx.poll().create(guildId, poll);
+    for (const emoji of reactions) {
+      await ctx.api.createReaction(msg.channel_id, msg.id, emoji);
+    }
   },
 });
 
