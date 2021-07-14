@@ -51,7 +51,7 @@ export const set = new SubCommand({
       return respondWithInvalidBirthday(ctx);
     }
 
-    const dateKey = day.format('MMDD');
+    const dateKey = day.format('MM/DD');
     const prettyDate = day.format('MMMM D');
 
     // If they've already set their birthday, unset it.

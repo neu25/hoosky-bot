@@ -38,7 +38,7 @@ export const configureScheduler = async (
   job = new cron.CronJob(
     schedule,
     async () => {
-      const today = dayjs().format('MMDD');
+      const today = dayjs().format('MM/DD');
       const isLeapYear = dayjs().isLeapYear();
       const birthdays = await ctx.birthdays().getByDay(guildId, today);
 
@@ -67,7 +67,7 @@ export const configureScheduler = async (
       if (!isLeapYear && today === '0228') {
         const leapYearBirthdays = await ctx
           .birthdays()
-          .getByDay(guildId, dayjs('2/29/2000').format('MMDD'));
+          .getByDay(guildId, dayjs('2/29/2000').format('MM/DD'));
 
         if (
           channel &&

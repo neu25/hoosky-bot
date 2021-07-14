@@ -34,7 +34,7 @@ export const configureSchedulers = async (
     jobAdd = new cron.CronJob(
       addRoleSchedule,
       async () => {
-        const today = dayjs().format('MMDD');
+        const today = dayjs().format('MM/DD');
         const isLeapYear = dayjs().isLeapYear();
         const birthdays = await ctx.birthdays().getByDay(guildId, today);
 
@@ -48,7 +48,7 @@ export const configureSchedulers = async (
         if (!isLeapYear && today === '0228') {
           const leapYearBirthdays = await ctx
             .birthdays()
-            .getByDay(guildId, dayjs('2/29/2000').format('MMDD'));
+            .getByDay(guildId, dayjs('2/29/2000').format('MM/DD'));
 
           if (leapYearBirthdays && leapYearBirthdays.users.length > 0) {
             for (let i = 0; i < leapYearBirthdays.users.length; i++) {
@@ -70,7 +70,7 @@ export const configureSchedulers = async (
     jobRemove = new cron.CronJob(
       removeRoleSchedule,
       async () => {
-        const today = dayjs().format('MMDD');
+        const today = dayjs().format('MM/DD');
         const isLeapYear = dayjs().isLeapYear();
         const birthdays = await ctx.birthdays().getByDay(guildId, today);
 
@@ -88,7 +88,7 @@ export const configureSchedulers = async (
         if (!isLeapYear && today === '0228') {
           const leapYearBirthdays = await ctx
             .birthdays()
-            .getByDay(guildId, dayjs('2/29/2000').format('MMDD'));
+            .getByDay(guildId, dayjs('2/29/2000').format('MM/DD'));
 
           if (leapYearBirthdays && leapYearBirthdays.users.length > 0) {
             for (let i = 0; i < leapYearBirthdays.users.length; i++) {
