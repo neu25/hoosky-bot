@@ -64,7 +64,7 @@ export const messageAdd = new SubCommand({
     restartScheduler();
 
     return ctx.interactionApi.respondWithMessage(
-      `${bold('Birthday message added')}:\n${message}`,
+      `${bold('Birthday message added:')}\n${message}`,
     );
   },
 });

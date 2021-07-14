@@ -15,7 +15,9 @@ export const list = new SubCommand({
   description: 'List all stored birthdays',
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
-    const birthdays = (await ctx.birthdays().scan(guildId)).sort({ _id: 1 });
+    const birthdays = await (await ctx.birthdays().scan(guildId))
+      .sort({ _id: 1 })
+      .toArray();
 
     // Hold an array of month groups to output.
     const subGroups: MonthGroup[] = [];
@@ -23,10 +25,9 @@ export const list = new SubCommand({
     let curGroup: MonthGroup | null = null;
 
     // Iterate over every birthday.
-    let c = await birthdays.next();
-    while (c !== null) {
+    for (const b of birthdays) {
       // If the birthday's month is different, then create a new month group.
-      const formattedMonth = dayjs(c._id).format('MMMM');
+      const formattedMonth = dayjs(b._id).format('MMMM');
       if (!curGroup || formattedMonth !== curGroup.month) {
         curGroup = {
           month: formattedMonth,
@@ -36,17 +37,15 @@ export const list = new SubCommand({
         subGroups.push(curGroup);
       }
 
-      if (c.users.length > 0) {
+      if (b.users.length > 0) {
         curGroup.list += `${bold(
-          formattedMonth + ' ' + dayjs(c._id).format('DD'),
-        )}: ${c.users
+          formattedMonth + ' ' + dayjs(b._id).format('DD'),
+        )}: ${b.users
           .map(user => {
             return `<@${user}>`;
           })
           .join(' • ')}\n`;
       }
-
-      c = await birthdays.next();
     }
 
     // Map month groups to Discord embed fields.

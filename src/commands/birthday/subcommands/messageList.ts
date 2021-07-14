@@ -6,7 +6,7 @@ import { BirthdaysConfig } from '../../../repository';
 export const messageList = new SubCommand({
   name: 'message-list',
   displayName: 'List Birthday Messages',
-  description: 'List all server birthday messages',
+  description: 'List server birthday messages',
   requiredPermissions: [Discord.Permission.MANAGE_ROLES],
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
@@ -22,10 +22,10 @@ export const messageList = new SubCommand({
 
       await ctx.interactionApi.respondSilentlyWithEmbed({
         type: Discord.EmbedType.RICH,
-        title: 'All Birthday Messages',
+        title: 'Birthday Messages',
         description,
         footer: {
-          text: "`%` characters are placeholders - they'll be automatically replaced to mention the birthday people when sent.",
+          text: "`%` characters are placeholders - they'll be automatically replaced to tag the birthday person when sent.",
         },
       });
     }

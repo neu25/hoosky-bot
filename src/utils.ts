@@ -68,6 +68,7 @@ export const prepareEmoji = (emojiString: string): string => {
  * Helper method to format a number to have leading zeros
  *
  * @param number The number
+ * @param size The length of the final string
  */
 export const padNumber = (number: number, size: number): string => {
   let num: string = number.toString();

@@ -85,7 +85,7 @@ const normalizeDatabase = new Trigger({
       const n = normalizeBirthday(b);
       // If the birthday changed, then update it.
       if (!compareSerialized(b, n)) {
-        console.log(`Corruption in birthday ${b._id}.`);
+        console.log(`Corruption in birthday ${b._id}. Fixing...`);
         await ctx.birthdays().updateById(guild.id, b._id, n);
       }
     }
