@@ -7,6 +7,7 @@ import MailRepo from './repository/MailRepo';
 import ConfigRepo from './repository/ConfigRepo';
 import Debouncer from './Debouncer';
 import PollRepo from './repository/PollRepo';
+import BirthdayRepo from './repository/BirthdayRepo';
 
 export type State = Record<string, any>;
 
@@ -45,11 +46,15 @@ class BaseContext {
     return this.repos.mail;
   }
 
+  birthdays(): BirthdayRepo {
+    return this.repos.birthdays;
+  }
+
   config(): ConfigRepo {
     return this.repos.config;
   }
 
-  poll(): PollRepo {
+  polls(): PollRepo {
     return this.repos.poll;
   }
 

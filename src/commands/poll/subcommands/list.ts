@@ -9,7 +9,7 @@ const list = new SubCommand({
     const guildId = ctx.mustGetGuildId();
     const userId = ctx.mustGetUserId();
     const polls = await (
-      await ctx.poll().getAllByUserId(guildId, userId)
+      await ctx.polls().getAllByUserId(guildId, userId)
     )
       .sort({
         question: 1,

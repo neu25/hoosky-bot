@@ -96,7 +96,7 @@ const create = new SubCommand({
     await ctx.interactionApi.respondWithEmbed(embed);
     const msg = await ctx.interactionApi.getResponse();
 
-    await ctx.poll().create(guildId, {
+    await ctx.polls().create(guildId, {
       _id: msg.id,
       userId: userId,
       channelId: msg.channel_id,

@@ -28,7 +28,7 @@ const leave = new SubCommand({
 
     const members = (await ctx.courses().getMembers(guildId, roleId)) ?? [];
     if (!members.includes(userId)) {
-      return ctx.interactionApi.respondWithError(`You aren't in that course`);
+      return ctx.interactionApi.respondWithError(`You aren’t in that course`);
     }
 
     // `GUILD_MEMBER_UPDATE` trigger will activate and automatically remove the

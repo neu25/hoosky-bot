@@ -33,7 +33,7 @@ const setStatus = new SubCommand({
     }),
     new CommandOption({
       name: 'message',
-      description: 'Show a "Playing [message]" status message',
+      description: 'Show a “Playing [message]” status message',
       type: Discord.CommandOptionType.STRING,
     }),
   ],

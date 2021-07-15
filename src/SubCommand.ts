@@ -90,7 +90,7 @@ class SubCommand extends SubCommandGroup {
         `The ${bold(displayName)} command requires the ` +
           `${bold(
             Discord.PermissionName[missingPerm as Discord.Permission],
-          )} permission, but you don't have it.`,
+          )} permission, but you don’t have it.`,
       );
     }
 

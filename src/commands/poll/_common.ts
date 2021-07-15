@@ -53,6 +53,6 @@ export const closePollAndShowResults = async (
   };
 
   await ctx.interactionApi.respondWithEmbed(embed);
-  await ctx.poll().deleteById(guildId, poll._id);
+  await ctx.polls().deleteById(guildId, poll._id);
   return ctx.api.deleteAllReactions(poll.channelId, poll._id);
 };

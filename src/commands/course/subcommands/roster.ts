@@ -24,7 +24,7 @@ const roster = new SubCommand({
     }),
     new CommandOption({
       name: 'section',
-      description: "The course's section number",
+      description: 'The course’s section number',
       required: false,
       type: Discord.CommandOptionType.INTEGER,
     }),
