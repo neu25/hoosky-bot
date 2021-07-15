@@ -34,7 +34,7 @@ const add = new SubCommand({
       // Error code 50013:	You lack permissions to perform that action.
       if (e.code === 50013) {
         await ctx.interactionApi.respondWithError(
-          `Couldn't assign the Muted role. Move HooskBot's role higher.`,
+          `Couldn’t assign the Muted role. Move HooskBot’s role higher.`,
         );
         return;
       }

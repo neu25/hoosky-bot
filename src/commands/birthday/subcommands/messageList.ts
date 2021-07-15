@@ -25,7 +25,7 @@ export const messageList = new SubCommand({
         title: 'Birthday Messages',
         description,
         footer: {
-          text: "`%` characters are placeholders - they'll be automatically replaced to tag the birthday person when sent.",
+          text: '`%` characters are placeholders - they’ll be automatically replaced to tag the birthday person when sent.',
         },
       });
     }
