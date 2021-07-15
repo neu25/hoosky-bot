@@ -11,7 +11,7 @@ dayjs.extend(relativeTime);
 export const show = new SubCommand({
   name: 'show',
   displayName: 'Show Birthday',
-  description: "Show a user's birthday",
+  description: 'Show a user’s birthday',
   options: [
     new CommandOption({
       name: 'user',
@@ -54,7 +54,7 @@ export const show = new SubCommand({
       }
 
       return ctx.interactionApi.respondWithMessage(
-        `Birthday for ${userString} is set to ${bold(
+        `${bold(userString + `’s`)} birthday is on ${bold(
           dayjs(date).format('MMMM D'),
         )} (${dayjs(date).fromNow()})`,
       );

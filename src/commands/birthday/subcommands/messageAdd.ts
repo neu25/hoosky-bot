@@ -11,7 +11,7 @@ export const messageAdd = new SubCommand({
   name: 'message-add',
   displayName: 'Add Birthday Message',
   description:
-    'Add a new birthday message. Use a `%` placeholder to mention the user(s)',
+    'Add a new birthday message. Use a “%” placeholder to mention the user(s)',
   requiredPermissions: [Discord.Permission.MANAGE_ROLES],
   options: [
     new CommandOption({

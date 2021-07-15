@@ -31,7 +31,7 @@ export const list = new SubCommand({
       if (!curGroup || formattedMonth !== curGroup.month) {
         curGroup = {
           month: formattedMonth,
-          heading: fancyCenter(`${formattedMonth} - ${b.users.length}`, 50),
+          heading: fancyCenter(`${formattedMonth} (${b.users.length})`, 50),
           list: '',
         };
         subGroups.push(curGroup);
