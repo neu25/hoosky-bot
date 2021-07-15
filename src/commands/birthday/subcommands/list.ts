@@ -5,7 +5,7 @@ import { bold, fancyCenter } from '../../../format';
 
 type MonthGroup = {
   month: string;
-  heading: string;
+  count: number;
   list: string;
 };
 
@@ -31,13 +31,14 @@ export const list = new SubCommand({
       if (!curGroup || formattedMonth !== curGroup.month) {
         curGroup = {
           month: formattedMonth,
-          heading: fancyCenter(`${formattedMonth} (${b.users.length})`, 50),
+          count: 0,
           list: '',
         };
         subGroups.push(curGroup);
       }
 
       if (b.users.length > 0) {
+        curGroup.count += b.users.length;
         curGroup.list += `${bold(
           formattedMonth + ' ' + dayjs(b._id).format('D'),
         )}: ${b.users
@@ -50,7 +51,7 @@ export const list = new SubCommand({
 
     // Map month groups to Discord embed fields.
     const fields: Discord.EmbedField[] = subGroups.map(sub => ({
-      name: sub.heading, // The month.
+      name: fancyCenter(`${sub.month} (${sub.count})`, 50),
       value: sub.list, // The birthday list.
     }));
 
