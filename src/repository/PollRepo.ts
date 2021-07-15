@@ -16,47 +16,39 @@ class PollRepo {
     this._db = db;
   }
 
-  create = async (guildId: string, poll: Poll): Promise<void> => {
+  async create(guildId: string, poll: Poll): Promise<void> {
     await this.collection(guildId).insertOne(poll);
-  };
+  }
 
-  getById = async (
+  async getById(
     guildId: string,
     pollId: string,
     userId?: string,
-  ): Promise<Poll | null> => {
+  ): Promise<Poll | null> {
     return this.collection(guildId).findOne({
       _id: pollId,
       userId: userId,
     });
-  };
+  }
 
-  getAllByUserId = async (
-    guildId: string,
-    userId: string,
-  ): Promise<Cursor<Poll>> => {
+  async getAllByUserId(guildId: string, userId: string): Promise<Cursor<Poll>> {
     return this.collection(guildId).find({
       userId: userId,
     });
-  };
+  }
 
-  deleteById = async (guildId: string, pollId: string): Promise<void> => {
-    this.collection(guildId).deleteMany({ _id: pollId }, function (err) {
-      if (err) {
-        console.log('Failed deleting the polls.');
-        throw err;
-      }
-    });
-  };
+  async deleteById(guildId: string, pollId: string): Promise<void> {
+    await this.collection(guildId).deleteMany({ _id: pollId });
+  }
 
   /**
    * Returns the `poll` collection for the specified guild.
    *
    * @param guildId The ID of the guild.
    */
-  collection = (guildId: string): MongoCollection<Poll> => {
+  collection(guildId: string): MongoCollection<Poll> {
     return this._db.getDb(guildId).collection(Collection.POLL);
-  };
+  }
 }
 
 export default PollRepo;
