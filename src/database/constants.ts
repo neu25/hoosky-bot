@@ -3,6 +3,7 @@
  */
 export enum Collection {
   CONFIG = 'config',
+  POLL = 'poll',
   COURSES = 'courses',
   MAIL = 'mail',
   BIRTHDAYS = 'birthdays',

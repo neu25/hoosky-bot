@@ -28,7 +28,7 @@ const poll = new Command({
         }),
         new CommandOption({
           name: 'question',
-          description: 'The poll’s message',
+          description: "The poll's message",
           required: true,
           type: Discord.CommandOptionType.STRING,
         }),

@@ -6,6 +6,7 @@ import CourseRepo from './repository/CourseRepo';
 import MailRepo from './repository/MailRepo';
 import ConfigRepo from './repository/ConfigRepo';
 import Debouncer from './Debouncer';
+import PollRepo from './repository/PollRepo';
 import BirthdayRepo from './repository/BirthdayRepo';
 
 export type State = Record<string, any>;
@@ -51,6 +52,10 @@ class BaseContext {
 
   config(): ConfigRepo {
     return this.repos.config;
+  }
+
+  polls(): PollRepo {
+    return this.repos.poll;
   }
 
   setState(key: string, value: unknown): void {

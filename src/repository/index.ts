@@ -2,6 +2,7 @@ import { Database } from '../database';
 import BirthdayRepo from './BirthdayRepo';
 import CourseRepo from './CourseRepo';
 import ConfigRepo from './ConfigRepo';
+import PollRepo from './PollRepo';
 import MailRepo from './MailRepo';
 
 export type { Birthday, BirthdayMessage } from './BirthdayRepo';
@@ -12,6 +13,7 @@ export type Repositories = {
   courses: CourseRepo;
   mail: MailRepo;
   config: ConfigRepo;
+  poll: PollRepo;
 };
 
 export const setupRepos = (db: Database): Repositories => {
@@ -20,6 +22,7 @@ export const setupRepos = (db: Database): Repositories => {
     courses: new CourseRepo(db),
     mail: new MailRepo(db),
     config: new ConfigRepo(db),
+    poll: new PollRepo(db),
   };
 };
 
