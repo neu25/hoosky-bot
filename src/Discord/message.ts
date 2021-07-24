@@ -1,5 +1,5 @@
 import { MessageInteraction } from './interaction';
-import { Channel, Guild, GuildMember } from './guild';
+import { Channel, GuildMember } from './guild';
 import { Role, User } from './user';
 import { Application } from './application';
 
@@ -27,17 +27,6 @@ export enum MessageType {
   THREAD_STARTER_MESSAGE,
   GUILD_INVITE_REMINDER,
 }
-
-// https://discord.com/developers/docs/resources/channel#create-message
-export type CreateMessage = {
-  content?: string;
-  tts?: boolean;
-  // file: fileContents;
-  embeds?: [Embed];
-  // payload_json?: string;
-  // allowed_mentions?: [];
-  // message_reference?: ;
-};
 
 export type MessageActivity = {
   // https://discord.com/developers/docs/resources/channel#message-object-message-activity-structure
@@ -97,7 +86,7 @@ export type Message = {
   referenced_message?: Message;
   interaction?: MessageInteraction;
   thread?: Channel;
-  components?: MessageComponent;
+  components?: MessageComponent[];
 };
 
 export type MessageEdit = Partial<{
@@ -123,6 +112,7 @@ export type FollowUpMessage = {
 export enum MessageComponentType {
   ActionRow = 1,
   Button,
+  SelectMenu,
 }
 
 export type MessageComponent = {
@@ -133,6 +123,7 @@ export type MessageComponent = {
   custom_id?: string;
   url?: string;
   disabled?: boolean;
+  components?: MessageComponent[];
 };
 
 export enum ButtonStyle {
@@ -232,8 +223,8 @@ export type EmbedProvider = {
 };
 
 export type EmbedAuthor = {
+  name?: string;
   url?: string;
-  proxy_url?: string;
   icon_url?: string;
   proxy_icon_url?: string;
 };
@@ -249,6 +240,23 @@ export type Reaction = {
   me: boolean;
   emoji: Emoji;
 };
+
+export type CreateMessagePayload = {
+  content?: string;
+  tts?: boolean;
+  file?: ArrayBuffer;
+  embeds?: Embed[];
+  // payload_json?: string;
+  // allowed_mentions?: [];
+  message_reference?: MessageReference;
+  components?: MessageComponent[];
+};
+
+export type EditMessagePayload = {
+  payload_json?: string;
+} & Partial<
+  Pick<Message, 'content' | 'embeds' | 'flags' | 'attachments' | 'components'>
+>;
 
 // https://discord.com/developers/docs/topics/gateway#message-reaction-add
 export type MessageReactionAddPayload = {

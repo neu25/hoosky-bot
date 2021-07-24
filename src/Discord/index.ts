@@ -1,3 +1,4 @@
+export { Color } from './color';
 export { Permission, PermissionName } from './permission';
 export { Application, ClientStatus } from './application';
 export {
@@ -14,6 +15,11 @@ export {
   GuildRoleCreatePayload,
   GuildRoleUpdatePayload,
   GuildRoleDeletePayload,
+  GuildMemberAddPayload,
+  GuildMemberUpdatePayload,
+  GuildMemberRemovePayload,
+  CreateChannelPayload,
+  ModifyChannelPayload,
 } from './guild';
 export {
   Interaction,
@@ -26,16 +32,8 @@ export {
   CommandInteractionDataResolved,
   InteractionType,
 } from './interaction';
+export { User, Role, RoleTag, PresenceUpdate } from './user';
 export {
-  User,
-  Role,
-  RoleTag,
-  Activity,
-  ActivityTimestamp,
-  PresenceUpdate,
-} from './user';
-export {
-  CreateMessage,
   Message,
   MessageComponentType,
   MessageEdit,
@@ -61,6 +59,8 @@ export {
   EmbedVideo,
   EmbedThumbnail,
   EmbedFooter,
+  CreateMessagePayload,
+  EditMessagePayload,
   MessageReactionAddPayload,
   MessageReactionRemovePayload,
   MessageReactionRemoveAllPayload,
@@ -84,4 +84,10 @@ export {
   HelloPayload,
   Opcode,
   GatewayMessage,
+  Activity,
+  ActivityEmoji,
+  ActivityTimestamps,
+  ActivityType,
+  StatusType,
+  PresenceUpdatePayload,
 } from './gateway';

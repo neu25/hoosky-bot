@@ -1,25 +1,15 @@
-import { Database } from './database';
-import Api from './Api';
-import { AxiosInstance } from 'axios';
+import BaseContext, { BaseContextOpts } from './BaseContext';
 
-class TriggerContext<T> {
-  readonly api: Api;
-  readonly db: Database;
-  private readonly _data: T;
+export type TriggerContextOpts<T> = {
+  data: T;
+} & BaseContextOpts;
 
-  constructor(
-    appId: string,
-    client: AxiosInstance,
-    database: Database,
-    data: T,
-  ) {
-    this.api = new Api(appId, client);
-    this.db = database;
-    this._data = data;
-  }
+class TriggerContext<T> extends BaseContext {
+  readonly data: T;
 
-  getData(): T {
-    return this._data;
+  constructor(opts: TriggerContextOpts<T>) {
+    super(opts);
+    this.data = opts.data;
   }
 }
 

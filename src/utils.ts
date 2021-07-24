@@ -1,5 +1,7 @@
 import util from 'util';
 
+export type Primitive = string | boolean | number | undefined | null;
+
 /**
  * Returns a Promise that resolves after the given time.
  *
@@ -15,6 +17,8 @@ export const wait = (time: number): Promise<void> =>
  * @param fn A function calling the request.
  */
 export const performRequest = async <T>(fn: () => Promise<T>): Promise<T> => {
+  const stack = new Error('Thrown at:');
+
   try {
     return await fn();
   } catch (e) {
@@ -37,14 +41,9 @@ export const performRequest = async <T>(fn: () => Promise<T>): Promise<T> => {
         console.error('Response:');
         console.error(util.inspect(e.response.data, false, null, true));
       }
-      throw new Error('HTTP request error');
     }
 
-    if (e.request) {
-      throw e.request;
-    }
-
-    throw e;
+    throw stack;
   }
 };
 
@@ -58,13 +57,16 @@ export const prepareEmoji = (emojiString: string): string => {
   // example:
   //  - from: <:test2:850478323712131073>
   //  - to: test2:850478323712131073
-  return encodeURI(emojiString.split('<:').join('').split('>').join(''));
+  return encodeURIComponent(
+    emojiString.split('<:').join('').split('>').join(''),
+  );
 };
 
 /**
  * Helper method to format a number to have leading zeros
  *
  * @param number The number
+ * @param size The length of the final string
  */
 export const padNumber = (number: number, size: number): string => {
   let num: string = number.toString();
@@ -72,4 +74,12 @@ export const padNumber = (number: number, size: number): string => {
     num = '0' + num;
   }
   return num;
+};
+
+export const eliminateDuplicates = <T extends Primitive>(array: T[]): T[] => {
+  return Array.from(new Set(array));
+};
+
+export const dateToUnixTime = (date: Date): number => {
+  return Math.floor(date.getTime() / 1000);
 };

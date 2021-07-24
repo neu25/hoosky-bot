@@ -1,6 +1,9 @@
-import { AxiosInstance } from 'axios';
+import axios, { AxiosInstance } from 'axios';
+import FormData from 'form-data';
 import * as Discord from './Discord';
+import Cache from './Cache';
 import { performRequest, prepareEmoji } from './utils';
+import { User } from './Discord';
 
 export type GuildRoleData = {
   name?: string;
@@ -12,22 +15,31 @@ export type GuildRoleData = {
 
 class Api {
   private readonly _appId: string;
-  private readonly _client: AxiosInstance;
+  private readonly _http: AxiosInstance;
+  private readonly _cache: Cache;
 
-  constructor(appId: string, client: AxiosInstance) {
+  constructor(appId: string, http: AxiosInstance, cache: Cache) {
     this._appId = appId;
-    this._client = client;
+    this._http = http;
+    this._cache = cache;
   }
 
   /**
    * Gets a list of the guilds the bot currently resides in.
    */
-  getCurrentGuilds(): Promise<Discord.Guild[]> {
+  async getCurrentGuilds(): Promise<Discord.Guild[]> {
+    const cached = Api._tryCache('current guilds', () =>
+      this._cache.getGuilds(),
+    );
+    if (cached && cached.length > 0) return cached;
+
     return performRequest(async () => {
-      const res = await this._client.get(
+      const res = await this._http.get(
         'https://discord.com/api/v8/users/@me/guilds',
       );
-      return res.data;
+      const guilds = res.data as Discord.Guild[];
+      this._cache._replaceGuilds(guilds);
+      return guilds;
     });
   }
 
@@ -36,10 +48,17 @@ class Api {
    *
    * @param guildId The ID of the guild.
    */
-  getGuildRoles(guildId: string): Promise<Discord.Role[]> {
+  async getGuildRoles(guildId: string): Promise<Discord.Role[]> {
+    const cached = Api._tryCache('guild roles', () =>
+      this._cache.getGuildRoles(guildId),
+    );
+    if (cached) return cached;
+
     return performRequest(async () => {
-      const res = await this._client.get(`/guilds/${guildId}/roles`);
-      return res.data as Discord.Role[];
+      const res = await this._http.get(`/guilds/${guildId}/roles`);
+      const roles = res.data as Discord.Role[];
+      this._cache._replaceGuildRoles(guildId, roles);
+      return roles;
     });
   }
 
@@ -51,8 +70,10 @@ class Api {
    */
   createGuildRole(guildId: string, data: GuildRoleData): Promise<Discord.Role> {
     return performRequest(async () => {
-      const res = await this._client.post(`/guilds/${guildId}/roles`, data);
-      return res.data as Discord.Role;
+      const res = await this._http.post(`/guilds/${guildId}/roles`, data);
+      const role = res.data as Discord.Role;
+      this._cache._updateGuildRole(guildId, role);
+      return role;
     });
   }
 
@@ -71,11 +92,13 @@ class Api {
     position: number,
   ): Promise<Discord.Role[]> {
     return performRequest(async () => {
-      const res = await this._client.patch(`/guilds/${guildId}/roles`, {
+      const res = await this._http.patch(`/guilds/${guildId}/roles`, {
         id: roleId,
         position,
       });
-      return res.data as Discord.Role[];
+      const roles = res.data as Discord.Role[];
+      this._cache._replaceGuildRoles(guildId, roles);
+      return roles;
     });
   }
 
@@ -92,11 +115,13 @@ class Api {
     data: GuildRoleData,
   ): Promise<Discord.Role> {
     return performRequest(async () => {
-      const res = await this._client.patch(
+      const res = await this._http.patch(
         `/guilds/${guildId}/roles/${roleId}`,
         data,
       );
-      return res.data as Discord.Role;
+      const role = res.data as Discord.Role;
+      this._cache._updateGuildRole(guildId, role);
+      return role;
     });
   }
 
@@ -108,7 +133,8 @@ class Api {
    */
   deleteGuildRole(guildId: string, roleId: string): Promise<void> {
     return performRequest(async () => {
-      await this._client.delete(`/guilds/${guildId}/roles/${roleId}`);
+      await this._http.delete(`/guilds/${guildId}/roles/${roleId}`);
+      this._cache._deleteGuildRole(guildId, roleId);
     });
   }
 
@@ -126,9 +152,10 @@ class Api {
     roleId: string,
   ): Promise<void> {
     return performRequest(async () => {
-      await this._client.put(
+      await this._http.put(
         `/guilds/${guildId}/members/${userId}/roles/${roleId}`,
       );
+      this._cache._addRoleToGuildMember(guildId, userId, roleId);
     });
   }
 
@@ -146,9 +173,76 @@ class Api {
     roleId: string,
   ): Promise<void> {
     return performRequest(async () => {
-      await this._client.delete(
+      await this._http.delete(
         `/guilds/${guildId}/members/${userId}/roles/${roleId}`,
       );
+      this._cache._removeRoleFromGuildMember(guildId, userId, roleId);
+    });
+  }
+
+  async getChannel(channelId: string): Promise<Discord.Channel> {
+    const cached = Api._tryCache('channels', () =>
+      this._cache.getChannel(channelId),
+    );
+    if (cached) return cached;
+
+    return performRequest(async () => {
+      const res = await this._http.get(`/channels/${channelId}`);
+      const channel = res.data as Discord.Channel;
+      this._cache._updateChannel(channel);
+      return channel;
+    });
+  }
+
+  /**
+   * Creates a new channel in a guild.
+   *
+   * @param guildId The ID of the guild in which the channel will be created.
+   * @param data The channel data.
+   */
+  async createChannel(
+    guildId: string,
+    data: Discord.CreateChannelPayload,
+  ): Promise<Discord.Channel> {
+    return performRequest(async () => {
+      const res = await this._http.post(`/guilds/${guildId}/channels`, data);
+      const channel = res.data as Discord.Channel;
+      this._cache._updateChannel(channel);
+      return channel;
+    });
+  }
+
+  /**
+   * Modifies a new channel in a guild.
+   *
+   * @param channelId The ID of the channel.
+   * @param data The channel update data.
+   */
+  async modifyChannel(
+    channelId: string,
+    data: Discord.ModifyChannelPayload,
+  ): Promise<Discord.Channel> {
+    return performRequest(async () => {
+      const res = await this._http.patch(`/channels/${channelId}`, data);
+      const channel = res.data as Discord.Channel;
+      this._cache._updateChannel(channel);
+      return channel;
+    });
+  }
+
+  /**
+   * Deletes a new channel in a guild.
+   *
+   * @param channelId The ID of the channel.
+   */
+  async deleteChannel(channelId: string): Promise<Discord.Channel> {
+    return performRequest(async () => {
+      const res = await this._http.delete(`/channels/${channelId}`);
+      const channel = res.data as Discord.Channel;
+      if (channel.guild_id) {
+        this._cache._deleteChannel(channel.guild_id, channel.id);
+      }
+      return channel;
     });
   }
 
@@ -157,30 +251,17 @@ class Api {
    *
    * @param guildId The ID of the guild.
    */
-  getGuildChannels(guildId: string): Promise<Discord.Channel[]> {
-    return performRequest(async () => {
-      const res = await this._client.get(`/guilds/${guildId}/channels`);
-      return res.data;
-    });
-  }
+  async getGuildChannels(guildId: string): Promise<Discord.Channel[]> {
+    const cached = Api._tryCache('guild channels', () =>
+      this._cache.getGuildChannels(guildId),
+    );
+    if (cached) return cached;
 
-  
-  /**
-   * Create a message and send it in the specified channel.
-   *
-   * @param channelID The ID of the channel.
-   * @param data The content of the message.
-   */
-  createMessage(
-    channelId: string,
-    data: Discord.CreateMessage,
-  ): Promise<Discord.Channel[]> {
     return performRequest(async () => {
-      const res = await this._client.post(
-        `/channels/${channelId}/messages`,
-        data,
-      );
-      return res.data;
+      const res = await this._http.get(`/guilds/${guildId}/channels`);
+      const channels = res.data as Discord.Channel[];
+      this._cache._replaceChannels(guildId, channels);
+      return channels;
     });
   }
 
@@ -193,15 +274,20 @@ class Api {
    * @param guildId The ID of the guild in which the user resides.
    * @param userId The ID of the user.
    */
-  getGuildMember(
+  async getGuildMember(
     guildId: string,
     userId: string,
   ): Promise<Discord.GuildMember> {
+    const cached = Api._tryCache('guild member', () =>
+      this._cache.getGuildMember(guildId, userId),
+    );
+    if (cached) return cached;
+
     return performRequest(async () => {
-      const res = await this._client.get(
-        `/guilds/${guildId}/members/${userId}`,
-      );
-      return res.data;
+      const res = await this._http.get(`/guilds/${guildId}/members/${userId}`);
+      const member = res.data as Discord.GuildMember;
+      this._cache._updateGuildMember(guildId, member);
+      return member;
     });
   }
 
@@ -215,24 +301,11 @@ class Api {
    */
   getUser(userId: string): Promise<Discord.User> {
     return performRequest(async () => {
-      const res = await this._client.get(`/users/${userId}`);
+      const res = await this._http.get(`/users/${userId}`);
       return res.data;
     });
   }
-  /**
-   * Gets information about the specified channel.
-   * 
-   * @param channelId The ID of the channel.
-   * @returns Channel object
-   */
-  getChannel(
-    channelId: string
-  ): Promise<Discord.Channel>{
-    return performRequest(async () => {
-      const res = await this._client.get(`/channels/${channelId}`);
-      return res.data;
-    });
-  }
+
   /**
    * Returns a specific message given its channel and message ID.
    * @param channelId The ID of the channel.
@@ -240,13 +313,176 @@ class Api {
    */
   getChannelMessage(
     channelId: string,
-    messageId: string
-  ): Promise<Discord.Message>{
-    return performRequest(async() => {
-      const res = await this._client.get(`/channels/${channelId}/messages/${messageId}`);
+    messageId: string,
+  ): Promise<Discord.Message> {
+    return performRequest(async () => {
+      const res = await this._http.get(
+        `/channels/${channelId}/messages/${messageId}`,
+      );
       return res.data;
-    })
+    });
   }
+  /**
+   * Sends a message in the specified channel.
+   *
+   * @param channelId The ID of the channel.
+   * @param data The message data.
+   */
+  createMessage(
+    channelId: string,
+    data: Discord.CreateMessagePayload,
+  ): Promise<Discord.Message> {
+    return performRequest(async () => {
+      const res = await this._http.post(
+        `/channels/${channelId}/messages`,
+        data,
+      );
+      return res.data as Discord.Message;
+    });
+  }
+
+  /**
+   * Sends a message with an attached file in the specified channel.
+   *
+   * @param channelId The ID of the channel.
+   * @param filename The name of the file.
+   * @param contentType The MIME type of the file.
+   * @param data The message and file data.
+   */
+  createMessageWithFile(
+    channelId: string,
+    filename: string,
+    contentType: string,
+    data: Discord.CreateMessagePayload & { file: ArrayBuffer },
+  ): Promise<Discord.Message> {
+    const { file, ...payload } = data;
+
+    const formData = new FormData();
+    formData.append('payload_json', JSON.stringify(payload), {
+      contentType: 'application/json',
+    });
+    formData.append('file', file, { filename, contentType });
+
+    return performRequest(async () => {
+      const res = await this._http.post(
+        `/channels/${channelId}/messages`,
+        formData,
+        {
+          headers: formData.getHeaders(),
+        },
+      );
+      return res.data as Discord.Message;
+    });
+  }
+
+  /**
+   * Replies to a message in the specified channel.
+   *
+   * @param channelId The ID of the channel.
+   * @param messageId The ID of the message to reply to.
+   * @param content The reply message.
+   */
+  createReply(
+    channelId: string,
+    messageId: string,
+    content: string,
+  ): Promise<Discord.Message> {
+    return this.createMessage(channelId, {
+      content,
+      message_reference: {
+        message_id: messageId,
+      },
+    });
+  }
+
+  /**
+   * Sends a message in the specified channel.
+   *
+   * @param channelId The ID of the channel.
+   * @param content The content of the message.
+   */
+  createTextMessage(
+    channelId: string,
+    content: string,
+  ): Promise<Discord.Message> {
+    return this.createMessage(channelId, { content });
+  }
+
+  /**
+   * Sends an error message in the specified channel.
+   *
+   * @param channelId The ID of the channel.
+   * @param content The error message.
+   */
+  createErrorMessage(
+    channelId: string,
+    content: string,
+  ): Promise<Discord.Message> {
+    return this.createTextMessage(channelId, `Error: ${content}`);
+  }
+
+  /**
+   * Replies to a message with an error message in the specified channel.
+   *
+   * @param channelId The ID of the channel.
+   * @param messageId The ID of the message to reply to.
+   * @param content The error message.
+   */
+  createErrorReply(
+    channelId: string,
+    messageId: string,
+    content: string,
+  ): Promise<Discord.Message> {
+    return this.createReply(channelId, messageId, `Error: ${content}`);
+  }
+
+  /**
+   * Edits a message in the specified channel.
+   *
+   * @param channelId The ID of the channel.
+   * @param messageId The ID of the message.
+   * @param data The message update data.
+   */
+  editMessage(
+    channelId: string,
+    messageId: string,
+    data: Discord.EditMessagePayload,
+  ): Promise<Discord.Message> {
+    return performRequest(async () => {
+      const res = await this._http.patch(
+        `/channels/${channelId}/messages/${messageId}`,
+        data,
+      );
+      return res.data as Discord.Message;
+    });
+  }
+
+  /**
+   * Deletes a message in the specified channel.
+   *
+   * @param channelId The ID of the channel.
+   * @param messageId The ID of the message.
+   */
+  deleteMessage(channelId: string, messageId: string): Promise<void> {
+    return performRequest(async () => {
+      await this._http.delete(`/channels/${channelId}/messages/${messageId}`);
+    });
+  }
+
+  /**
+   * Deletes anywhere from 2 to 100 messages in the specified channel.
+   *
+   * @param channelId The ID of the channel.
+   * @param messageIds The array of message IDs.
+   */
+  bulkDeleteMessages(channelId: string, messageIds: string[]): Promise<void> {
+    return performRequest(async () => {
+      await this._http.post(`/channels/${channelId}/messages/bulk-delete`, {
+        messages: messageIds,
+      });
+    });
+  }
+
   /**
    * Edits the permissions of the channel by setting the provided overwrites.
    *
@@ -261,10 +497,14 @@ class Api {
     overwrite: Omit<Discord.Overwrite, 'id'>,
   ): Promise<void> {
     return performRequest(async () => {
-      await this._client.put(
+      await this._http.put(
         `/channels/${channelId}/permissions/${overwriteId}`,
         overwrite,
       );
+      this._cache._updateChannelPermissions(channelId, {
+        ...overwrite,
+        id: overwriteId,
+      });
     });
   }
 
@@ -285,7 +525,7 @@ class Api {
     permissions: Discord.CommandPermission[],
   ): Promise<void> {
     return performRequest(async () => {
-      await this._client.put(
+      await this._http.put(
         `/applications/${this._appId}/guilds/${guildId}/commands/${commandId}/permissions`,
         permissions,
       );
@@ -295,20 +535,20 @@ class Api {
   /**
    * Deletes a reaction made by an user or by the bot
    *
-   * @param messageId The message ID of the message.
    * @param channelId The channel ID of the channel.
+   * @param messageId The message ID of the message.
    * @param emojiString The emoji string of the reaction.
-   * @param userId? The id of the user. If ommitted it will delete the reaction made by the bot.
+   * @param userId? The id of the user. (If ommitted deletes the reaction made by the bot)
    */
   async deleteUserReaction(
-    messageId: string,
     channelId: string,
+    messageId: string,
     emojiString: string,
     userId?: number,
   ): Promise<void> {
-    const target = userId == null ? '@me' : userId.toString();
+    const target = !userId ? '@me' : userId.toString();
     await performRequest(() =>
-      this._client.delete(
+      this._http.delete(
         `/channels/${channelId}/messages/${messageId}/reactions/${prepareEmoji(
           emojiString,
         )}/${target}`,
@@ -319,19 +559,19 @@ class Api {
   /**
    * Deletes all reactions on a message for an emoji or all emojis
    *
-   * @param messageId The message ID of the message.
    * @param channelId The channel ID of the channel.
-   * @param emojiString? The emoji string of the reaction.
+   * @param messageId The message ID of the message.
+   * @param emojiString? The emoji string of the reaction. (if ommitted deletes all emojis)
    */
   async deleteAllReactions(
-    messageId: string,
     channelId: string,
+    messageId: string,
     emojiString?: string,
   ): Promise<void> {
     await performRequest(() =>
-      this._client.delete(
+      this._http.delete(
         `/channels/${channelId}/messages/${messageId}/reactions${
-          emojiString == null ? '' : `/${prepareEmoji(emojiString)}`
+          emojiString ? `/${prepareEmoji(emojiString)}` : ''
         }`,
       ),
     );
@@ -340,17 +580,17 @@ class Api {
   /**
    * Fetches all the users that reacted to a message
    *
-   * @param messageId The message ID of the message.
    * @param channelId The channel ID of the channel.
+   * @param messageId The message ID of the message.
    * @param emojiString The emoji string of the reaction.
    */
   getReactions(
-    messageId: string,
     channelId: string,
+    messageId: string,
     emojiString: string,
-  ): Promise<Discord.User[]> {
+  ): Promise<User[]> {
     return performRequest(async () => {
-      const res = await this._client.get(
+      const res = await this._http.get(
         `/channels/${channelId}/messages/${messageId}/reactions/${prepareEmoji(
           emojiString,
         )}`,
@@ -362,17 +602,17 @@ class Api {
   /**
    * Creates a reaction to a message
    *
-   * @param messageId The message ID of the message.
    * @param channelId The channel ID of the channel.
+   * @param messageId The message ID of the message.
    * @param emojiString The emoji string of the reaction.
    */
   async createReaction(
-    messageId: string,
     channelId: string,
+    messageId: string,
     emojiString: string,
   ): Promise<void> {
     await performRequest(() =>
-      this._client.put(
+      this._http.put(
         `/channels/${channelId}/messages/${messageId}/reactions/${prepareEmoji(
           emojiString,
         )}/@me`,
@@ -385,7 +625,7 @@ class Api {
    */
   getGlobalCommands(): Promise<Discord.Command[]> {
     return performRequest(async () => {
-      const res = await this._client.get(
+      const res = await this._http.get(
         `/applications/${this._appId}/commandManager`,
       );
       return res.data;
@@ -402,7 +642,7 @@ class Api {
    */
   createGlobalCommand(command: Discord.NewCommand): Promise<void> {
     return performRequest(async () => {
-      await this._client.post(
+      await this._http.post(
         `/applications/${this._appId}/commandManager`,
         command,
       );
@@ -418,7 +658,7 @@ class Api {
    */
   bulkOverwriteGlobalCommands(commands: Discord.NewCommand[]): Promise<void> {
     return performRequest(async () => {
-      await this._client.put(`/applications/${this._appId}/commands`, commands);
+      await this._http.put(`/applications/${this._appId}/commands`, commands);
     });
   }
 
@@ -431,7 +671,7 @@ class Api {
    */
   deleteGlobalCommand(id: string): Promise<void> {
     return performRequest(async () => {
-      await this._client.delete(`/applications/${this._appId}/commands/${id}`);
+      await this._http.delete(`/applications/${this._appId}/commands/${id}`);
     });
   }
 
@@ -442,7 +682,7 @@ class Api {
    */
   getGuildCommands(guildId: string): Promise<Discord.Command[]> {
     return performRequest(async () => {
-      const res = await this._client.get(
+      const res = await this._http.get(
         `/applications/${this._appId}/guilds/${guildId}/commands`,
       );
       return res.data;
@@ -460,7 +700,7 @@ class Api {
     command: Discord.NewCommand,
   ): Promise<void> {
     return performRequest(async () => {
-      await this._client.post(
+      await this._http.post(
         `/applications/${this._appId}/guilds/${guildId}/commands`,
         command,
       );
@@ -478,12 +718,31 @@ class Api {
     commands: Discord.NewCommand[],
   ): Promise<Discord.Command[]> {
     return performRequest(async () => {
-      const res = await this._client.put(
+      const res = await this._http.put(
         `/applications/${this._appId}/guilds/${guildId}/commands`,
         commands,
       );
       return res.data as Discord.Command[];
     });
+  }
+
+  download(url: string): Promise<string> {
+    return performRequest(async () => {
+      const res = await axios.get(url, { responseType: 'text' });
+      return res.data as string;
+    });
+  }
+
+  private static _tryCache<R>(
+    key: string,
+    fn: () => R | undefined,
+  ): R | undefined {
+    const cached = fn();
+    if (cached) {
+      console.log(`[Cache] HIT on ${key}`);
+      return cached;
+    }
+    console.log(`[Cache] MISS on ${key}`);
   }
 }
 

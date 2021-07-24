@@ -28,7 +28,7 @@ export type GuildMember = {
   deaf: boolean;
   mute: boolean;
   pending?: boolean;
-  permissions: string;
+  permissions?: string;
 };
 
 export type UnavailableGuild = Pick<Guild, 'id' | 'unavailable'>;
@@ -100,6 +100,25 @@ export type GuildRoleDeletePayload = {
   role_id: string;
 };
 
+export type GuildMemberAddPayload = GuildMember & { guild_id: string };
+
+export type GuildMemberUpdatePayload = {
+  guild_id: string;
+  roles: string[];
+  user: User;
+  nick?: string;
+  joined_at: string;
+  premium_since?: string;
+  deaf?: boolean;
+  mute?: boolean;
+  pending?: boolean;
+};
+
+export type GuildMemberRemovePayload = {
+  guild_id: string;
+  user: User;
+};
+
 export type Overwrite = {
   id: string;
   type: number;
@@ -162,3 +181,25 @@ export type ThreadMember = {
   join_timestamp: string;
   flags: number;
 };
+
+export type CreateChannelPayload = {
+  name: string;
+} & Pick<
+  Channel,
+  | 'permission_overwrites'
+  | 'parent_id'
+  | 'nsfw'
+  | 'position'
+  | 'rate_limit_per_user'
+  | 'user_limit'
+  | 'bitrate'
+  | 'topic'
+  | 'type'
+>;
+
+export type ModifyChannelPayload = {
+  type?: ChannelType.GUILD_TEXT | ChannelType.GUILD_NEWS;
+  rtc_region?: string;
+  video_quality_mode?: number;
+  default_auto_archive_duration?: number;
+} & Partial<Omit<CreateChannelPayload, 'type'>>;

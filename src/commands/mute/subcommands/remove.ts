@@ -1,7 +1,7 @@
 import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
-import { checkMutePermissions, mustGetRolesConfig } from '../_common';
+import { checkMutePermissionsOrExit, getMuteRoleOrExit } from '../_common';
 import { bold } from '../../../format';
 
 const remove = new SubCommand({
@@ -19,24 +19,32 @@ const remove = new SubCommand({
   ],
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
-    const targetUserId = ctx.getArgument<string>('user') as string;
+    const targetUserId = ctx.getArgument<string>('user')!;
 
-    if (!(await checkMutePermissions(ctx, guildId, targetUserId))) return;
+    if (!(await checkMutePermissionsOrExit(ctx, guildId, targetUserId))) return;
 
     // Get the muted role.
-    const rolesCfg = await mustGetRolesConfig(ctx, guildId);
-    if (!rolesCfg.muted) {
-      return ctx.respondWithError(
-        'Muted role not set up yet. Try running `/mute setup`.',
-      );
-    }
+    const mutedRole = await getMuteRoleOrExit(ctx, guildId);
+    if (!mutedRole) return;
 
     // Remove the `muted` role from the user.
-    await ctx.api.removeRoleFromMember(guildId, targetUserId, rolesCfg.muted);
+    try {
+      await ctx.api.removeRoleFromMember(guildId, targetUserId, mutedRole);
+    } catch (e) {
+      // Error code 50013:	You lack permissions to perform that action.
+      if (e.code === 50013) {
+        await ctx.interactionApi.respondWithError(
+          `Couldn’t remove the Muted role. Move HooskBot’s role higher.`,
+        );
+        return;
+      }
+      // Unknown error.
+      throw e;
+    }
 
     // Get info about the user and provide a response message.
     const user = await ctx.api.getUser(targetUserId);
-    return ctx.respondWithMessage(
+    return ctx.interactionApi.respondWithMessage(
       `Unmuted ${bold(`${user.username}#${user.discriminator}`)}`,
     );
   },

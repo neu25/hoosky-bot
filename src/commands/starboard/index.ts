@@ -1,1 +1,1 @@
-export { default as setstarboard } from './setstarboard';
+export { default as setstarboard } from './setStarboard';

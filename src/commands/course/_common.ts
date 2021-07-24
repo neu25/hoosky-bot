@@ -1,16 +1,6 @@
-import { Cursor, Collection as MongoCollection } from 'mongodb';
-import { Collection } from '../../database';
-import ExecutionContext from '../../ExecutionContext';
 import { bold } from '../../format';
-
-export type Course = {
-  _id: string;
-  subject: string;
-  number: number;
-  name: string;
-  roleId: string;
-  members: string[];
-};
+import { Course, Section } from '../../repository';
+import ExecutionContext from '../../ExecutionContext';
 
 /**
  * Returns a formatted version of the course name.
@@ -18,7 +8,7 @@ export type Course = {
  * @param course The course to format.
  */
 export const formatCourse = (course: Course): string => {
-  return `${course._id} - ${course.name}`;
+  return `${course.code} - ${course.name}`;
 };
 
 /**
@@ -28,7 +18,7 @@ export const formatCourse = (course: Course): string => {
  * @param course The course to format and partially bold.
  */
 export const semiBoldCourse = (course: Course): string => {
-  return bold(course._id) + ` - ${course.name}`;
+  return bold(course.code) + ` - ${course.name}`;
 };
 
 /**
@@ -40,108 +30,53 @@ export const boldCourse = (course: Course): string => {
   return bold(formatCourse(course));
 };
 
-export const courseExists = async (
-  ctx: ExecutionContext,
-  guildId: string,
-  id: string,
-): Promise<boolean> => {
-  return !!(await getCourseById(ctx, guildId, id));
+export const validCourseCode = (id: string): boolean => {
+  return /^[A-Z]{2,4} [0-9]{4}$/.test(id);
 };
 
-export const getCourseById = async (
-  ctx: ExecutionContext,
-  guildId: string,
-  id: string,
-): Promise<Course | null> => {
-  return coursesCollection(ctx, guildId).findOne({ _id: id });
-};
-
-export const getCourseByRoleId = async (
-  ctx: ExecutionContext,
-  guildId: string,
-  roleId: string,
-): Promise<Course | null> => {
-  return coursesCollection(ctx, guildId).findOne({ roleId });
-};
-
-export const scanCourses = async (
-  ctx: ExecutionContext,
-  guildId: string,
-): Promise<Cursor<Course>> => {
-  return coursesCollection(ctx, guildId).find();
-};
-
-export const createCourse = async (
-  ctx: ExecutionContext,
-  guildId: string,
-  courseInfo: Course,
-): Promise<void> => {
-  await coursesCollection(ctx, guildId).insertOne(courseInfo);
-};
-
-export const deleteCourse = async (
-  ctx: ExecutionContext,
-  guildId: string,
-  courseInfo: Course,
-): Promise<void> => {
-  await coursesCollection(ctx, guildId).deleteOne({
-    roleId: courseInfo.roleId,
-  });
-};
-
-export const addUserToCourse = async (
-  ctx: ExecutionContext,
-  guildId: string,
+export const findUserSection = (
+  course: Course,
   userId: string,
-  roleId: string,
-): Promise<void> => {
-  await coursesCollection(ctx, guildId).updateOne(
-    {
-      roleId: roleId,
-    },
-    {
-      $push: {
-        members: userId,
-      },
-    },
-  );
+): Section | undefined =>
+  Object.values(course.sections).find(sec => sec.members.includes(userId));
+
+export type NewCourse = {
+  subject: string;
+  number: number;
 };
 
-export const removeUserFromCourse = async (
-  ctx: ExecutionContext,
-  guildId: string,
-  userId: string,
-  roleId: string,
-): Promise<void> => {
-  await coursesCollection(ctx, guildId).updateOne(
-    {
-      roleId: roleId,
-    },
-    {
-      $pull: {
-        members: userId,
-      },
-    },
-  );
-};
-
-export const getCourseMembers = async (
-  ctx: ExecutionContext,
-  guildId: string,
-  roleId: string,
-): Promise<string[] | undefined> => {
-  return (await getCourseByRoleId(ctx, guildId, roleId))?.members;
+export const parseCourse = (id: string): NewCourse => {
+  // Extract the subject code. E.g., `ENGW 1111` -> `ENGW`.
+  const subject = id.split(' ')[0];
+  const number = parseInt(id.split(' ')[1]);
+  return { subject, number };
 };
 
 /**
- * Returns the `courses` collection for the specified guild.
+ * Adds a user to the section of a course in the database.
+ * If the section does not exist, create it with the user as the first member.
  *
- * @param ctx The relevant execution context.
- * @param guildId The ID of the guild.
+ * @param ctx The execution context.
+ * @param course The course.
+ * @param sectionNum The section number.
+ * @param userId The ID of the user.
  */
-const coursesCollection = (
+export const addUserToPossiblyNonexistentSection = async (
   ctx: ExecutionContext,
-  guildId: string,
-): MongoCollection<Course> => {
-  return ctx.db.getDb(guildId).collection(Collection.COURSES);
+  course: Course,
+  sectionNum: number,
+  userId: string,
+): Promise<void> => {
+  const guildId = ctx.mustGetGuildId();
+
+  if (course.sections[sectionNum]) {
+    await ctx
+      .courses()
+      .addMemberToSection(guildId, course.roleId, sectionNum, userId);
+  } else {
+    await ctx.courses().createSection(guildId, course.roleId, {
+      number: sectionNum,
+      members: [userId],
+    });
+  }
 };

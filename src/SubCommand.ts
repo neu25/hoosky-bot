@@ -1,13 +1,17 @@
 import * as Discord from './Discord';
 import SubCommandGroup, { SubCommandGroupProps } from './SubCommandGroup';
 import ExecutionContext from './ExecutionContext';
-import { hasPermission } from './permissions';
 import { bold } from './format';
+import { checkCtxPermissions } from './commands/_utils';
+import { MessageFollowUpHandler } from './FollowUpManager';
 
-export type CommandHandler = (ctx: ExecutionContext) => void | Promise<void>;
+export type CommandHandler = (
+  ctx: ExecutionContext,
+) => unknown | Promise<unknown>;
 
 export type SubCommandOptions = {
   handler: CommandHandler;
+  msgFollowUpHandlers?: Record<string, MessageFollowUpHandler>;
   displayName: string;
   requiredPermissions?: Discord.Permission[];
 } & SubCommandGroupProps;
@@ -24,15 +28,23 @@ export type SubCommandOptions = {
  */
 class SubCommand extends SubCommandGroup {
   readonly displayName: string;
-  private readonly _handler: CommandHandler;
-  private readonly _requiredPerms: Discord.Permission[];
+  readonly msgFollowUpHandlers: Record<string, MessageFollowUpHandler>;
+  readonly requiredPerms: Discord.Permission[];
+  readonly handler: CommandHandler;
 
   constructor(opts: SubCommandOptions) {
-    const { handler, requiredPermissions, displayName, ...base } = opts;
+    const {
+      handler,
+      requiredPermissions,
+      displayName,
+      msgFollowUpHandlers,
+      ...base
+    } = opts;
     super(base);
     this.displayName = displayName;
-    this._handler = handler;
-    this._requiredPerms = requiredPermissions ?? [];
+    this.msgFollowUpHandlers = msgFollowUpHandlers ?? {};
+    this.handler = handler;
+    this.requiredPerms = requiredPermissions ?? [];
   }
 
   /**
@@ -41,26 +53,48 @@ class SubCommand extends SubCommandGroup {
    *
    * @param ctx The execution context.
    */
-  async execute(ctx: ExecutionContext): Promise<void> {
-    const { interaction } = ctx;
-    if (!interaction.member) {
-      throw new Error('No member found in interaction');
+  async execute(ctx: ExecutionContext): Promise<unknown> {
+    if (
+      !(await SubCommand.checkPermissions(
+        ctx,
+        this.displayName,
+        this.requiredPerms,
+      ))
+    ) {
+      return;
     }
 
-    const executorPerms = parseInt(interaction.member.permissions);
-    for (const p of this._requiredPerms) {
-      if (!hasPermission(executorPerms, p)) {
-        await ctx.respondWithError(
-          `The ${bold(this.displayName)} command requires the ` +
-            `${bold(
-              Discord.PermissionName[p],
-            )} permission, but you don't have it.`,
-        );
-        return;
-      }
+    // Supply this subcommand's follow-up handlers.
+    ctx.msgFollowUpHandlers = this.msgFollowUpHandlers;
+
+    return this.handler(ctx);
+  }
+
+  /**
+   * Checks whether the command execution is permitted according to the specified
+   * required permissions.
+   *
+   * @param ctx The execution context of the command.
+   * @param displayName The display name of the command.
+   * @param requiredPerms The Discord permissions required to execute the command.
+   */
+  static async checkPermissions(
+    ctx: ExecutionContext,
+    displayName: string,
+    requiredPerms: Discord.Permission[],
+  ): Promise<boolean> {
+    const [missingPerm, ok] = checkCtxPermissions(ctx, requiredPerms);
+
+    if (!ok) {
+      await ctx.interactionApi.respondWithError(
+        `The ${bold(displayName)} command requires the ` +
+          `${bold(
+            Discord.PermissionName[missingPerm as Discord.Permission],
+          )} permission, but you don’t have it.`,
+      );
     }
 
-    return this._handler(ctx);
+    return ok;
   }
 
   /**

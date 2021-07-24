@@ -1,13 +1,16 @@
 import * as Discord from './Discord';
 import TriggerContext from './TriggerContext';
+import { MessageFollowUpHandler } from './FollowUpManager';
 
 type TriggerHandler<E extends Discord.Event> = (
+  // @ts-ignore
   ctx: TriggerContext<EventData<E>>,
 ) => void | Promise<void>;
 
 type TriggerProps<E extends Discord.Event> = {
-  event: Discord.Event;
+  event: E;
   handler?: TriggerHandler<E>;
+  msgFollowUpHandlers?: Record<string, MessageFollowUpHandler>;
 };
 
 type EventTypeMap = {
@@ -21,7 +24,11 @@ type EventTypeMap = {
   [Discord.Event.CHANNEL_CREATE]: Discord.Channel;
   [Discord.Event.CHANNEL_UPDATE]: Discord.Channel;
   [Discord.Event.CHANNEL_DELETE]: Discord.Channel;
+  [Discord.Event.GUILD_MEMBER_ADD]: Discord.GuildMemberAddPayload;
+  [Discord.Event.GUILD_MEMBER_UPDATE]: Discord.GuildMemberUpdatePayload;
+  [Discord.Event.GUILD_MEMBER_REMOVE]: Discord.GuildMemberRemovePayload;
   [Discord.Event.INTERACTION_CREATE]: Discord.Interaction;
+  [Discord.Event.MESSAGE_CREATE]: Discord.Message;
   [Discord.Event.MESSAGE_REACTION_ADD]: Discord.MessageReactionAddPayload;
   [Discord.Event.MESSAGE_REACTION_REMOVE]: Discord.MessageReactionRemovePayload;
   [Discord.Event
@@ -33,19 +40,20 @@ type EventTypeMap = {
 export type EventData<E extends keyof EventTypeMap> = EventTypeMap[E];
 
 class Trigger<E extends Discord.Event> {
-  private readonly _event: Discord.Event;
+  readonly event: Discord.Event;
+  readonly msgFollowUpHandlers: Record<string, MessageFollowUpHandler>;
   private readonly _handler?: TriggerHandler<E>;
 
   constructor(props: TriggerProps<E>) {
-    this._event = props.event;
+    this.event = props.event;
     this._handler = props.handler;
-  }
-
-  getEvent(): Discord.Event {
-    return this._event;
+    this.msgFollowUpHandlers = props.msgFollowUpHandlers ?? {};
   }
 
   execute(ctx: TriggerContext<any>): void | Promise<void> {
+    // Supply this subcommand's follow-up handlers.
+    ctx.msgFollowUpHandlers = this.msgFollowUpHandlers;
+
     if (this._handler) {
       return this._handler(ctx);
     }

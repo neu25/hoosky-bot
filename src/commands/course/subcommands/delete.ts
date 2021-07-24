@@ -1,9 +1,9 @@
 import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
-import { getCourseByRoleId, deleteCourse, boldCourse } from '../_common';
+import { boldCourse } from '../_common';
 
-export const del = new SubCommand({
+const del = new SubCommand({
   name: 'delete',
   displayName: 'Delete Course',
   description: 'Delete a course role',
@@ -18,16 +18,20 @@ export const del = new SubCommand({
   ],
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
-    const roleId = ctx.getArgument<string>('role') as string;
-    const course = await getCourseByRoleId(ctx, guildId, roleId);
+    const roleId = ctx.getArgument<string>('role')!;
+    const course = await ctx.courses().getByRoleId(guildId, roleId);
 
     if (!course) {
-      return ctx.respondWithError('That course does not exist');
+      return ctx.interactionApi.respondWithError('That course does not exist');
     }
 
     await ctx.api.deleteGuildRole(guildId, course.roleId);
-    await deleteCourse(ctx, guildId, course);
+    await ctx.courses().deleteByRoleId(guildId, course.roleId);
 
-    return ctx.respondWithMessage(`Deleted course ${boldCourse(course)}`);
+    return ctx.interactionApi.respondWithMessage(
+      `Deleted course ${boldCourse(course)}`,
+    );
   },
 });
+
+export default del;

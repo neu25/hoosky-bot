@@ -1,15 +1,6 @@
-import ping from './ping';
-import poll from './poll';
-import course from './course';
-import mute from './mute';
-import { setstarboard } from './starboard';
+import commandList from './commands';
+import help from './help';
 
-const commands = {
-  ping,
-  poll,
-  mute,
-  course,
-  setstarboard,
-};
+const commands = [help, ...commandList]; // Add help command.
 
 export default commands;
