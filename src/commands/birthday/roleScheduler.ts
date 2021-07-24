@@ -34,13 +34,15 @@ export const configureSchedulers = async (
     jobAdd = new cron.CronJob(
       addRoleSchedule,
       async () => {
+        console.log('[SCHEDULER] Running birthday add role');
+
         const today = dayjs().format('MM/DD');
         const isLeapYear = dayjs().isLeapYear();
         const birthdays = await ctx.birthdays().getByDay(guildId, today);
 
-        if (birthdays && birthdays.users.length > 0) {
-          for (let i = 0; i < birthdays.users.length; i++) {
-            await ctx.api.addRoleToMember(guildId, birthdays.users[i], role);
+        if (birthdays) {
+          for (const userId of birthdays.users) {
+            await ctx.api.addRoleToMember(guildId, userId, role);
           }
         }
 
@@ -50,13 +52,9 @@ export const configureSchedulers = async (
             .birthdays()
             .getByDay(guildId, dayjs('2/29/2000').format('MM/DD'));
 
-          if (leapYearBirthdays && leapYearBirthdays.users.length > 0) {
-            for (let i = 0; i < leapYearBirthdays.users.length; i++) {
-              await ctx.api.addRoleToMember(
-                guildId,
-                leapYearBirthdays.users[i],
-                role,
-              );
+          if (leapYearBirthdays) {
+            for (const userId of leapYearBirthdays.users) {
+              await ctx.api.addRoleToMember(guildId, userId, role);
             }
           }
         }
@@ -70,17 +68,15 @@ export const configureSchedulers = async (
     jobRemove = new cron.CronJob(
       removeRoleSchedule,
       async () => {
+        console.log('[SCHEDULER] Running birthday remove role');
+
         const today = dayjs().format('MM/DD');
         const isLeapYear = dayjs().isLeapYear();
         const birthdays = await ctx.birthdays().getByDay(guildId, today);
 
-        if (birthdays && birthdays.users.length > 0) {
-          for (let i = 0; i < birthdays.users.length; i++) {
-            await ctx.api.removeRoleFromMember(
-              guildId,
-              birthdays.users[i],
-              role,
-            );
+        if (birthdays) {
+          for (const userId of birthdays.users) {
+            await ctx.api.removeRoleFromMember(guildId, userId, role);
           }
         }
 
@@ -90,13 +86,9 @@ export const configureSchedulers = async (
             .birthdays()
             .getByDay(guildId, dayjs('2/29/2000').format('MM/DD'));
 
-          if (leapYearBirthdays && leapYearBirthdays.users.length > 0) {
-            for (let i = 0; i < leapYearBirthdays.users.length; i++) {
-              await ctx.api.removeRoleFromMember(
-                guildId,
-                leapYearBirthdays.users[i],
-                role,
-              );
+          if (leapYearBirthdays) {
+            for (const userId of leapYearBirthdays.users) {
+              await ctx.api.removeRoleFromMember(guildId, userId, role);
             }
           }
         }
