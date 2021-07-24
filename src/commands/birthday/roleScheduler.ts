@@ -27,8 +27,8 @@ export const configureSchedulers = async (
   if (roles.find(r => r.id === rolesCfg.birthday)) {
     // Found birthday role
     const role = rolesCfg.birthday;
-    const addRoleSchedule = '0 0 * * *'; // Each day at 00:00 Eastern
-    const removeRoleSchedule = '59 23 * * *'; // Each day at 23:59 Eastern
+    const addRoleSchedule = '5 0 * * *'; // Each day at 00:05 Eastern Time
+    const removeRoleSchedule = '55 23 * * *'; // Each day at 23:55 Eastern Time
 
     // Add birthday role
     jobAdd = new cron.CronJob(
