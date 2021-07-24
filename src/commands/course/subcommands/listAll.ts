@@ -15,7 +15,7 @@ const listAll = new SubCommand({
   description: 'Lists all available courses',
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
-    const courses = (await ctx.courses().scan(guildId)).sort({ _id: 1 });
+    const courses = (await ctx.courses().scan(guildId)).sort({ code: 1 });
 
     // Hold an array of subject groups to output.
     const subGroups: SubjectGroup[] = [];

@@ -3,7 +3,7 @@ import SubCommand from '../../../SubCommand';
 import { bold } from '../../../format';
 
 type SharedClass = {
-  _id: string;
+  code: string;
   sectionNumber: number;
 };
 
@@ -38,7 +38,7 @@ const classmates = new SubCommand({
     const classmates: Record<string, Classmate> = {};
 
     const courses = await (await ctx.courses().scan(guildId))
-      .sort({ _id: 1 })
+      .sort({ code: 1 })
       .toArray();
     // Iterate over every course.
     for (const c of courses) {
@@ -55,7 +55,7 @@ const classmates = new SubCommand({
         if (m === targetUserId) continue;
         classmates[m] = classmates[m] ?? { userId: m, sharedClasses: [] };
         classmates[m].sharedClasses.push({
-          _id: c._id,
+          code: c.code,
           sectionNumber: userSection.number,
         });
       }
@@ -87,7 +87,7 @@ const classmates = new SubCommand({
     let n = 1;
     for (const cm of classmateArr) {
       const sharedStr = cm.sharedClasses
-        .map(cls => `${bold(cls._id)} #${cls.sectionNumber}`)
+        .map(cls => `${bold(cls.code)} #${cls.sectionNumber}`)
         .join(', ');
       classmateList += `${n}. <@${cm.userId}> - ${sharedStr}\n`;
       ++n;

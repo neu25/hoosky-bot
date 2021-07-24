@@ -2,9 +2,9 @@ import { Collection as MongoCollection, Cursor } from 'mongodb';
 import { Collection, Database } from '../database';
 
 export type Course = {
-  _id: string;
+  _id: string; // Legacy: equal to `code`.
+  code: string; // New: composite key equal to `[subject] [number]`.
   subject: string;
-  number: number;
   name: string;
   roleId: string;
   members: string[];
@@ -31,8 +31,16 @@ class CourseRepo {
     return this.collection(guildId).findOne({ roleId });
   }
 
-  async exists(guildId: string, id: string): Promise<boolean> {
-    return !!(await this.getById(guildId, id));
+  async getByCode(guildId: string, code: string): Promise<Course | null> {
+    return this.collection(guildId).findOne({ code });
+  }
+
+  async existsByCode(guildId: string, code: string): Promise<boolean> {
+    return !!(await this.getByCode(guildId, code));
+  }
+
+  async existsByRoleId(guildId: string, roleId: string): Promise<boolean> {
+    return !!(await this.getByRoleId(guildId, roleId));
   }
 
   async scan(guildId: string): Promise<Cursor<Course>> {
@@ -58,6 +66,14 @@ class CourseRepo {
     course: Partial<Omit<Course, '_id'>>,
   ): Promise<void> {
     await this.collection(guildId).updateOne({ _id: id }, { $set: course });
+  }
+
+  async updateByCode(
+    guildId: string,
+    code: string,
+    course: Partial<Omit<Course, '_id'>>,
+  ): Promise<void> {
+    await this.collection(guildId).updateOne({ code }, { $set: course });
   }
 
   async updateByRoleId(
@@ -215,7 +231,7 @@ class CourseRepo {
 
     // Remove the `_id` property from `course`.
     const { _id, ...newCourse } = course;
-    await this.updateById(guildId, _id, newCourse);
+    await this.updateByRoleId(guildId, newCourse.roleId, newCourse);
   }
 
   /**

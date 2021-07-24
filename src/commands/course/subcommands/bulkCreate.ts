@@ -7,7 +7,7 @@ import {
   pluralize,
 } from '../../../format';
 import { Course } from '../../../repository';
-import { parseCourse, validCourseId } from '../_common';
+import { parseCourse, validCourseCode } from '../_common';
 import SubCommand from '../../../SubCommand';
 import * as Discord from '../../../Discord';
 import TriggerContext from '../../../TriggerContext';
@@ -24,13 +24,13 @@ enum CtxState {
 }
 
 type CourseInput = {
-  id: string;
+  code: string;
   name: string;
 };
 
 const formatCourseInputList = (courseInputs: CourseInput[]): string =>
   multilineCode(
-    courseInputs.map((c, i) => `${i + 1}. ${c.id} - ${c.name}`).join('\n'),
+    courseInputs.map((c, i) => `${i + 1}. ${c.code} - ${c.name}`).join('\n'),
   );
 
 const fetchFile = async (
@@ -93,11 +93,11 @@ const parseFileContent = async (
   const invalidCourses: CourseInput[] = [];
 
   for (const r of rows) {
-    const [id, name] = r;
-    const course = { id, name };
+    const [code, name] = r;
+    const course = { code, name };
 
     // Make sure the course ID is valid.
-    if (validCourseId(id)) {
+    if (validCourseCode(code)) {
       validCourses.push(course);
     } else {
       invalidCourses.push(course);
@@ -119,9 +119,10 @@ const createCourses = async (
 
   // Iterate over every course: create the role and insert the entry into the database.
   for (const c of courses) {
+    const existingCourse = await tctx.courses().getByCode(guildId, c.code);
     // If the course already exists, just update the name in the database.
-    if (await tctx.courses().exists(guildId, c.id)) {
-      await tctx.courses().updateById(guildId, c.id, {
+    if (existingCourse) {
+      await tctx.courses().updateByRoleId(guildId, existingCourse.roleId, {
         name: c.name,
       });
       skippedCourses.push(c);
@@ -130,16 +131,16 @@ const createCourses = async (
 
     // Create the course role.
     const courseRole = await tctx.api.createGuildRole(guildId, {
-      name: c.id,
+      name: c.code,
       permissions: '0',
       mentionable: true,
     });
 
-    const { subject, number } = parseCourse(c.id);
+    const { subject } = parseCourse(c.code);
     const course: Course = {
-      _id: c.id,
+      _id: courseRole.id,
+      code: c.code,
       subject,
-      number,
       name: c.name,
       roleId: courseRole.id,
       members: [],

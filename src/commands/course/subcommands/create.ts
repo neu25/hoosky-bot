@@ -1,7 +1,7 @@
 import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
-import { boldCourse, parseCourse, validCourseId } from '../_common';
+import { boldCourse, parseCourse, validCourseCode } from '../_common';
 import { Course } from '../../../repository';
 
 const create = new SubCommand({
@@ -17,8 +17,8 @@ const create = new SubCommand({
       type: Discord.CommandOptionType.STRING,
     }),
     new CommandOption({
-      name: 'id',
-      description: 'The course ID (e.g., ENGW 1111)',
+      name: 'code',
+      description: 'The course code (e.g., ENGW 1111)',
       required: true,
       type: Discord.CommandOptionType.STRING,
     }),
@@ -27,27 +27,27 @@ const create = new SubCommand({
     const guildId = ctx.mustGetGuildId();
 
     const courseName = ctx.getArgument<string>('name')!.trim();
-    const courseId = ctx.getArgument<string>('id')!.trim();
+    const courseCode = ctx.getArgument<string>('code')!.trim();
 
-    if (!validCourseId(courseId)) {
-      return ctx.interactionApi.respondWithError('Invalid course ID.');
+    if (!validCourseCode(courseCode)) {
+      return ctx.interactionApi.respondWithError('Invalid course code.');
     }
-    if (await ctx.courses().exists(guildId, courseId)) {
+    if (await ctx.courses().existsByCode(guildId, courseCode)) {
       return ctx.interactionApi.respondWithError('Course already exists.');
     }
 
     // Create the course role.
     const courseRole = await ctx.api.createGuildRole(guildId, {
-      name: courseId,
+      name: courseCode,
       permissions: '0',
       mentionable: true,
     });
 
-    const { subject, number } = parseCourse(courseId);
+    const { subject } = parseCourse(courseCode);
     const course: Course = {
-      _id: courseId,
+      _id: courseRole.id,
+      code: courseCode,
       subject,
-      number,
       name: courseName,
       roleId: courseRole.id,
       members: [],

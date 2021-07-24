@@ -8,7 +8,7 @@ import ExecutionContext from '../../ExecutionContext';
  * @param course The course to format.
  */
 export const formatCourse = (course: Course): string => {
-  return `${course._id} - ${course.name}`;
+  return `${course.code} - ${course.name}`;
 };
 
 /**
@@ -18,7 +18,7 @@ export const formatCourse = (course: Course): string => {
  * @param course The course to format and partially bold.
  */
 export const semiBoldCourse = (course: Course): string => {
-  return bold(course._id) + ` - ${course.name}`;
+  return bold(course.code) + ` - ${course.name}`;
 };
 
 /**
@@ -30,7 +30,7 @@ export const boldCourse = (course: Course): string => {
   return bold(formatCourse(course));
 };
 
-export const validCourseId = (id: string): boolean => {
+export const validCourseCode = (id: string): boolean => {
   return /^[A-Z]{2,4} [0-9]{4}$/.test(id);
 };
 

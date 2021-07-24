@@ -1,17 +1,8 @@
+import _ from 'lodash';
 import * as Discord from '../../Discord';
 import Trigger from '../../Trigger';
 import { Birthday, Course } from '../../repository';
 import { eliminateDuplicates } from '../../utils';
-
-/**
- * Returns whether the serialized representations of two objects are equal.
- *
- * @param a The first JSON-serializable object.
- * @param b The second JSON-serializable object.
- */
-const compareSerialized = (a: any, b: any) => {
-  return JSON.stringify(a) === JSON.stringify(b);
-};
 
 /**
  * Resolves data integrity issues of the given birthday.
@@ -51,8 +42,8 @@ const normalizeCourse = (c: Course): Course => {
 
   return {
     _id: c._id,
+    code: c.code,
     subject: c.subject,
-    number: c.number,
     name: c.name,
     roleId: c.roleId,
     members,
@@ -74,9 +65,9 @@ const normalizeDatabase = new Trigger({
     for (const c of courses) {
       const n = normalizeCourse(c);
       // If the course changed, then update it.
-      if (!compareSerialized(c, n)) {
-        console.log(`Corruption in course ${c._id}. Fixing...`);
-        await ctx.courses().updateById(guild.id, c._id, n);
+      if (!_.isEqual(c, n)) {
+        console.log(`Corruption in course ${c._id} (${c.code}). Fixing...`);
+        await ctx.courses().updateByRoleId(guild.id, c.roleId, n);
       }
     }
 
@@ -84,7 +75,7 @@ const normalizeDatabase = new Trigger({
     for (const b of birthdays) {
       const n = normalizeBirthday(b);
       // If the birthday changed, then update it.
-      if (!compareSerialized(b, n)) {
+      if (!_.isEqual(b, n)) {
         console.log(`Corruption in birthday ${b._id}. Fixing...`);
         await ctx.birthdays().updateById(guild.id, b._id, n);
       }
