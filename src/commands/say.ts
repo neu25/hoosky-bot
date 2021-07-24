@@ -26,21 +26,20 @@ const bulkCreate = new Command({
       'Send the message you want HooskBot to echo. Your message will be deleted.',
     );
 
+    const promptMsg = await ctx.interactionApi.getResponse();
+
     // Wait for a follow-up message for up to 30s.
     ctx.expectMessageFollowUp(
       FollowUp.MESSAGE,
       interaction.channel_id ?? '',
+      promptMsg.id,
       userId,
       60_000,
     );
   },
   msgFollowUpHandlers: {
-    [FollowUp.MESSAGE]: async (tctx, ectx) => {
+    [FollowUp.MESSAGE]: async tctx => {
       const message = tctx.data;
-      const userId = ectx.mustGetUserId();
-
-      // Stop treating this user's messages as follow-ups.
-      ectx.unexpectFollowUp(message.channel_id, userId);
 
       let attachment: Discord.Attachment | undefined;
       let arrayBuffer: ArrayBuffer | undefined;

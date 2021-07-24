@@ -17,9 +17,12 @@ const reply = new Interaction({
       `<@${member.user!.id}> Send the message you want HooskBot to forward`,
     );
 
+    const promptMsg = await ctx.interactionApi.getResponse();
+
     return ctx.expectMessageFollowUp(
       FollowUp.MESSAGE,
       interaction.channel_id ?? '',
+      promptMsg.id,
       member.user!.id,
       60_000,
     );
@@ -29,8 +32,6 @@ const reply = new Interaction({
       const guildId = ectx.mustGetGuildId();
       const replyMsg = tctx.data;
       const { author } = replyMsg;
-
-      ectx.unexpectFollowUp(replyMsg.channel_id, author.id);
 
       const mailThread = await ectx
         .mail()

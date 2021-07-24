@@ -94,14 +94,16 @@ class ExecutionContext extends BaseContext {
    *
    * @param followUpId The ID of the handler in the `followUpHandlers` map.
    * @param channelId The ID of the channel to listen in.
+   * @param messageId The ID of the message being followed up on.
    * @param userId The ID of the user to listen to.
    * @param ttl?? The number of milliseconds to keep the follow-up listener open. (Default: 10,000ms).
    */
   expectMessageFollowUp(
     followUpId: string,
     channelId: string,
+    messageId: string,
     userId: string,
-    ttl?: number,
+    ttl = 30000,
   ): void {
     const handler = this.msgFollowUpHandlers[followUpId];
     if (!handler) {
@@ -111,20 +113,10 @@ class ExecutionContext extends BaseContext {
       handler,
       userId,
       channelId,
+      messageId,
       ectx: this,
-      expires: Date.now() + (ttl ?? 10000),
+      expires: Date.now() + ttl,
     });
-  }
-
-  /**
-   * Un-primes the follow-up handler for the provided user ID.
-   * This means that the user's messages will no longer be treated as follow-ups.
-   *
-   * @param channelId The ID of the channel.
-   * @param userId The ID of the user to un-listen to.
-   */
-  unexpectFollowUp(channelId: string, userId: string): void {
-    this._followUpManager.removeMsgFollowUp(channelId, userId);
   }
 
   /**

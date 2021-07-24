@@ -360,6 +360,39 @@ class Api {
   }
 
   /**
+   * Replies to a message in the specified channel.
+   *
+   * @param channelId The ID of the channel.
+   * @param messageId The ID of the message to reply to.
+   * @param content The reply message.
+   */
+  createReply(
+    channelId: string,
+    messageId: string,
+    content: string,
+  ): Promise<Discord.Message> {
+    return this.createMessage(channelId, {
+      content,
+      message_reference: {
+        message_id: messageId,
+      },
+    });
+  }
+
+  /**
+   * Sends a message in the specified channel.
+   *
+   * @param channelId The ID of the channel.
+   * @param content The content of the message.
+   */
+  createTextMessage(
+    channelId: string,
+    content: string,
+  ): Promise<Discord.Message> {
+    return this.createMessage(channelId, { content });
+  }
+
+  /**
    * Sends an error message in the specified channel.
    *
    * @param channelId The ID of the channel.
@@ -369,7 +402,7 @@ class Api {
     channelId: string,
     content: string,
   ): Promise<Discord.Message> {
-    return this.createMessage(channelId, { content: `Error: ${content}` });
+    return this.createTextMessage(channelId, `Error: ${content}`);
   }
 
   /**
@@ -384,12 +417,7 @@ class Api {
     messageId: string,
     content: string,
   ): Promise<Discord.Message> {
-    return this.createMessage(channelId, {
-      content: `Error: ${content}`,
-      message_reference: {
-        message_id: messageId,
-      },
-    });
+    return this.createReply(channelId, messageId, `Error: ${content}`);
   }
 
   /**

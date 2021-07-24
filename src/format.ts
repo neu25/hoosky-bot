@@ -40,6 +40,19 @@ export const underline = (text: string): string => `__${text}__`;
 export const inlineCode = (text: string): string => `\`${text}\``;
 
 /**
+ * Places the supplied text in a multiline code block using Discord's syntax.
+ *
+ * @param text The text to place in a multiline code block.
+ * @param language The language of the text (e.g., js, bash, json).
+ */
+export const multilineCode = (
+  text: string,
+  language = '',
+): string => `\`\`\`${language}
+${text}
+\`\`\``;
+
+/**
  * Returns a formatted string of boxed text within a horizontal line.
  * This method is primarily used for fancy formatting of bot responses.
  *
