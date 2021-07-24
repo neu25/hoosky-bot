@@ -46,7 +46,7 @@ const listJoined = new SubCommand({
 
     // Iterate over every course.
     const courses = await (await ctx.courses().scan(guildId))
-      .sort({ _id: 1 })
+      .sort({ code: 1 })
       .toArray();
     for (const c of courses) {
       const members = c.members;

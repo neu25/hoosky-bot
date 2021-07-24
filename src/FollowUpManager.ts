@@ -12,6 +12,7 @@ export type MessageFollowUpHandler = (
 type MessageFollowUp = {
   userId: string;
   channelId: string;
+  messageId: string;
   handler: MessageFollowUpHandler;
   ectx: ExecutionContext;
   expires: number;
@@ -36,8 +37,10 @@ class FollowUpManager {
         if (Date.now() > f.expires) {
           this.removeMsgFollowUp(f.channelId, f.userId);
 
-          f.ectx.interactionApi
-            .followUpWithError(
+          f.ectx.api
+            .createErrorReply(
+              f.channelId,
+              f.messageId,
               'Timed out while waiting for response. Please execute the command again.',
             )
             .catch(e => console.log(e));
@@ -62,6 +65,7 @@ class FollowUpManager {
         'in channel',
         msg.channel_id,
       );
+      this.removeMsgFollowUp(msg.channel_id, msg.author.id);
       return followUp.handler(ctx, followUp.ectx);
     }
   }
@@ -81,7 +85,7 @@ class FollowUpManager {
 
   removeMsgFollowUp(channelId: string, userId: string): void {
     console.log(
-      '[Client] Deactivated message follow-up from user',
+      '[Client] Deactivating message follow-up from user',
       userId,
       'in channel',
       channelId,
