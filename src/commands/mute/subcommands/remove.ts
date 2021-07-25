@@ -1,7 +1,11 @@
 import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
-import { checkMutePermissionsOrExit, getMuteRoleOrExit } from '../_common';
+import {
+  checkMutePermissionsOrExit,
+  getMuteRoleOrExit,
+  removeUnmuteJob,
+} from '../_common';
 import { bold } from '../../../format';
 
 const remove = new SubCommand({
@@ -44,9 +48,11 @@ const remove = new SubCommand({
 
     // Get info about the user and provide a response message.
     const user = await ctx.api.getUser(targetUserId);
-    return ctx.interactionApi.respondWithMessage(
+    await ctx.interactionApi.respondWithMessage(
       `Unmuted ${bold(`${user.username}#${user.discriminator}`)}`,
     );
+
+    await removeUnmuteJob(ctx, targetUserId);
   },
 });
 
