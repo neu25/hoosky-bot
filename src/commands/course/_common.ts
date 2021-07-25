@@ -22,6 +22,25 @@ export const semiBoldCourse = (course: Course): string => {
 };
 
 /**
+ * Returns a partially-bolded version of the course string WITHOUT the subject code.
+ * Only the number and "(NUA)" identifier are bolded, not the name.
+ *
+ * @param course The course to format and partially bold
+ */
+export const formatListedCourse = (course: Course): string => {
+  const splitCode = course.code.split(' ');
+
+  let reference = '';
+  if (course.code.includes('(NUA)')) {
+    reference = `NUA ${splitCode[2]}`;
+  } else {
+    reference = splitCode[1];
+  }
+
+  return bold(reference) + ` - ${course.name}`;
+};
+
+/**
  * Returns a bolded version of the full course string.
  *
  * @param course The course to format and bold.

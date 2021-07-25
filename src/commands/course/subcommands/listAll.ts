@@ -1,6 +1,6 @@
 import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
-import { semiBoldCourse } from '../_common';
+import { formatListedCourse } from '../_common';
 import { fancyCenter } from '../../../format';
 
 type SubjectGroup = {
@@ -32,7 +32,7 @@ const listAll = new SubCommand({
       if (!curGroup || c.subject !== curGroup.subject) {
         curGroup = {
           subject: c.subject,
-          heading: fancyCenter(c.subject, 50),
+          heading: fancyCenter(c.subject, 14),
           list: '',
         };
         subGroups.push(curGroup);
@@ -40,7 +40,7 @@ const listAll = new SubCommand({
 
       // Write the course to the subject group.
 
-      curGroup.list += semiBoldCourse(c) + '\n';
+      curGroup.list += formatListedCourse(c) + '\n';
       c = await courses.next();
     }
 
@@ -52,7 +52,7 @@ const listAll = new SubCommand({
 
     await ctx.interactionApi.respondSilentlyWithEmbed({
       type: Discord.EmbedType.RICH,
-      title: 'Course List',
+      title: 'Courses',
       fields,
     });
   },
