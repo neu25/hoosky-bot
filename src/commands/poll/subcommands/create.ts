@@ -4,6 +4,7 @@ import * as Discord from '../../../Discord';
 import { authorAvatarUrl } from '../../../cdn';
 import { EM_SPACE } from '../../../format';
 import ExecutionContext from '../../../ExecutionContext';
+import { extractEmojis } from '../../../utils';
 
 const respondWithCountMismatch = (
   ctx: ExecutionContext,
@@ -52,10 +53,7 @@ const create = new SubCommand({
     const emojis = ctx.getArgument<string>('emojis')!;
     const descriptionsArg = ctx.getArgument<string>('descriptions');
 
-    const emojiRegexAbomination =
-      /<a:.+?:\d+>|\p{Extended_Pictographic}|<:.+?:\d+>/gu;
-    const reactions = emojis.match(emojiRegexAbomination);
-
+    const reactions = extractEmojis(emojis);
     if (reactions === null) {
       return ctx.interactionApi.respondWithError('Please define valid emojis');
     }

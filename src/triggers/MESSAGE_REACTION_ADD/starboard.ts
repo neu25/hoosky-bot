@@ -1,6 +1,8 @@
 import * as Discord from '../../Discord';
 import Trigger from '../../Trigger';
-import Boards from '../../commands/starboard/_Boards';
+import { authorAvatarUrl, messageLink } from '../../cdn';
+import { transformAttachmentsToEmbeds } from '../MESSAGE_CREATE/_utils';
+import { bold, hyperlink } from '../../format';
 
 /**
  * TO DO:
@@ -9,58 +11,70 @@ import Boards from '../../commands/starboard/_Boards';
  * include files in starboard message
  * (extra) include replied messages in starboard message
  */
-const starboard = new Trigger<Discord.Event.MESSAGE_REACTION_ADD>({
+const starboard = new Trigger({
   event: Discord.Event.MESSAGE_REACTION_ADD,
   handler: async ctx => {
-    //get information about the reaction
-    const data = ctx.data;
-    //check if the emoji is one of the designated emojis for theboards
-    if (Boards.boardEmojis.includes(data.emoji.name)) {
-      const idx = Boards.boardEmojis.indexOf(data.emoji.name);
-      const minstars = Boards.boardMins[idx];
-      const channelId = Boards.boardIDs[idx];
-      //get array of users who reacted with a star
-      const reactions = await ctx.api.getReactions(
-        data.message_id,
-        data.channel_id,
-        data.emoji.name,
-      );
-      //get message content
-      const msg = await ctx.api.getChannelMessage(
-        data.channel_id,
-        data.message_id,
-      );
-      const sender = await ctx.api.getGuildMember(
-        data.guild_id!,
-        msg.author!.id!,
-      );
-      console.log(msg);
-      //check if the user has a nickname
-      let userNick;
-      if (sender.nick === null) {
-        userNick = sender.user!.username;
-      } else {
-        userNick = sender.nick!;
-      }
-      //fields for Embed
-      const fields: Discord.EmbedField[] = [
-        {
-          name: userNick,
-          value: msg.content,
-        },
-      ];
-      const boardEmbed: Discord.Embed = {
-        title: '',
-        fields,
-      };
-      const boardMsg: Discord.CreateMessagePayload = {
-        content: `${data.emoji.name} ${reactions.length} | <#${data.channel_id}> | <@${msg.author.id}>`,
-        embeds: [boardEmbed],
-      };
+    const {
+      guild_id: guildId,
+      channel_id: channelId,
+      message_id: messageId,
+      emoji,
+    } = ctx.data;
+    if (!guildId) {
+      throw new Error('No guild ID found in trigger data');
+    }
 
-      if (reactions.length >= minstars) {
-        await ctx.api.createMessage(channelId, boardMsg);
-      }
+    const board = await ctx.boards().getByEmoji(guildId, emoji.name);
+    if (!board) return;
+
+    const message = await ctx.api.getChannelMessage(channelId, messageId);
+    const { author, referenced_message: referencedMessage } = message;
+    const reactions = message.reactions!;
+
+    const fields: Discord.EmbedField[] = [
+      {
+        name: 'Original',
+        value: hyperlink(
+          'Jump to message',
+          messageLink(guildId, channelId, messageId),
+        ),
+      },
+    ];
+    if (referencedMessage) {
+      const referencedContent = referencedMessage.content
+        ? `>>> ${referencedMessage.content}`
+        : '[Attachment]';
+
+      fields.push({
+        name: `Replying to ${referencedMessage.author.username}#${referencedMessage.author.discriminator}`,
+        value: referencedContent,
+      });
+    }
+
+    // Get the specific reaction type on the message matching the emoji added.
+    const reactionForEmoji = reactions.find(r => r.emoji.name === emoji.name);
+    if (!reactionForEmoji) return;
+
+    if (reactionForEmoji.count >= board.minReactions) {
+      await ctx.api.createMessage(channelId, {
+        content: `${bold(
+          reactionForEmoji.count.toLocaleString(),
+        )} | <#${channelId}>`,
+        embeds: [
+          {
+            fields,
+            description: message.content,
+            author: {
+              name: `${author.username}#${author.discriminator}`,
+              icon_url: authorAvatarUrl(author),
+            },
+            timestamp: message.timestamp,
+            type: Discord.EmbedType.RICH,
+          },
+          ...transformAttachmentsToEmbeds(message.attachments),
+        ],
+      });
+      return;
     }
   },
 });

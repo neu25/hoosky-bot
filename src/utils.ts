@@ -1,5 +1,8 @@
 import util from 'util';
 
+export const emojiRegexAbomination =
+  /<a:.+?:\d+>|\p{Extended_Pictographic}|<:.+?:\d+>/gu;
+
 export type Primitive = string | boolean | number | undefined | null;
 
 /**
@@ -45,6 +48,10 @@ export const performRequest = async <T>(fn: () => Promise<T>): Promise<T> => {
 
     throw stack;
   }
+};
+
+export const extractEmojis = (text: string): string[] | null => {
+  return text.match(emojiRegexAbomination);
 };
 
 /**

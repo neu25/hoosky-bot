@@ -8,6 +8,7 @@ import bot from './bot';
 import say from './say';
 import birthday from './birthday';
 import mail from './mail';
+import starboard from './starboard';
 
 const commandList: Command[] = [
   ping,
@@ -19,6 +20,7 @@ const commandList: Command[] = [
   say,
   birthday,
   mail,
+  starboard,
 ];
 
 export default commandList;

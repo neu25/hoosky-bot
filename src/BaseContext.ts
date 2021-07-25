@@ -8,6 +8,7 @@ import ConfigRepo from './repository/ConfigRepo';
 import Debouncer from './Debouncer';
 import PollRepo from './repository/PollRepo';
 import BirthdayRepo from './repository/BirthdayRepo';
+import BoardRepo from './repository/BoardRepo';
 
 export type State = Record<string, any>;
 
@@ -36,6 +37,10 @@ class BaseContext {
     this.msgFollowUpHandlers = {};
     this._state = {};
     this._followUpManager = opts.followUpManager;
+  }
+
+  boards(): BoardRepo {
+    return this.repos.boards;
   }
 
   courses(): CourseRepo {
