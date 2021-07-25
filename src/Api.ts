@@ -366,7 +366,7 @@ class Api {
    * @param messageId The ID of the message to reply to.
    * @param content The reply message.
    */
-  createReply(
+  createTextMessageReply(
     channelId: string,
     messageId: string,
     content: string,
@@ -417,7 +417,11 @@ class Api {
     messageId: string,
     content: string,
   ): Promise<Discord.Message> {
-    return this.createReply(channelId, messageId, `Error: ${content}`);
+    return this.createTextMessageReply(
+      channelId,
+      messageId,
+      `Error: ${content}`,
+    );
   }
 
   /**

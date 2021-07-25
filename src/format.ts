@@ -1,4 +1,5 @@
 export const EM_SPACE = ' ';
+export const EN_SPACE = ' ';
 
 /**
  * Returns a plural version (with an appended `s`) of the provided word if the

@@ -8,7 +8,7 @@ const postJoinSectionText = `Run ${inlineCode(
   '/course classmates',
 )} to see the people in your classes.`;
 
-const postJoinCourseText = `To get matched with other people in your class section, run this command again with the ${bold(
+const postJoinCourseText = `⚠️ To get matched with other people in your class section, run this command again with the ${bold(
   'section',
 )} argument.`;
 

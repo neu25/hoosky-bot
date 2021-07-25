@@ -83,7 +83,7 @@ const listJoined = new SubCommand({
       value: sub.list, // The course list.
     }));
 
-    await ctx.interactionApi.respondSilentlyWithEmbed({
+    await ctx.interactionApi.respondWithEmbed({
       type: Discord.EmbedType.RICH,
       title: `${username}’s Course List`,
       fields,

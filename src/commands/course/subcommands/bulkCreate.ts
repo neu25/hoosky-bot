@@ -120,11 +120,8 @@ const createCourses = async (
   // Iterate over every course: create the role and insert the entry into the database.
   for (const c of courses) {
     const existingCourse = await tctx.courses().getByCode(guildId, c.code);
-    // If the course already exists, just update the name in the database.
+    // If the course already exists, skip it.
     if (existingCourse) {
-      await tctx.courses().updateByRoleId(guildId, existingCourse.roleId, {
-        name: c.name,
-      });
       skippedCourses.push(c);
       continue;
     }
@@ -163,7 +160,7 @@ const createCourses = async (
     creationMsg += ` The following ${skippedCount.toLocaleString()} duplicate ${pluralize(
       'course',
       skippedCount,
-    )} ${was} skipped:
+    )} ${was} not added:
 ${formatCourseInputList(skippedCourses)}`;
   }
 
@@ -250,7 +247,7 @@ const bulkCreate = new SubCommand({
 ${formatCourseInputList(invalidCourses)}
 Do you still want to proceed? [y/n]`;
 
-        const replyMsg = await tctx.api.createReply(
+        const replyMsg = await tctx.api.createTextMessageReply(
           channelId,
           messageId,
           warningMsg,

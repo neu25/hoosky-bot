@@ -1,59 +1,41 @@
 import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
-import { formatListedCourse } from '../_common';
-import { fancyCenter } from '../../../format';
-
-type SubjectGroup = {
-  subject: string;
-  heading: string;
-  list: string;
-};
+import {
+  fetchCoursePages,
+  constructSubjectEmbedFromPage,
+  constructSubjectSelectFromPages,
+} from '../_common';
+import { italics } from '../../../format';
 
 const listAll = new SubCommand({
   name: 'list-all',
   displayName: 'List All Courses',
   description: 'Lists all available courses',
   handler: async ctx => {
-    const guildId = ctx.mustGetGuildId();
-    const courses = (await ctx.courses().scan(guildId)).sort({
-      subject: 1,
-      code: 1,
-    });
+    const { interaction } = ctx;
+    const channelId = interaction.channel_id!;
 
-    // Hold an array of subject groups to output.
-    const subGroups: SubjectGroup[] = [];
-    // Record the current subject being written to.
-    let curGroup: SubjectGroup | null = null;
-
-    // Iterate over every course.
-    let c = await courses.next();
-    while (c !== null) {
-      // If the course's subject is different, then create a new subject group.
-      if (!curGroup || c.subject !== curGroup.subject) {
-        curGroup = {
-          subject: c.subject,
-          heading: fancyCenter(c.subject, 14),
-          list: '',
-        };
-        subGroups.push(curGroup);
-      }
-
-      // Write the course to the subject group.
-
-      curGroup.list += formatListedCourse(c) + '\n';
-      c = await courses.next();
+    const pages = await fetchCoursePages(ctx);
+    if (pages.length === 0) {
+      return ctx.interactionApi.respondSilentlyWithEmbed({
+        type: Discord.EmbedType.RICH,
+        description: 'No courses were found',
+      });
     }
 
-    // Map subject groups to Discord embed fields.
-    const fields: Discord.EmbedField[] = subGroups.map(sub => ({
-      name: sub.heading, // The subject name.
-      value: sub.list, // The course list.
-    }));
+    await ctx.interactionApi.respondWithMessage(
+      'Here is a page of the course list:',
+    );
 
-    await ctx.interactionApi.respondSilentlyWithEmbed({
-      type: Discord.EmbedType.RICH,
-      title: 'Courses',
-      fields,
+    return ctx.api.createMessage(channelId, {
+      content: italics('Course not listed here? Please suggest it!'),
+      components: [
+        {
+          type: Discord.MessageComponentType.ActionRow,
+          components: [constructSubjectSelectFromPages(pages)],
+        },
+      ],
+      embeds: [constructSubjectEmbedFromPage(pages[0], pages.length)],
     });
   },
 });
