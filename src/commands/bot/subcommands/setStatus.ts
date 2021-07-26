@@ -3,6 +3,8 @@ import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
 import CommandOptionChoice from '../../../CommandOptionChoice';
 import { bold } from '../../../format';
+import { Config } from '../../../database';
+import { BotConfig } from '../../../repository/ConfigRepo';
 
 export const STATUSES: Record<Discord.StatusType, string> = {
   [Discord.StatusType.Online]: 'Online',
@@ -38,29 +40,19 @@ const setStatus = new SubCommand({
     }),
   ],
   handler: async ctx => {
-    const message = ctx.getArgument<string>('message');
     const status = ctx.getArgument<string>('status') as Discord.StatusType;
+    const message = ctx.getArgument<string>('message');
 
-    const activity: Discord.Activity = message
-      ? {
-          // Discord only allows status messages for bots if they are prefixed by
-          // "Playing", "Listening to", "Streaming", etc.
-          name: message,
-          type: Discord.ActivityType.Game,
-          created_at: Date.now(),
-        }
-      : {
-          name: '',
-          type: Discord.ActivityType.Custom,
-          created_at: Date.now(),
-        };
+    // Send a status update message to the gateway.
+    ctx.client.updateStatus(status, message);
 
-    ctx.client.updatePresence({
-      activities: [activity],
-      since: null,
-      afk: false,
+    // Update the saved status.
+    const botCfg: BotConfig = {
       status,
-    });
+      statusMessage: message ?? '',
+    };
+    await ctx.config().updateGlobal(Config.BOT, botCfg);
+
     return ctx.interactionApi.respondWithMessage(
       'Bot status updated to ' + bold(`${STATUSES[status]} - ${message}`),
     );

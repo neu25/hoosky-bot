@@ -1,9 +1,15 @@
 import { Collection as MongoCollection } from 'mongodb';
+import * as Discord from '../Discord';
 import { Collection, Config, Database } from '../database';
 
 /**
  * Config data structures
  */
+
+export type BotConfig = {
+  status: Discord.StatusType;
+  statusMessage: string;
+};
 
 export type GuildConfig = {
   commandPrefixes: string[];
@@ -35,6 +41,11 @@ export type BirthdaysConfig = {
 /**
  * Default config values
  */
+
+export const botConfig: BotConfig = {
+  status: Discord.StatusType.Online,
+  statusMessage: 'DM me to contact mods',
+};
 
 export const rolesConfig: RolesConfig = {
   muted: '',
@@ -70,11 +81,13 @@ class ConfigRepo {
    * already exists, the insertion is skipped.
    */
   async initialize(guildIds: string[]): Promise<void> {
+    await this.insertGlobalIfNotExists(Config.BOT, botConfig);
+    await this.insertGlobalIfNotExists(Config.MAIL, mailConfig);
+
     for (const gId of guildIds) {
       await this.insertIfNotExists(gId, Config.ROLES, rolesConfig);
       await this.insertIfNotExists(gId, Config.GUILD, guildConfig);
       await this.insertIfNotExists(gId, Config.BIRTHDAYS, birthdaysConfig);
-      await this.insertGlobalIfNotExists(Config.MAIL, mailConfig);
     }
   }
 

@@ -12,6 +12,9 @@ import InteractionManager from './InteractionManager';
 import InteractionApi from './InteractionApi';
 import Debouncer from './Debouncer';
 import MasterScheduler from './MasterScheduler';
+import { BotConfig } from './repository/ConfigRepo';
+import { Config } from './database';
+import { STATUSES } from './commands/bot/subcommands/setStatus';
 
 // The delay between reconnections, in milliseconds.
 const RECONNECT_DELAY = 1000;
@@ -151,14 +154,35 @@ class Client {
   }
 
   /**
-   * Updates the presence (AKA status) of the bot.
+   * Updates the status of the bot to the provided status indicator and message.
    *
-   * @param data The presence data.
+   * Note that limitations of Discord require the message to be prefixed by `Playing`.
+   *
+   * @param status The status type of the bot (e.g., Online, Idle).
+   * @param message The status message of the bot.
    */
-  updatePresence(data: Discord.PresenceUpdatePayload): void {
-    this._sendMessage({
-      op: Discord.Opcode.PresenceUpdate,
-      d: data,
+  updateStatus(status: Discord.StatusType, message?: string): void {
+    console.log(`[Client] Updating status to ${STATUSES[status]} - ${message}`);
+
+    const activity: Discord.Activity = message
+      ? {
+          // Discord only allows status messages for bots if they are prefixed by
+          // "Playing", "Listening to", "Streaming", etc.
+          name: message,
+          type: Discord.ActivityType.Game,
+          created_at: Date.now(),
+        }
+      : {
+          name: '',
+          type: Discord.ActivityType.Custom,
+          created_at: Date.now(),
+        };
+
+    this._updatePresence({
+      activities: [activity],
+      since: null,
+      afk: false,
+      status,
     });
   }
 
@@ -216,6 +240,14 @@ class Client {
         if (this._connectCallback) {
           this._connectCallback(ready);
         }
+
+        // Set the initial status and status message of the bot.
+        const botCfg = await this.repos.config.getGlobal<BotConfig>(Config.BOT);
+        this.updateStatus(
+          botCfg?.status ?? Discord.StatusType.Online,
+          botCfg?.statusMessage,
+        );
+
         break;
       }
       case Discord.Event.INTERACTION_CREATE: {
@@ -364,6 +396,18 @@ class Client {
 
     this._sendMessage({
       op: Discord.Opcode.Identify,
+      d: data,
+    });
+  }
+
+  /**
+   * Updates the presence (AKA status) of the bot.
+   *
+   * @param data The presence data.
+   */
+  private _updatePresence(data: Discord.PresenceUpdatePayload): void {
+    this._sendMessage({
+      op: Discord.Opcode.PresenceUpdate,
       d: data,
     });
   }

@@ -14,6 +14,7 @@ export enum Collection {
  * Document IDs within the `config` collection
  */
 export enum Config {
+  BOT = 'bot',
   GUILD = 'guild',
   ROLES = 'roles',
   MAIL = 'mail',
