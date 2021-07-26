@@ -26,7 +26,8 @@ export type BirthdayMessage = {
 };
 
 export type BirthdaysConfig = {
-  schedule: string;
+  scheduledHour: number;
+  scheduledMinute: number;
   channel: string;
   messages: BirthdayMessage[];
 };
@@ -51,7 +52,8 @@ export const mailConfig: MailConfig = {
 };
 
 export const birthdaysConfig: BirthdaysConfig = {
-  schedule: '00 15 10 * * *',
+  scheduledHour: 7,
+  scheduledMinute: 0,
   channel: '',
   messages: [{ id: 1, message: 'Happy birthday, %!' }],
 };

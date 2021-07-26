@@ -1,12 +1,12 @@
 import { Collection as MongoCollection, Cursor } from 'mongodb';
 import { Collection, Database } from '../database';
-import { JobType } from '../jobHandlers';
+import { JobType, JobTypeMap } from '../jobHandlers';
 
-export type SerializedJob = {
+export type SerializedJob<T extends JobType = JobType> = {
   _id: string;
-  type: JobType;
+  type: T;
   targetDate: Date;
-  data: any;
+  data: JobTypeMap[T];
 };
 
 class JobRepo {
@@ -35,8 +35,14 @@ class JobRepo {
    * @param guildId The ID of the guild.
    * @param job The scheduled job.
    */
-  async create(guildId: string, job: SerializedJob): Promise<void> {
-    await this.collection(guildId).insertOne(job);
+  async updateOrInsert(guildId: string, job: SerializedJob): Promise<void> {
+    await this.collection(guildId).updateOne(
+      { _id: job._id },
+      { $set: job },
+      {
+        upsert: true,
+      },
+    );
   }
 
   async delete(guildId: string, jobId: string): Promise<void> {

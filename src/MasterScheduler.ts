@@ -1,7 +1,8 @@
-import Scheduler from './Scheduler';
+import Scheduler, { Job } from './Scheduler';
 import Api from './Api';
 import { Repositories } from './repository';
-import { SerializedJob } from './repository/JobRepo';
+import { JobType } from './jobHandlers';
+import { addDefaultJobs } from './jobHandlers/_defaultJobs';
 
 class MasterScheduler {
   private readonly _api: Api;
@@ -14,10 +15,7 @@ class MasterScheduler {
     this._schedulers = {};
   }
 
-  async addJob(
-    guildId: string,
-    job: Omit<SerializedJob, '_id'>,
-  ): Promise<void> {
+  async addJob<T extends JobType>(guildId: string, job: Job<T>): Promise<void> {
     await this.mustGetScheduler(guildId).addJob(job);
   }
 
@@ -33,16 +31,18 @@ class MasterScheduler {
     return sc;
   }
 
-  async _startScheduler(guildId: string): Promise<void> {
-    this._stopScheduler(guildId);
+  async startSchedulerWithDefaultJobs(guildId: string): Promise<void> {
+    this.stopScheduler(guildId);
 
     const sc = new Scheduler(this._api, this._repos, guildId);
-    await sc.start();
-
     this._schedulers[guildId] = sc;
+
+    await sc.loadJobsFromRepo();
+    await addDefaultJobs(sc, this._repos, guildId);
+    await sc.start();
   }
 
-  _stopScheduler(guildId: string): void {
+  stopScheduler(guildId: string): void {
     const sc = this._schedulers[guildId];
     if (sc) {
       sc.stop();

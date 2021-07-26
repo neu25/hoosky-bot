@@ -61,7 +61,7 @@ export const set = new SubCommand({
 
     await ctx.birthdays().set(guildId, dateKey, userId);
     return ctx.interactionApi.respondWithMessage(
-      `Your birthday has been set to ${prettyDate}!`,
+      `Your birthday has been set to ${bold(prettyDate)}!`,
     );
   },
 });

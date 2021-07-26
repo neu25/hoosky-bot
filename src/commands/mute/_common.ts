@@ -73,6 +73,10 @@ export const checkMutePermissionsOrExit = async (
   return true;
 };
 
+export const constructUnmuteJobId = (userId: string): string => {
+  return `${JobType.UNMUTE}-${userId}`;
+};
+
 export const createUnmuteJob = async (
   ctx: ExecutionContext,
   userId: string,
@@ -82,6 +86,7 @@ export const createUnmuteJob = async (
 
   const data: UnmuteJobData = { guildId, userId };
   await ctx.scheduler.addJob(guildId, {
+    _id: constructUnmuteJobId(userId),
     type: JobType.UNMUTE,
     targetDate,
     data,
@@ -93,14 +98,5 @@ export const removeUnmuteJob = async (
   userId: string,
 ): Promise<void> => {
   const guildId = ctx.mustGetGuildId();
-
-  const jobs = await ctx.repos.jobs.list(guildId);
-  for (const j of jobs) {
-    if (j.type === JobType.UNMUTE) {
-      const data = j.data as UnmuteJobData;
-      if (data.guildId === guildId && data.userId === userId) {
-        await ctx.scheduler.removeJob(guildId, j._id);
-      }
-    }
-  }
+  await ctx.repos.jobs.delete(guildId, constructUnmuteJobId(userId));
 };

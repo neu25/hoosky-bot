@@ -1,13 +1,16 @@
-import jobHandlers from './jobHandlers';
+import jobHandlers, { JobHandler, JobType } from './jobHandlers';
 import { Repositories } from './repository';
 import { SerializedJob } from './repository/JobRepo';
 import Api from './Api';
-import { generateId } from './utils';
 
-export const SCHEDULING_PASS_DELAY = 500;
+export const SCHEDULING_PASS_DELAY = 200;
+
+export type Job<T extends JobType = JobType> = {
+  reschedule?: (lastDate: Date) => Date;
+} & SerializedJob<T>;
 
 class Scheduler {
-  private _cachedJobs: Record<string, SerializedJob>;
+  private _cachedJobs: Record<string, Job>;
   private _loop?: NodeJS.Timeout;
   private readonly _guildId: string;
   private readonly _repos: Repositories;
@@ -20,15 +23,18 @@ class Scheduler {
     this._repos = repos;
   }
 
-  async start(): Promise<void> {
+  async loadJobsFromRepo(): Promise<void> {
     const jobs = await this._repos.jobs.list(this._guildId);
-    this.stop();
-
     const cachedJobs: Record<string, SerializedJob> = {};
     for (const j of jobs) {
       cachedJobs[j._id] = j;
     }
     this._cachedJobs = cachedJobs;
+  }
+
+  start(): void {
+    this.stop();
+    console.log(`[Scheduler] Starting for guild ${this._guildId}`);
 
     this._loop = setInterval(
       () => this._schedulingPass(),
@@ -38,25 +44,23 @@ class Scheduler {
 
   stop(): void {
     if (this._loop) {
+      console.log(`[Scheduler] Stopping for guild ${this._guildId}`);
       clearInterval(this._loop);
     }
     this._loop = undefined;
   }
 
-  async addJob(job: Omit<SerializedJob, '_id'>): Promise<void> {
-    const taggedJob = {
-      ...job,
-      _id: job.type + `-${Date.now()}-${generateId()}`,
-    };
+  async addJob<T extends JobType>(job: Job<T>): Promise<void> {
+    console.log('[Scheduler] Adding job:', job);
 
-    console.log('[SCHEDULER] Adding job:', taggedJob);
+    const { reschedule: _, ...serialized } = job;
 
-    await this._repos.jobs.create(this._guildId, taggedJob);
-    this._cachedJobs[taggedJob._id] = taggedJob;
+    await this._repos.jobs.updateOrInsert(this._guildId, serialized);
+    this._cachedJobs[job._id] = job;
   }
 
   async removeJob(id: string): Promise<void> {
-    console.log(`[SCHEDULER] Removing job ${id}`);
+    console.log(`[Scheduler] Removing job ${id}`);
 
     delete this._cachedJobs[id];
     await this._repos.jobs.delete(this._guildId, id);
@@ -66,13 +70,23 @@ class Scheduler {
     const jobs = this._filterJobsToRun();
 
     for (const j of jobs) {
-      console.log('[SCHEDULER] Running job:', j);
+      console.log('[Scheduler] Running job:', j);
 
-      this.removeJob(j._id).catch(e => {
-        throw e;
-      });
+      // If the job should be reschedule, then override the stored job with the
+      // new time. Otherwise, remove the job.
+      if (j.reschedule) {
+        const nextDate = j.reschedule(j.targetDate);
+        this.addJob({ ...j, targetDate: nextDate }).catch(e => {
+          throw e;
+        });
+      } else {
+        this.removeJob(j._id).catch(e => {
+          throw e;
+        });
+      }
 
-      jobHandlers[j.type]({
+      const handler = jobHandlers[j.type] as JobHandler;
+      handler({
         repos: this._repos,
         api: this._api,
         data: j.data,
@@ -80,7 +94,7 @@ class Scheduler {
     }
   }
 
-  private _filterJobsToRun(): SerializedJob[] {
+  private _filterJobsToRun(): Job[] {
     const now = Date.now();
     return Object.values(this._cachedJobs).filter(
       j => now >= j.targetDate.getTime(),
