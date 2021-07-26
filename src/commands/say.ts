@@ -69,7 +69,9 @@ const bulkCreate = new Command({
           content: message.content,
           tts: message.tts,
           embeds: message.embeds,
-          message_reference: message.referenced_message,
+          message_reference: {
+            message_id: message.referenced_message?.id,
+          },
           components: message.components,
         });
       }
