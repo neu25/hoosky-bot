@@ -12,7 +12,7 @@ export type MessageFollowUpHandler = (
 type MessageFollowUp = {
   userId: string;
   channelId: string;
-  messageId: string;
+  messageId: string | null;
   handler: MessageFollowUpHandler;
   ectx: ExecutionContext;
   expires: number;
@@ -37,13 +37,19 @@ class FollowUpManager {
         if (Date.now() > f.expires) {
           this.removeMsgFollowUp(f.channelId, f.userId);
 
-          f.ectx.api
-            .createErrorReply(
-              f.channelId,
-              f.messageId,
-              'Timed out while waiting for response. Please execute the command again.',
-            )
-            .catch(e => console.log(e));
+          const errMsg = `<@${f.userId}> Error: Timed out while waiting for response. Please execute the command again.`;
+
+          // If we have the prompt message ID, then reply to that.
+          // Otherwise, create a new message.
+          if (f.messageId) {
+            f.ectx.api
+              .createTextMessageReply(f.channelId, f.messageId, errMsg)
+              .catch(e => console.error(e));
+          } else {
+            f.ectx.api
+              .createTextMessage(f.channelId, errMsg)
+              .catch(e => console.error(e));
+          }
         }
       }
     }, 500);

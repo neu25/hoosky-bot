@@ -26,13 +26,11 @@ const bulkCreate = new Command({
       'Send the message you want HooskBot to echo. Your message will be deleted.',
     );
 
-    const promptMsg = await ctx.interactionApi.getResponse();
-
     // Wait for a follow-up message for up to 30s.
     ctx.expectMessageFollowUp(
       FollowUp.MESSAGE,
       interaction.channel_id ?? '',
-      promptMsg.id,
+      null,
       userId,
       60_000,
     );
