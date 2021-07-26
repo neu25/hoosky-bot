@@ -1,5 +1,6 @@
 import { create } from './create';
+import { list } from './list';
 
-const subCommands = [create];
+const subCommands = [create, list];
 
 export default subCommands;

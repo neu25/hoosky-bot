@@ -1,4 +1,4 @@
-import { Collection as MongoCollection } from 'mongodb';
+import { Collection as MongoCollection, Cursor } from 'mongodb';
 import { Collection, Database } from '../database';
 
 export type Date = {
@@ -16,6 +16,10 @@ class CountdownRepo {
 
   constructor(db: Database) {
     this._db = db;
+  }
+
+  async scan(guildId: string): Promise<Cursor<Date>> {
+    return this.collection(guildId).find();
   }
 
   async create(guildId: string, date: string, event: Event): Promise<void> {
