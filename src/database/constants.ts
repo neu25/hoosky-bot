@@ -7,6 +7,7 @@ export enum Collection {
   COURSES = 'courses',
   MAIL = 'mail',
   BIRTHDAYS = 'birthdays',
+  JOBS = 'jobs',
 }
 
 /**

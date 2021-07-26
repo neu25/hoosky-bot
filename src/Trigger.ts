@@ -44,7 +44,7 @@ class Trigger<E extends Discord.Event> {
     this.msgFollowUpHandlers = props.msgFollowUpHandlers ?? {};
   }
 
-  execute(ctx: TriggerContext<any>): void | Promise<void> {
+  execute(ctx: TriggerContext<any>): void | Promise<unknown> {
     // Supply this subcommand's follow-up handlers.
     ctx.msgFollowUpHandlers = this.msgFollowUpHandlers;
 

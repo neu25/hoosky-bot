@@ -1,13 +1,7 @@
 import syncCommands from './syncCommands';
 import normalizeDatabase from './normalizeDatabase';
-import birthdayMessageScheduler from './birthdayMessageScheduler';
-import birthdayRoleScheduler from './birthdayRoleScheduler';
+import startScheduler from './startScheduler';
 
-const GUILD_CREATE = [
-  syncCommands,
-  normalizeDatabase,
-  birthdayMessageScheduler,
-  birthdayRoleScheduler,
-];
+const GUILD_CREATE = [syncCommands, normalizeDatabase, startScheduler];
 
 export default GUILD_CREATE;

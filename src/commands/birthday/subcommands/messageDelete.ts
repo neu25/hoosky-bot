@@ -4,7 +4,6 @@ import CommandOption from '../../../CommandOption';
 import { CommandOptionType } from '../../../Discord';
 import { Config } from '../../../database';
 import { BirthdaysConfig } from '../../../repository';
-import { restartScheduler } from '../messageScheduler';
 import { bold } from '../../../format';
 
 export const messageDelete = new SubCommand({
@@ -33,7 +32,6 @@ export const messageDelete = new SubCommand({
     const birthdaysCfg = await ctx
       .config()
       .get<BirthdaysConfig>(guildId, Config.BIRTHDAYS);
-
     if (!birthdaysCfg || !birthdaysCfg.messages) {
       return ctx.interactionApi.respondWithError(
         `Unable to fetch birthdays config`,
@@ -54,9 +52,6 @@ export const messageDelete = new SubCommand({
 
       // Update database.
       await ctx.config().update(guildId, Config.BIRTHDAYS, birthdaysCfg);
-
-      // Restart scheduler.
-      restartScheduler();
 
       return ctx.interactionApi.respondWithMessage(
         `${bold('Birthday message deleted')}:\n${message}`,

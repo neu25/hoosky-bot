@@ -11,6 +11,7 @@ import FollowUpManager from './FollowUpManager';
 import InteractionManager from './InteractionManager';
 import InteractionApi from './InteractionApi';
 import Debouncer from './Debouncer';
+import MasterScheduler from './MasterScheduler';
 
 // The delay between reconnections, in milliseconds.
 const RECONNECT_DELAY = 1000;
@@ -36,6 +37,7 @@ class Client {
   readonly followUpManager: FollowUpManager;
   readonly interactionManager: InteractionManager;
   readonly debouncer: Debouncer;
+  readonly scheduler: MasterScheduler;
 
   // The Discord bot token.
   private readonly _token: string;
@@ -77,6 +79,7 @@ class Client {
     this.followUpManager = opts.followUpManager;
     this.interactionManager = opts.interactionManager;
     this.debouncer = new Debouncer();
+    this.scheduler = new MasterScheduler(opts.api, opts.repos);
   }
 
   /**
@@ -224,6 +227,7 @@ class Client {
         await this.followUpManager.handleMessage(
           msg,
           new TriggerContext<Discord.Message>({
+            scheduler: this.scheduler,
             debouncer: this.debouncer,
             botUser: this.user!,
             api: this.api,
@@ -240,6 +244,7 @@ class Client {
     if (triggers) {
       console.log('[Client] Handling trigger', type);
       const ctx = new TriggerContext({
+        scheduler: this.scheduler,
         debouncer: this.debouncer,
         botUser: this.user!,
         repos: this.repos,
@@ -257,6 +262,7 @@ class Client {
     if (!interaction.data) return;
 
     const ctx = new ExecutionContext({
+      scheduler: this.scheduler,
       debouncer: this.debouncer,
       botUser: this.user!,
       repos: this.repos,

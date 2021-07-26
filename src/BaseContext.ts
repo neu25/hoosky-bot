@@ -8,10 +8,12 @@ import ConfigRepo from './repository/ConfigRepo';
 import Debouncer from './Debouncer';
 import PollRepo from './repository/PollRepo';
 import BirthdayRepo from './repository/BirthdayRepo';
+import MasterScheduler from './MasterScheduler';
 
 export type State = Record<string, any>;
 
 export type BaseContextOpts = {
+  scheduler: MasterScheduler;
   debouncer: Debouncer;
   botUser: Discord.User;
   repos: Repositories;
@@ -21,6 +23,7 @@ export type BaseContextOpts = {
 
 class BaseContext {
   msgFollowUpHandlers: Record<string, MessageFollowUpHandler>;
+  readonly scheduler: MasterScheduler;
   readonly debouncer: Debouncer;
   readonly botUser: Discord.User;
   readonly api: Api;
@@ -29,6 +32,7 @@ class BaseContext {
   protected readonly _state: State;
 
   constructor(opts: BaseContextOpts) {
+    this.scheduler = opts.scheduler;
     this.debouncer = opts.debouncer;
     this.botUser = opts.botUser;
     this.repos = opts.repos;

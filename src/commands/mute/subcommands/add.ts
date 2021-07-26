@@ -1,8 +1,20 @@
+import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import parse from 'parse-duration';
 import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
-import { checkMutePermissionsOrExit, getMuteRoleOrExit } from '../_common';
-import { bold } from '../../../format';
+import {
+  checkMutePermissionsOrExit,
+  createUnmuteJob,
+  getMuteRoleOrExit,
+} from '../_common';
+import { bold, inlineCode } from '../../../format';
+import { formatDuration } from '../../../utils';
+
+dayjs.extend(duration);
+dayjs.extend(relativeTime);
 
 const add = new SubCommand({
   name: 'add',
@@ -16,12 +28,39 @@ const add = new SubCommand({
       required: true,
       type: Discord.CommandOptionType.USER,
     }),
+    new CommandOption({
+      name: 'duration',
+      description:
+        'The duration of the mute (e.g., `55 min` or `2d 4h`. Omit for a permanent mute)',
+      type: Discord.CommandOptionType.STRING,
+    }),
   ],
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
     const targetUserId = ctx.getArgument<string>('user')!;
+    const durationString = ctx.getArgument<string>('duration');
 
     if (!(await checkMutePermissionsOrExit(ctx, guildId, targetUserId))) return;
+
+    let durationMs = 0;
+    if (durationString) {
+      const parsed = parse(durationString);
+      if (parsed === null) {
+        return ctx.interactionApi.respondWithError(
+          [
+            bold('Invalid duration.'),
+            ' Example valid durations include ',
+            inlineCode('55 min'),
+            ' and ',
+            inlineCode('2d 4h'),
+            `. Omit `,
+            bold('duration'),
+            ` for a permanent mute.`,
+          ].join(''),
+        );
+      }
+      durationMs = parsed;
+    }
 
     // Get the muted role.
     const mutedRole = await getMuteRoleOrExit(ctx, guildId);
@@ -42,11 +81,21 @@ const add = new SubCommand({
       throw e;
     }
 
-    // Get info about the user and provide a response message.
     const user = await ctx.api.getUser(targetUserId);
-    return ctx.interactionApi.respondWithMessage(
-      `Muted ${bold(`${user.username}#${user.discriminator}`)}`,
-    );
+    let muteMsg = `Muted ${bold(`${user.username}#${user.discriminator}`)}`;
+
+    if (durationMs > 0) {
+      const targetDate = new Date(Date.now() + durationMs);
+      await createUnmuteJob(ctx, targetUserId, targetDate);
+
+      const durationStr = formatDuration(dayjs.duration(durationMs));
+      muteMsg += ' for ' + bold(`${durationStr}.`);
+    } else {
+      muteMsg += ' ' + bold('indefinitely.');
+    }
+
+    // Get info about the user and provide a response message.
+    await ctx.interactionApi.respondWithMessage(muteMsg);
   },
 });
 

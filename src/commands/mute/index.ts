@@ -4,7 +4,11 @@ import subcommands from './subcommands';
 
 export const MUTED_PERMISSIONS = {
   allow: '0',
-  deny: String(Discord.Permission.SEND_MESSAGES),
+  deny: String(
+    Discord.Permission.SEND_MESSAGES |
+      Discord.Permission.ADD_REACTIONS |
+      Discord.Permission.CONNECT,
+  ),
 };
 
 const mute = new Command({
