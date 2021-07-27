@@ -23,6 +23,10 @@ class Scheduler {
     this._repos = repos;
   }
 
+  jobs(): Job[] {
+    return Object.values(this._cachedJobs);
+  }
+
   async loadJobsFromRepo(): Promise<void> {
     const jobs = await this._repos.jobs.list(this._guildId);
     const cachedJobs: Record<string, SerializedJob> = {};

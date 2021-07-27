@@ -3,7 +3,7 @@ import { Collection, Database } from '../database';
 import { JobType, JobTypeMap } from '../jobHandlers';
 
 export type SerializedJob<T extends JobType = JobType> = {
-  _id: string;
+  _id: string; // The generated ID of the job.
   type: T;
   targetDate: Date;
   data: JobTypeMap[T];
