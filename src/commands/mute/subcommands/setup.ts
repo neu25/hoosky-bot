@@ -60,6 +60,7 @@ const setup = new SubCommand({
         ![
           Discord.ChannelType.GUILD_CATEGORY,
           Discord.ChannelType.GUILD_TEXT,
+          Discord.ChannelType.GUILD_VOICE,
         ].includes(c.type)
       ) {
         continue;
