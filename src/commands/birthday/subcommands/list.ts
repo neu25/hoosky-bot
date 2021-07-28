@@ -55,9 +55,15 @@ const list = new SubCommand({
       value: sub.list, // The birthday list.
     }));
 
+    let embedDescription = '';
+    if (fields.length < 1) {
+      embedDescription = 'There are no stored birthdays.';
+    }
+
     await ctx.interactionApi.respondSilentlyWithEmbed({
       type: Discord.EmbedType.RICH,
       title: 'All Birthdays',
+      description: embedDescription,
       fields,
     });
   },

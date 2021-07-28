@@ -53,9 +53,15 @@ const list = new SubCommand({
       value: sub.list, // The countdown list.
     }));
 
+    let embedDescription = '';
+    if (fields.length < 1) {
+      embedDescription = 'There are no current countdowns.';
+    }
+
     await ctx.interactionApi.respondWithEmbed({
       type: Discord.EmbedType.RICH,
-      title: 'All Countdowns',
+      title: 'Countdowns',
+      description: embedDescription,
       fields,
     });
   },
