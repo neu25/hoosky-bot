@@ -3,6 +3,7 @@ import * as Discord from '../../Discord';
 import Trigger from '../../Trigger';
 import { Birthday, Course } from '../../repository';
 import { eliminateDuplicates } from '../../utils';
+import { pluralize } from '../../format';
 
 /**
  * Resolves data integrity issues of the given birthday.
@@ -59,6 +60,8 @@ const normalizeDatabase = new Trigger({
   handler: async ctx => {
     const guild = ctx.data;
 
+    let problemCount = 0;
+
     console.log(`Normalizing database of ${guild.name} (${guild.id})...`);
 
     const courses = await ctx.courses().list(guild.id);
@@ -66,6 +69,7 @@ const normalizeDatabase = new Trigger({
       const n = normalizeCourse(c);
       // If the course changed, then update it.
       if (!_.isEqual(c, n)) {
+        ++problemCount;
         console.log(`Corruption in course ${c._id} (${c.code}). Fixing...`);
         await ctx.courses().updateByRoleId(guild.id, c.roleId, n);
       }
@@ -76,12 +80,27 @@ const normalizeDatabase = new Trigger({
       const n = normalizeBirthday(b);
       // If the birthday changed, then update it.
       if (!_.isEqual(b, n)) {
+        ++problemCount;
         console.log(`Corruption in birthday ${b._id}. Fixing...`);
         await ctx.birthdays().updateById(guild.id, b._id, n);
       }
     }
 
     console.log('Database normalization completed');
+
+    return ctx.auditLogger.logMessage({
+      title: 'Database scan completed',
+      color: problemCount === 0 ? Discord.Color.SUCCESS : Discord.Color.WARNING,
+      description:
+        problemCount === 0
+          ? 'No problems were found.'
+          : [
+              'I automatically fixed',
+              problemCount.toLocaleString(),
+              pluralize('problem', problemCount),
+              'in the database.',
+            ].join(' '),
+    });
   },
 });
 

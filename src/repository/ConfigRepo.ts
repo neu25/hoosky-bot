@@ -9,6 +9,7 @@ import { Collection, Config, Database } from '../database';
 export type BotConfig = {
   status: Discord.StatusType;
   statusMessage: string;
+  loggingChannelId: string;
 };
 
 export type GuildConfig = {
@@ -45,6 +46,7 @@ export type BirthdaysConfig = {
 export const botConfig: BotConfig = {
   status: Discord.StatusType.Online,
   statusMessage: 'DM me to contact mods',
+  loggingChannelId: '',
 };
 
 export const rolesConfig: RolesConfig = {

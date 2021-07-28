@@ -3,15 +3,18 @@ import Api from './Api';
 import { Repositories } from './repository';
 import { JobType } from './jobHandlers';
 import { addDefaultJobs } from './jobHandlers/_defaultJobs';
+import AuditLogger from './auditLogger';
 
 class MasterScheduler {
   private readonly _api: Api;
   private readonly _repos: Repositories;
   private readonly _schedulers: Record<string, Scheduler>;
+  private readonly _auditLogger: AuditLogger;
 
-  constructor(api: Api, repos: Repositories) {
+  constructor(api: Api, repos: Repositories, auditLogger: AuditLogger) {
     this._api = api;
     this._repos = repos;
+    this._auditLogger = auditLogger;
     this._schedulers = {};
   }
 
@@ -34,7 +37,12 @@ class MasterScheduler {
   async startSchedulerWithDefaultJobs(guildId: string): Promise<void> {
     this.stopScheduler(guildId);
 
-    const sc = new Scheduler(this._api, this._repos, guildId);
+    const sc = new Scheduler(
+      this._api,
+      this._repos,
+      this._auditLogger,
+      guildId,
+    );
     this._schedulers[guildId] = sc;
 
     await sc.loadJobsFromRepo();

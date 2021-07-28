@@ -33,8 +33,14 @@ const sendBirthdayMessages: JobHandler<JobType.SEND_BIRTHDAY_MESSAGES> =
     const birthdays = await ctx.repos.birthdays.getByDay(guildId, today);
 
     if (channel && birthdays && birthdays.users.length > 0) {
-      let greeting = '';
+      await ctx.auditLogger.logMessage({
+        title: 'Giving happy birthday wishes',
+        description:
+          'I am wishing happy birthday to the following people:\n' +
+          birthdays.users.map(userId => `• <@${userId}>`).join('\n'),
+      });
 
+      let greeting = '';
       birthdays.users.map((user: string, i: number) => {
         greeting += `<@${user}>`;
         if (i !== birthdays.users.length - 1) {
@@ -51,6 +57,11 @@ const sendBirthdayMessages: JobHandler<JobType.SEND_BIRTHDAY_MESSAGES> =
       };
 
       await ctx.api.createMessage(channel, messageData);
+    } else {
+      await ctx.auditLogger.logMessage({
+        title: 'Skipping happy birthday wishes',
+        description: 'There are no birthdays today.',
+      });
     }
 
     // Send leap year messages

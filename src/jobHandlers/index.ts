@@ -1,5 +1,6 @@
 import Api from '../Api';
 import { Repositories } from '../repository';
+import AuditLogger from '../auditLogger';
 import unmute, { UnmuteJobData } from './unmute';
 import addBirthdayRoles, { AddBirthdayRolesData } from './addBirthdayRoles';
 import removeBirthdayRoles, {
@@ -27,6 +28,7 @@ export type JobContext<T extends JobType> = {
   data: JobTypeMap[T];
   api: Api;
   repos: Repositories;
+  auditLogger: AuditLogger;
 };
 
 export type JobHandler<T extends JobType = JobType> = (

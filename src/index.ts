@@ -6,13 +6,15 @@ import Client from './Client';
 import { loadConfig } from './config';
 import commands from './commands';
 import triggers from './triggers';
-import { Database } from './database';
+import { Config, Database } from './database';
 import Api from './Api';
 import { setupRepos } from './repository';
 import Cache from './Cache';
 import FollowUpManager from './FollowUpManager';
 import InteractionManager from './InteractionManager';
 import interactions from './interactions';
+import AuditLogger from './auditLogger';
+import { BotConfig } from './repository/ConfigRepo';
 
 (async () => {
   const argv = await yargs(hideBin(process.argv)).argv;
@@ -43,6 +45,14 @@ import interactions from './interactions';
   // Insert default configuration values into the database.
   await repos.config.initialize(guildIds);
 
+  // Fetch the global bot config.
+  const botCfg = await repos.config.getGlobal<BotConfig>(Config.BOT);
+
+  const auditLogger = new AuditLogger(api);
+  if (botCfg?.loggingChannelId) {
+    auditLogger.setChannel(botCfg.loggingChannelId);
+  }
+
   console.log('[Main] Connecting to gateway...');
   const followUpManager = new FollowUpManager(api, repos, config.discord.appId);
   const interactionManager = new InteractionManager();
@@ -62,6 +72,7 @@ import interactions from './interactions';
     interactionManager,
     repos,
     api,
+    auditLogger,
   });
 
   // Supply the commands we'd like to handle.
@@ -73,5 +84,31 @@ import interactions from './interactions';
     console.log(
       `[Main] ${data.user.username}#${data.user.discriminator} connected`,
     );
+    auditLogger.logMessage({
+      title: 'Connection established to the gateway',
+    });
   });
+
+  {
+    let shuttingDown = false;
+
+    process.on('SIGINT', async () => {
+      // Make sure this only gets executed once.
+      if (shuttingDown) return;
+      shuttingDown = true;
+
+      console.log('[Main] Received termination signal');
+
+      try {
+        await auditLogger.logMessage({
+          title: 'Shutting down',
+          color: Discord.Color.DANGER,
+        });
+      } catch (e: unknown) {
+        console.error(e);
+      }
+
+      process.exit(0);
+    });
+  }
 })().catch(e => console.error(e));

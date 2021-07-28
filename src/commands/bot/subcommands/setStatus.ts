@@ -17,7 +17,7 @@ export const STATUSES: Record<Discord.StatusType, string> = {
 const setStatus = new SubCommand({
   name: 'set-status',
   displayName: 'Set Status',
-  description: 'Sets the activity status of the bot',
+  description: 'Set the activity status of the bot',
   requiredPermissions: [Discord.Permission.ADMINISTRATOR],
   options: [
     new CommandOption({
@@ -46,8 +46,12 @@ const setStatus = new SubCommand({
     // Send a status update message to the gateway.
     ctx.client.updateStatus(status, message);
 
+    const currentBotCfg =
+      (await ctx.config().getGlobal<BotConfig>(Config.BOT)) ?? {};
+
     // Update the saved status.
-    const botCfg: BotConfig = {
+    const botCfg: Partial<BotConfig> = {
+      ...currentBotCfg,
       status,
       statusMessage: message ?? '',
     };

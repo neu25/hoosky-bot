@@ -2,6 +2,7 @@ import jobHandlers, { JobHandler, JobType } from './jobHandlers';
 import { Repositories } from './repository';
 import { SerializedJob } from './repository/JobRepo';
 import Api from './Api';
+import AuditLogger from './auditLogger';
 
 export const SCHEDULING_PASS_DELAY = 200;
 
@@ -15,12 +16,19 @@ class Scheduler {
   private readonly _guildId: string;
   private readonly _repos: Repositories;
   private readonly _api: Api;
+  private readonly _auditLogger: AuditLogger;
 
-  constructor(api: Api, repos: Repositories, guildId: string) {
+  constructor(
+    api: Api,
+    repos: Repositories,
+    auditLogger: AuditLogger,
+    guildId: string,
+  ) {
     this._cachedJobs = {};
     this._guildId = guildId;
     this._api = api;
     this._repos = repos;
+    this._auditLogger = auditLogger;
   }
 
   jobs(): Job[] {
@@ -93,6 +101,7 @@ class Scheduler {
       handler({
         repos: this._repos,
         api: this._api,
+        auditLogger: this._auditLogger,
         data: j.data,
       }).catch(e => console.error(e));
     }

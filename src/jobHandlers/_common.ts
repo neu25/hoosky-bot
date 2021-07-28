@@ -42,7 +42,15 @@ export const handleBirthdayJob = async (
       : ctx.api.removeRoleFromMember(guildId, userId, birthdayRole);
   };
 
-  if (birthdays) {
+  if (birthdays && birthdays.users.length > 0) {
+    await ctx.auditLogger.logMessage({
+      title: (add ? 'Adding' : 'Removing') + ' birthday roles',
+      description: add
+        ? 'I am giving the birthday role to the following people:\n'
+        : 'I am removing the birthday role from the following people:\n' +
+          birthdays.users.map(userId => `• <@${userId}>`).join('\n'),
+    });
+
     for (const userId of birthdays.users) {
       await processRole(userId);
     }

@@ -3,6 +3,7 @@ import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
 import { addUserToPossiblyNonexistentSection, boldCourse } from '../_common';
 import { bold, inlineCode } from '../../../format';
+import AuditLogger from '../../../auditLogger';
 
 const postJoinSectionText = `Run ${inlineCode(
   '/course classmates',
@@ -68,6 +69,16 @@ const join = new SubCommand({
         )} of course ${boldCourse(course)}.\n${postJoinSectionText}`,
       );
     }
+
+    // Let the audit logger know that this join was intentional, via a command.
+    ctx.auditLogger.preventDupe(
+      AuditLogger.generateDupeKey({
+        guildId,
+        action: 'join_course',
+        subjectId: userId,
+        objectId: roleId,
+      }),
+    );
 
     // `GUILD_MEMBER_UPDATE` trigger will activate and automatically add the
     // user to the course in the database. Thus, there's no need to do it here.

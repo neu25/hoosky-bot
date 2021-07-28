@@ -9,6 +9,7 @@ import Debouncer from './Debouncer';
 import PollRepo from './repository/PollRepo';
 import BirthdayRepo from './repository/BirthdayRepo';
 import MasterScheduler from './MasterScheduler';
+import AuditLogger from './auditLogger';
 
 export type State = Record<string, any>;
 
@@ -19,6 +20,7 @@ export type BaseContextOpts = {
   repos: Repositories;
   api: Api;
   followUpManager: FollowUpManager;
+  auditLogger: AuditLogger;
 };
 
 class BaseContext {
@@ -28,6 +30,7 @@ class BaseContext {
   readonly botUser: Discord.User;
   readonly api: Api;
   readonly repos: Repositories;
+  readonly auditLogger: AuditLogger;
   protected readonly _followUpManager: FollowUpManager;
   protected readonly _state: State;
 
@@ -37,6 +40,7 @@ class BaseContext {
     this.botUser = opts.botUser;
     this.repos = opts.repos;
     this.api = opts.api;
+    this.auditLogger = opts.auditLogger;
     this.msgFollowUpHandlers = {};
     this._state = {};
     this._followUpManager = opts.followUpManager;

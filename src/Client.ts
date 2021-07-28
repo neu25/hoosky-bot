@@ -15,6 +15,7 @@ import MasterScheduler from './MasterScheduler';
 import { BotConfig } from './repository/ConfigRepo';
 import { Config } from './database';
 import { STATUSES } from './commands/bot/subcommands/setStatus';
+import AuditLogger from './auditLogger';
 
 // The delay between reconnections, in milliseconds.
 const RECONNECT_DELAY = 1000;
@@ -28,6 +29,7 @@ export type ClientOpts = {
   intents: Discord.Intent[];
   followUpManager: FollowUpManager;
   interactionManager: InteractionManager;
+  auditLogger: AuditLogger;
 };
 
 /**
@@ -41,6 +43,7 @@ class Client {
   readonly interactionManager: InteractionManager;
   readonly debouncer: Debouncer;
   readonly scheduler: MasterScheduler;
+  readonly auditLogger: AuditLogger;
 
   // The Discord bot token.
   private readonly _token: string;
@@ -82,7 +85,12 @@ class Client {
     this.followUpManager = opts.followUpManager;
     this.interactionManager = opts.interactionManager;
     this.debouncer = new Debouncer();
-    this.scheduler = new MasterScheduler(opts.api, opts.repos);
+    this.scheduler = new MasterScheduler(
+      opts.api,
+      opts.repos,
+      opts.auditLogger,
+    );
+    this.auditLogger = opts.auditLogger;
   }
 
   /**
@@ -265,6 +273,7 @@ class Client {
             api: this.api,
             repos: this.repos,
             followUpManager: this.followUpManager,
+            auditLogger: this.auditLogger,
             data: msg,
           }),
         );
@@ -282,6 +291,7 @@ class Client {
         repos: this.repos,
         api: this.api,
         followUpManager: this.followUpManager,
+        auditLogger: this.auditLogger,
         data,
       });
       for (const t of triggers) {
@@ -301,6 +311,7 @@ class Client {
       api: this.api,
       client: this,
       followUpManager: this.followUpManager,
+      auditLogger: this.auditLogger,
       interactionApi: new InteractionApi({
         interaction,
         http: this.http,
