@@ -39,6 +39,11 @@ export type BirthdaysConfig = {
   messages: BirthdayMessage[];
 };
 
+export type CountdownConfig = {
+  scheduledHour: number;
+  scheduledMinute: number;
+};
+
 /**
  * Default config values
  */
@@ -71,6 +76,11 @@ export const birthdaysConfig: BirthdaysConfig = {
   messages: [{ id: 1, message: 'Happy birthday, %!' }],
 };
 
+export const countdownConfig: CountdownConfig = {
+  scheduledHour: 12,
+  scheduledMinute: 0,
+};
+
 class ConfigRepo {
   private readonly _db: Database;
 
@@ -90,6 +100,7 @@ class ConfigRepo {
       await this.insertIfNotExists(gId, Config.ROLES, rolesConfig);
       await this.insertIfNotExists(gId, Config.GUILD, guildConfig);
       await this.insertIfNotExists(gId, Config.BIRTHDAYS, birthdaysConfig);
+      await this.insertIfNotExists(gId, Config.COUNTDOWN, countdownConfig);
     }
   }
 

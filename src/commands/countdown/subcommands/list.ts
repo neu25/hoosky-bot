@@ -10,7 +10,7 @@ type MonthGroup = {
   list: string;
 };
 
-export const list = new SubCommand({
+const list = new SubCommand({
   name: 'list',
   displayName: 'List Countdowns',
   description: 'List all stored countdowns',
@@ -23,35 +23,40 @@ export const list = new SubCommand({
     const subGroups: MonthGroup[] = [];
     let curGroup: MonthGroup | null = null;
 
-    for (const date of dates) {
-      const month = dayjs(date._id).format('MMMM');
-      const year = dayjs(date._id).year();
+    for (const d of dates) {
+      if (d.events.length === 0) continue;
+
+      const month = dayjs(d._id).format('MMMM');
+      const year = dayjs(d._id).year();
+
       if (!curGroup || month !== curGroup.month || year !== curGroup.year) {
         curGroup = {
           month,
           year,
-          heading: fancyCenter(`${month} ${year}`, 50),
+          heading: fancyCenter(`${month} ${year}`),
           list: '',
         };
         subGroups.push(curGroup);
       }
 
-      if (date.events.length > 0) {
+      if (d.events.length > 0) {
         curGroup.list += `${bold(
-          month + ' ' + dayjs(date._id).format('DD'),
-        )}: ${date.events.map(event => event.name).join(' • ')}\n`;
+          month + ' ' + dayjs(d._id).format('DD'),
+        )}: ${d.events.map(event => event.name).join(' • ')}\n`;
       }
     }
 
     const fields: Discord.EmbedField[] = subGroups.map(sub => ({
       name: sub.heading, // The month.
-      value: sub.list, // The birthday list.
+      value: sub.list, // The countdown list.
     }));
 
-    await ctx.interactionApi.respondSilentlyWithEmbed({
+    await ctx.interactionApi.respondWithEmbed({
       type: Discord.EmbedType.RICH,
       title: 'All Countdowns',
       fields,
     });
   },
 });
+
+export default list;

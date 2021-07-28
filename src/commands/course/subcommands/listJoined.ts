@@ -56,7 +56,7 @@ const listJoined = new SubCommand({
         if (!curGroup || c.subject !== curGroup.subject) {
           curGroup = {
             subject: c.subject,
-            heading: fancyCenter(c.subject, 50),
+            heading: fancyCenter(c.subject),
             list: '',
           };
           subGroups.push(curGroup);

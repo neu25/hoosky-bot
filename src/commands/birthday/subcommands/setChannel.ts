@@ -6,7 +6,7 @@ import { Config } from '../../../database';
 import { bold } from '../../../format';
 import { BirthdaysConfig } from '../../../repository';
 
-export const setChannel = new SubCommand({
+const setChannel = new SubCommand({
   name: 'set-channel',
   displayName: 'Set Up Birthdays Channel',
   description: 'Set up channel for birthday messages',

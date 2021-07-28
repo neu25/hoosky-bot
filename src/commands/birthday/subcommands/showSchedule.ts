@@ -5,7 +5,7 @@ import { BirthdaysConfig } from '../../../repository';
 import { bold } from '../../../format';
 import { formatHourMinute } from '../_common';
 
-export const showSchedule = new SubCommand({
+const showSchedule = new SubCommand({
   name: 'show-schedule',
   displayName: 'Get Schedule',
   description: 'Get schedule for sending birthday messages',

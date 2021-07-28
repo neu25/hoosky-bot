@@ -6,7 +6,7 @@ import { Config } from '../../../database';
 import { BirthdaysConfig } from '../../../repository';
 import { bold } from '../../../format';
 
-export const messageDelete = new SubCommand({
+const messageDelete = new SubCommand({
   name: 'message-delete',
   displayName: 'Delete Birthday Message',
   description: 'Delete a birthday message',

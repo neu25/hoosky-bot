@@ -70,7 +70,9 @@ const normalizeDatabase = new Trigger({
       // If the course changed, then update it.
       if (!_.isEqual(c, n)) {
         ++problemCount;
-        console.log(`Corruption in course ${c._id} (${c.code}). Fixing...`);
+        console.log(
+          `[Normalize] Corruption in course ${c._id} (${c.code}). Fixing...`,
+        );
         await ctx.courses().updateByRoleId(guild.id, c.roleId, n);
       }
     }
@@ -81,12 +83,24 @@ const normalizeDatabase = new Trigger({
       // If the birthday changed, then update it.
       if (!_.isEqual(b, n)) {
         ++problemCount;
-        console.log(`Corruption in birthday ${b._id}. Fixing...`);
+        console.log(`[Normalize] Corruption in birthday ${b._id}. Fixing...`);
         await ctx.birthdays().updateById(guild.id, b._id, n);
       }
     }
 
-    console.log('Database normalization completed');
+    const countdowns = await ctx.countdowns().list(guild.id);
+    for (const c of countdowns) {
+      // If the countdown has 0 events, then delete the date.
+      if (c.events.length === 0) {
+        ++problemCount;
+        console.log(
+          `[Normalize] Countdown for ${c._id} has 0 events. Deleting...`,
+        );
+        await ctx.countdowns().deleteCountdown(guild.id, c._id);
+      }
+    }
+
+    console.log('[Normalize] Database normalization completed');
 
     return ctx.auditLogger.logMessage({
       title: 'Database scan completed',

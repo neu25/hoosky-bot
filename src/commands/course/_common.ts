@@ -7,9 +7,6 @@ import * as Discord from '../../Discord';
 // The number of subjects to display per page (for `/course list-all`).
 export const SUBJECTS_PER_PAGE = 6;
 
-// The decorative width of subject headings.
-export const SUBJECT_HEADING_WIDTH = 30;
-
 /**
  * Groups courses of the same subject together for easy display.
  */
@@ -141,7 +138,7 @@ export const fetchCoursePages = async (
     if (!curGroup || c.subject !== curGroup.subject) {
       curGroup = {
         subject: c.subject,
-        heading: fancyCenter(c.subject, SUBJECT_HEADING_WIDTH),
+        heading: fancyCenter(c.subject),
         list: '',
       };
       subGroups.push(curGroup);

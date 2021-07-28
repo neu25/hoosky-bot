@@ -3,12 +3,16 @@ import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
 import { bold } from '../../../format';
-import { respondWithInvalidDate, validateDate } from '../_common';
+import {
+  respondWithInvalidDate,
+  respondWithNotFound,
+  validateDate,
+} from '../_common';
 
-const create = new SubCommand({
-  name: 'create',
-  displayName: 'Create Countdown',
-  description: 'Create a new countdown',
+const del = new SubCommand({
+  name: 'delete',
+  displayName: 'Delete Countdown',
+  description: 'Delete a countdown',
   requiredPermissions: [Discord.Permission.MANAGE_ROLES],
   options: [
     new CommandOption({
@@ -19,22 +23,15 @@ const create = new SubCommand({
     }),
     new CommandOption({
       name: 'name',
-      description: 'Name of event to count down to',
+      description: 'Name of the event to delete',
       required: true,
       type: Discord.CommandOptionType.STRING,
-    }),
-    new CommandOption({
-      name: 'channel',
-      description: 'Channel to announce countdown in',
-      required: true,
-      type: Discord.CommandOptionType.CHANNEL,
     }),
   ],
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
     const dateString = ctx.getArgument<string>('date')!.trim();
     const eventName = ctx.getArgument<string>('name')!.trim();
-    const channel = ctx.getArgument<string>('channel')!.trim();
 
     if (!validateDate(dateString)) {
       return respondWithInvalidDate(ctx);
@@ -45,17 +42,27 @@ const create = new SubCommand({
       return respondWithInvalidDate(ctx);
     }
 
-    await ctx.countdowns().create(guildId, date.format('YYYY-MM-DD'), {
-      name: eventName,
-      channel: channel,
-    });
+    const dateKey = date.format('YYYY-MM-DD');
+    const dateObj = await ctx.countdowns().getByDate(guildId, dateKey);
+    if (!dateObj) {
+      return respondWithNotFound(ctx, date, eventName);
+    }
+
+    const exists = dateObj.events.findIndex(
+      ev => ev.name.toLowerCase() === eventName.toLowerCase(),
+    );
+    if (exists === -1) {
+      return respondWithNotFound(ctx, date, eventName);
+    }
+
+    await ctx.countdowns().deleteEvent(guildId, dateKey, eventName);
 
     return ctx.interactionApi.respondWithMessage(
       `${bold(eventName)} countdown to ${bold(
         date.format('MMMM D, YYYY'),
-      )} created.`,
+      )} deleted.`,
     );
   },
 });
 
-export default create;
+export default del;

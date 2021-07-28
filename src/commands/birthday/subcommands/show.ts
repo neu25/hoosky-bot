@@ -8,7 +8,7 @@ import { bold } from '../../../format';
 
 dayjs.extend(relativeTime);
 
-export const show = new SubCommand({
+const show = new SubCommand({
   name: 'show',
   displayName: 'Show Birthday',
   description: 'Show a user’s birthday',
