@@ -42,7 +42,9 @@ const list = new SubCommand({
       if (d.events.length > 0) {
         curGroup.list += `${bold(
           month + ' ' + dayjs(d._id).format('DD'),
-        )}: ${d.events.map(event => event.name).join(' • ')}\n`;
+        )}: ${d.events
+          .map(event => `${event.name} - \`ID ${event.id}\``)
+          .join(' • ')}\n`;
       }
     }
 
@@ -51,9 +53,15 @@ const list = new SubCommand({
       value: sub.list, // The countdown list.
     }));
 
+    let embedDescription = '';
+    if (fields.length < 1) {
+      embedDescription = 'There are no current countdowns.';
+    }
+
     await ctx.interactionApi.respondWithEmbed({
       type: Discord.EmbedType.RICH,
-      title: 'All Countdowns',
+      title: 'Countdowns',
+      description: embedDescription,
       fields,
     });
   },

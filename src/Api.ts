@@ -231,7 +231,7 @@ class Api {
   }
 
   /**
-   * Deletes a new channel in a guild.
+   * Deletes a channel in a guild.
    *
    * @param channelId The ID of the channel.
    */

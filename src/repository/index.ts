@@ -5,6 +5,7 @@ import ConfigRepo from './ConfigRepo';
 import PollRepo from './PollRepo';
 import MailRepo from './MailRepo';
 import CountdownRepo from './CountdownRepo';
+import CountdownAnnouncementRepo from './CountdownAnnouncementRepo';
 import JobRepo from './JobRepo';
 
 export type { Birthday, BirthdayMessage } from './BirthdayRepo';
@@ -17,6 +18,7 @@ export type Repositories = {
   mail: MailRepo;
   config: ConfigRepo;
   countdowns: CountdownRepo;
+  countdownAnnouncements: CountdownAnnouncementRepo;
   poll: PollRepo;
 };
 
@@ -28,10 +30,9 @@ export const setupRepos = (db: Database): Repositories => {
     mail: new MailRepo(db),
     config: new ConfigRepo(db),
     countdowns: new CountdownRepo(db),
+    countdownAnnouncements: new CountdownAnnouncementRepo(db),
     poll: new PollRepo(db),
   };
 };
 
-export { RolesConfig } from './ConfigRepo';
-export { GuildConfig } from './ConfigRepo';
-export { BirthdaysConfig } from './ConfigRepo';
+export { BirthdaysConfig, GuildConfig, RolesConfig } from './ConfigRepo';

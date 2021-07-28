@@ -3,11 +3,6 @@ import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
 import { bold } from '../../../format';
-import {
-  respondWithInvalidDate,
-  respondWithNotFound,
-  validateDate,
-} from '../_common';
 
 const del = new SubCommand({
   name: 'delete',
@@ -16,46 +11,42 @@ const del = new SubCommand({
   requiredPermissions: [Discord.Permission.MANAGE_ROLES],
   options: [
     new CommandOption({
-      name: 'date',
-      description: 'Date of event (MM/DD/YY)',
+      name: 'id',
+      description: 'Event ID',
       required: true,
-      type: Discord.CommandOptionType.STRING,
-    }),
-    new CommandOption({
-      name: 'name',
-      description: 'Name of the event to delete',
-      required: true,
-      type: Discord.CommandOptionType.STRING,
+      type: Discord.CommandOptionType.INTEGER,
     }),
   ],
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
-    const dateString = ctx.getArgument<string>('date')!.trim();
-    const eventName = ctx.getArgument<string>('name')!.trim();
+    const eventId = ctx.getArgument<number>('id')!;
 
-    const date = dayjs(dateString, 'MM/DD/YY');
-    if (!validateDate(dateString) || !date.isValid()) {
-      return respondWithInvalidDate(ctx);
+    // Find date based on event.
+    const date = await ctx.countdowns().getById(guildId, eventId);
+    if (!date) {
+      return ctx.interactionApi.respondWithError(
+        "Event not found. Find an event's ID by running `/countdown list`.",
+      );
     }
 
-    const dateKey = date.format('YYYY-MM-DD');
-    const dateObj = await ctx.countdowns().getByDate(guildId, dateKey);
-    if (!dateObj) {
-      return respondWithNotFound(ctx, date, eventName);
+    // Find event data from returned date.
+    const eventData = date.events.filter(ev => {
+      if (ev.id === eventId) {
+        return ev;
+      }
+    });
+    if (!eventData) {
+      return ctx.interactionApi.respondWithError(
+        "Event not found. Find an event's ID by running `/countdown list`.",
+      );
     }
 
-    const exists = dateObj.events.findIndex(
-      ev => ev.name.toLowerCase() === eventName.toLowerCase(),
-    );
-    if (exists === -1) {
-      return respondWithNotFound(ctx, date, eventName);
-    }
-
-    await ctx.countdowns().deleteEvent(guildId, dateKey, eventName);
+    // Delete event.
+    await ctx.countdowns().deleteEvent(guildId, date._id, eventId);
 
     return ctx.interactionApi.respondWithMessage(
-      `${bold(eventName)} countdown to ${bold(
-        date.format('MMMM D, YYYY'),
+      `${bold(eventData[0].name)} countdown to ${bold(
+        dayjs(date._id).format('MMMM D, YYYY'),
       )} deleted.`,
     );
   },

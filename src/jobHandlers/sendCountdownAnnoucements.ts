@@ -32,7 +32,7 @@ const sendCountdownAnnouncements: JobHandler<JobType.SEND_COUNTDOWN_ANNOUNCEMENT
       }
 
       for (const ev of date.events) {
-        await ctx.api.createMessage(ev.channel, {
+        const sentMessage = await ctx.api.createMessage(ev.channel, {
           embeds: [
             {
               title: `🗓️ Countdown to ${ev.name}`,
@@ -40,6 +40,24 @@ const sendCountdownAnnouncements: JobHandler<JobType.SEND_COUNTDOWN_ANNOUNCEMENT
             },
           ],
         });
+
+        const channelId = sentMessage.channel_id;
+        const messageId = sentMessage.id;
+        const eventId = ev.id;
+
+        if (daysToEnd === 0) {
+          await ctx.repos.countdownAnnouncements.deleteByEventId(
+            guildId,
+            eventId,
+          );
+        } else {
+          await ctx.repos.countdownAnnouncements.create(
+            guildId,
+            channelId,
+            messageId,
+            eventId,
+          );
+        }
       }
     }
   };
