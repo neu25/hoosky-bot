@@ -7,6 +7,7 @@ export type CountdownDate = {
 };
 
 export type Event = {
+  id: number;
   name: string;
   channel: string;
 };
@@ -16,6 +17,10 @@ class CountdownRepo {
 
   constructor(db: Database) {
     this._db = db;
+  }
+
+  async getById(guildId: string, id: number): Promise<CountdownDate | null> {
+    return this.collection(guildId).findOne({ 'events.id': id });
   }
 
   async getByDate(
@@ -45,14 +50,10 @@ class CountdownRepo {
     await this.collection(guildId).deleteOne({ _id: date });
   }
 
-  async deleteEvent(
-    guildId: string,
-    date: string,
-    eventName: string,
-  ): Promise<void> {
+  async deleteEvent(guildId: string, date: string, id: number): Promise<void> {
     await this.collection(guildId).updateOne(
       { _id: date },
-      { $pull: { events: { name: eventName } } },
+      { $pull: { events: { id } } },
     );
   }
 

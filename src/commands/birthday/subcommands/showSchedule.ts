@@ -7,8 +7,8 @@ import { formatHourMinute } from '../_common';
 
 const showSchedule = new SubCommand({
   name: 'show-schedule',
-  displayName: 'Get Schedule',
-  description: 'Get schedule for sending birthday messages',
+  displayName: 'Show Schedule',
+  description: 'Show schedule for sending birthday messages',
   requiredPermissions: [Discord.Permission.MANAGE_ROLES],
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();

@@ -8,6 +8,7 @@ export enum Collection {
   MAIL = 'mail',
   BIRTHDAYS = 'birthdays',
   COUNTDOWNS = 'countdowns',
+  COUNTDOWN_ANNOUNCEMENTS = 'countdownAnnouncements',
   JOBS = 'jobs',
 }
 
@@ -21,4 +22,5 @@ export enum Config {
   MAIL = 'mail',
   BIRTHDAYS = 'birthdays',
   COUNTDOWNS = 'countdowns',
+  COUNTDOWN_ANNOUNCEMENTS = 'countdownAnnouncements',
 }
