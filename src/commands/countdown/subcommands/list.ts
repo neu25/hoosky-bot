@@ -41,7 +41,7 @@ const list = new SubCommand({
 
       if (d.events.length > 0) {
         curGroup.list += `${bold(
-          month + ' ' + dayjs(d._id).format('DD'),
+          month + ' ' + dayjs(d._id).format('D'),
         )}: ${d.events
           .map(event => `${event.name} - \`ID ${event.id}\``)
           .join(' • ')}\n`;

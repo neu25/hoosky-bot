@@ -48,19 +48,19 @@ const sendCountdownAnnouncements: JobHandler<JobType.SEND_COUNTDOWN_ANNOUNCEMENT
         const messageId = sentMessage.id;
         const eventId = ev.id;
 
-        if (daysToEnd === 0) {
-          await ctx.repos.countdownAnnouncements.deleteByEventId(
-            guildId,
-            eventId,
-          );
-        } else {
-          await ctx.repos.countdownAnnouncements.create(
-            guildId,
-            channelId,
-            messageId,
-            eventId,
-          );
-        }
+        // Delete previous announcement(s).
+        await ctx.repos.countdownAnnouncements.deleteByEventId(
+          guildId,
+          eventId,
+        );
+
+        // Store new announcement.
+        await ctx.repos.countdownAnnouncements.create(
+          guildId,
+          messageId,
+          channelId,
+          eventId,
+        );
       }
     }
   };
