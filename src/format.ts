@@ -1,3 +1,5 @@
+export const DEFAULT_HEADING_WIDTH = 30;
+
 export const EM_SPACE = ' ';
 export const EN_SPACE = ' ';
 
@@ -63,7 +65,10 @@ ${text}
  * @param text The heading.
  * @param width The desired end width;
  */
-export const fancyCenter = (text: string, width: number): string => {
+export const fancyCenter = (
+  text: string,
+  width = DEFAULT_HEADING_WIDTH,
+): string => {
   const box = `[ ${text} ]`;
   const dashLength = width - box.length;
   return inlineCode(

@@ -4,24 +4,24 @@ import CommandOption from '../../../CommandOption';
 import { CommandOptionType } from '../../../Discord';
 import { Config } from '../../../database';
 import { bold } from '../../../format';
-import { BirthdaysConfig } from '../../../repository';
-import { formatHourMinute } from '../_common';
+import { formatHourMinute } from '../../birthday/_common';
+import { CountdownConfig } from '../../../repository/ConfigRepo';
 
 const setSchedule = new SubCommand({
   name: 'set-schedule',
   displayName: 'Set Schedule',
-  description: 'Set schedule for sending birthday messages',
+  description: 'Set schedule for sending countdown announcements',
   requiredPermissions: [Discord.Permission.MANAGE_ROLES],
   options: [
     new CommandOption({
       name: 'hour',
-      description: 'Hour, on a 24-hour clock, to send messages (e.g., 09)',
+      description: 'Hour, on a 24-hour clock, to send messages (e.g., 14)',
       required: true,
       type: CommandOptionType.INTEGER,
     }),
     new CommandOption({
       name: 'minute',
-      description: 'Minute to send messages (e.g., 45)',
+      description: 'Minute to send messages (e.g., 30)',
       required: true,
       type: CommandOptionType.INTEGER,
     }),
@@ -32,28 +32,28 @@ const setSchedule = new SubCommand({
     const minute = ctx.getArgument<number>('minute')!;
 
     // Fetch the role configuration from the database.
-    const birthdaysCfg = await ctx
+    const countdownCfg = await ctx
       .config()
-      .get<BirthdaysConfig>(guildId, Config.BIRTHDAYS);
-    if (!birthdaysCfg) {
+      .get<CountdownConfig>(guildId, Config.COUNTDOWNS);
+    if (!countdownCfg) {
       return ctx.interactionApi.respondWithError(
-        `Unable to fetch birthday configuration.`,
+        `Unable to fetch countdown configuration.`,
       );
     }
 
-    // Update the `birthdays` configuration value.
-    birthdaysCfg.scheduledHour = hour;
-    birthdaysCfg.scheduledMinute = minute;
+    // Update the `countdown` configuration value.
+    countdownCfg.scheduledHour = hour;
+    countdownCfg.scheduledMinute = minute;
 
     // Update database.
-    await ctx.config().update(guildId, Config.BIRTHDAYS, birthdaysCfg);
+    await ctx.config().update(guildId, Config.COUNTDOWNS, countdownCfg);
 
     // Restart the scheduler for this guild.
     await ctx.scheduler.startSchedulerWithDefaultJobs(guildId);
 
     return ctx.interactionApi.respondWithMessage(
-      bold('Birthdays schedule updated!') +
-        ' Messages will send every day at ' +
+      bold('Countdown schedule updated!') +
+        ' Announcements will be made every day at ' +
         bold(formatHourMinute(hour, minute)) +
         '.',
     );

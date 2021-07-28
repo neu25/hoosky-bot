@@ -17,7 +17,7 @@ const respondWithInvalidBirthday = (ctx: ExecutionContext): Promise<void> => {
   );
 };
 
-export const set = new SubCommand({
+const set = new SubCommand({
   name: 'set',
   displayName: 'Set Birthday',
   description: 'Set your birthday',

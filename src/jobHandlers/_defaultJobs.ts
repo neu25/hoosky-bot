@@ -2,6 +2,7 @@ import dayjs from 'dayjs';
 import { BirthdaysConfig, Repositories } from '../repository';
 import { Config } from '../database';
 import Scheduler from '../Scheduler';
+import { CountdownConfig } from '../repository/ConfigRepo';
 import { JobType } from './index';
 
 export const addDefaultJobs = async (
@@ -11,6 +12,7 @@ export const addDefaultJobs = async (
 ): Promise<void> => {
   await addBirthdayRoleJobs(scheduler, guildId);
   await addBirthdayMessageJobs(scheduler, repos, guildId);
+  await addCountdownAnnouncementJobs(scheduler, repos, guildId);
 };
 
 const getNextTimeOf = (
@@ -82,11 +84,40 @@ export const addBirthdayMessageJobs = async (
   const targetSendDate = getNextTimeOf(scheduledHour, scheduledMinute);
 
   /**
-   * Send birthday messages at 7:00 AM.
+   * Send birthday messages.
    */
   await scheduler.addJob({
     _id: JobType.SEND_BIRTHDAY_MESSAGES,
     type: JobType.SEND_BIRTHDAY_MESSAGES,
+    targetDate: targetSendDate.toDate(),
+    data: { guildId },
+    // After executing, run it again the next day.
+    reschedule: lastDate => dayjs(lastDate).add(1, 'day').toDate(),
+  });
+};
+
+export const addCountdownAnnouncementJobs = async (
+  scheduler: Scheduler,
+  repos: Repositories,
+  guildId: string,
+): Promise<void> => {
+  const countdownCfg = await repos.config.get<CountdownConfig>(
+    guildId,
+    Config.COUNTDOWNS,
+  );
+  if (!countdownCfg) return;
+
+  const { scheduledHour, scheduledMinute } = countdownCfg;
+  if (scheduledHour === undefined || scheduledMinute === undefined) return;
+
+  const targetSendDate = getNextTimeOf(scheduledHour, scheduledMinute);
+
+  /**
+   * Send countdown messages.
+   */
+  await scheduler.addJob({
+    _id: JobType.SEND_COUNTDOWN_ANNOUNCEMENTS,
+    type: JobType.SEND_COUNTDOWN_ANNOUNCEMENTS,
     targetDate: targetSendDate.toDate(),
     data: { guildId },
     // After executing, run it again the next day.

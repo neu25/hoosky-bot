@@ -6,7 +6,7 @@ import { Config } from '../../../database';
 import { BirthdaysConfig } from '../../../repository';
 import { bold } from '../../../format';
 
-export const messageAdd = new SubCommand({
+const messageAdd = new SubCommand({
   name: 'message-add',
   displayName: 'Add Birthday Message',
   description:

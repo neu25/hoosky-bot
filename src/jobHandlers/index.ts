@@ -9,11 +9,15 @@ import removeBirthdayRoles, {
 import sendBirthdayMessages, {
   SendBirthdayMessagesData,
 } from './sendBirthdayMessages';
+import sendCountdownAnnouncements, {
+  SendCountdownAnnouncementsData,
+} from './sendCountdownAnnoucements';
 
 export enum JobType {
   ADD_BIRTHDAY_ROLES = 'add_birthday_roles',
   REMOVE_BIRTHDAY_ROLES = 'remove_birthday_roles',
   SEND_BIRTHDAY_MESSAGES = 'send_birthday_messages',
+  SEND_COUNTDOWN_ANNOUNCEMENTS = 'send_countdown_announcements',
   UNMUTE = 'unmute',
 }
 
@@ -22,6 +26,7 @@ export type JobTypeMap = {
   [JobType.ADD_BIRTHDAY_ROLES]: AddBirthdayRolesData;
   [JobType.REMOVE_BIRTHDAY_ROLES]: RemoveBirthdayRolesData;
   [JobType.SEND_BIRTHDAY_MESSAGES]: SendBirthdayMessagesData;
+  [JobType.SEND_COUNTDOWN_ANNOUNCEMENTS]: SendCountdownAnnouncementsData;
 };
 
 export type JobContext<T extends JobType> = {
@@ -48,6 +53,7 @@ const jobHandlers: JobHandlers = {
   [JobType.ADD_BIRTHDAY_ROLES]: addBirthdayRoles,
   [JobType.REMOVE_BIRTHDAY_ROLES]: removeBirthdayRoles,
   [JobType.SEND_BIRTHDAY_MESSAGES]: sendBirthdayMessages,
+  [JobType.SEND_COUNTDOWN_ANNOUNCEMENTS]: sendCountdownAnnouncements,
 };
 
 export default jobHandlers;

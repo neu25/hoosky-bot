@@ -6,7 +6,7 @@ import { Config } from '../../../database';
 import { bold } from '../../../format';
 import { RolesConfig } from '../../../repository';
 
-export const setRole = new SubCommand({
+const setRole = new SubCommand({
   name: 'set-role',
   displayName: 'Set Up Birthday Role',
   description: 'Set up birthday role',
