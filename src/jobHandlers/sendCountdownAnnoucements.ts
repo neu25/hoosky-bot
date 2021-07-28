@@ -12,23 +12,26 @@ const sendCountdownAnnouncements: JobHandler<JobType.SEND_COUNTDOWN_ANNOUNCEMENT
 
     const today = dayjs();
 
-    const countdowns = await ctx.repos.countdowns.list(guildId);
-    if (!countdowns) {
+    const countdownDates = await ctx.repos.countdowns.list(guildId);
+    if (!countdownDates) {
       return;
     }
 
-    for (const c of countdowns) {
-      const endDay = dayjs(c._id, 'YYYY-MM-DD');
+    for (const date of countdownDates) {
+      const endDay = dayjs(date._id, 'YYYY-MM-DD');
       const daysToEnd = endDay.diff(today, 'days');
 
-      for (const ev of c.events) {
-        let msg: string;
-        if (daysToEnd === 0) {
-          msg = bold('TODAY') + ' is the day!';
-        } else {
-          msg = `There are ${bold(daysToEnd.toLocaleString())} days left!`;
-        }
+      let msg: string;
+      if (daysToEnd === 0) {
+        msg = bold('TODAY') + ' is the day!';
 
+        // Delete this countdown date, which has reached 0.
+        await ctx.repos.countdowns.deleteCountdown(guildId, date._id);
+      } else {
+        msg = `There are ${bold(daysToEnd.toLocaleString())} days left!`;
+      }
+
+      for (const ev of date.events) {
         await ctx.api.createMessage(ev.channel, {
           embeds: [
             {

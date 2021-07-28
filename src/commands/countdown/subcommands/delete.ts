@@ -33,12 +33,8 @@ const del = new SubCommand({
     const dateString = ctx.getArgument<string>('date')!.trim();
     const eventName = ctx.getArgument<string>('name')!.trim();
 
-    if (!validateDate(dateString)) {
-      return respondWithInvalidDate(ctx);
-    }
-
     const date = dayjs(dateString, 'MM/DD/YY');
-    if (!date.isValid()) {
+    if (!validateDate(dateString) || !date.isValid()) {
       return respondWithInvalidDate(ctx);
     }
 

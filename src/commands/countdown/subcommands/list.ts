@@ -13,7 +13,7 @@ type MonthGroup = {
 const list = new SubCommand({
   name: 'list',
   displayName: 'List Countdowns',
-  description: 'List all stored countdowns',
+  description: 'List all current countdowns',
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
     const dates = await (await ctx.countdowns().scan(guildId))

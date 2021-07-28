@@ -36,12 +36,8 @@ const create = new SubCommand({
     const eventName = ctx.getArgument<string>('name')!.trim();
     const channel = ctx.getArgument<string>('channel')!.trim();
 
-    if (!validateDate(dateString)) {
-      return respondWithInvalidDate(ctx);
-    }
-
     const date = dayjs(dateString, 'MM/DD/YY');
-    if (!date.isValid()) {
+    if (!validateDate(dateString) || !date.isValid()) {
       return respondWithInvalidDate(ctx);
     }
 

@@ -103,7 +103,7 @@ export const addCountdownAnnouncementJobs = async (
 ): Promise<void> => {
   const countdownCfg = await repos.config.get<CountdownConfig>(
     guildId,
-    Config.COUNTDOWN,
+    Config.COUNTDOWNS,
   );
   if (!countdownCfg) return;
 

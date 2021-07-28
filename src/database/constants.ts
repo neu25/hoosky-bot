@@ -20,5 +20,5 @@ export enum Config {
   ROLES = 'roles',
   MAIL = 'mail',
   BIRTHDAYS = 'birthdays',
-  COUNTDOWN = 'countdown',
+  COUNTDOWNS = 'countdowns',
 }

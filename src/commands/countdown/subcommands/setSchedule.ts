@@ -34,7 +34,7 @@ const setSchedule = new SubCommand({
     // Fetch the role configuration from the database.
     const countdownCfg = await ctx
       .config()
-      .get<CountdownConfig>(guildId, Config.COUNTDOWN);
+      .get<CountdownConfig>(guildId, Config.COUNTDOWNS);
     if (!countdownCfg) {
       return ctx.interactionApi.respondWithError(
         `Unable to fetch countdown configuration.`,
@@ -46,7 +46,7 @@ const setSchedule = new SubCommand({
     countdownCfg.scheduledMinute = minute;
 
     // Update database.
-    await ctx.config().update(guildId, Config.COUNTDOWN, countdownCfg);
+    await ctx.config().update(guildId, Config.COUNTDOWNS, countdownCfg);
 
     // Restart the scheduler for this guild.
     await ctx.scheduler.startSchedulerWithDefaultJobs(guildId);

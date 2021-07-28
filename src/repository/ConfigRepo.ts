@@ -100,7 +100,7 @@ class ConfigRepo {
       await this.insertIfNotExists(gId, Config.ROLES, rolesConfig);
       await this.insertIfNotExists(gId, Config.GUILD, guildConfig);
       await this.insertIfNotExists(gId, Config.BIRTHDAYS, birthdaysConfig);
-      await this.insertIfNotExists(gId, Config.COUNTDOWN, countdownConfig);
+      await this.insertIfNotExists(gId, Config.COUNTDOWNS, countdownConfig);
     }
   }
 
