@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { bold } from '../format';
+import { bold, pluralize } from '../format';
 import { JobHandler, JobType } from './index';
 
 export type SendCountdownAnnouncementsData = {
@@ -29,7 +29,9 @@ const sendCountdownAnnouncements: JobHandler<JobType.SEND_COUNTDOWN_ANNOUNCEMENT
         // Delete this countdown date, which has reached 0.
         await ctx.repos.countdowns.deleteCountdown(guildId, date._id);
       } else {
-        msg = `There are ${bold(daysToEnd.toLocaleString())} days left!`;
+        msg = `There ${daysToEnd === 1 ? 'is' : 'are'} ${bold(
+          daysToEnd.toLocaleString(),
+        )} ${pluralize('day', daysToEnd)} left!`;
       }
 
       for (const ev of date.events) {
