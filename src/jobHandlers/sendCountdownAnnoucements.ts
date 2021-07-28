@@ -12,7 +12,9 @@ const sendCountdownAnnouncements: JobHandler<JobType.SEND_COUNTDOWN_ANNOUNCEMENT
 
     const today = dayjs();
 
-    const countdownDates = await ctx.repos.countdowns.list(guildId);
+    const countdownDates = await (await ctx.repos.countdowns.scan(guildId))
+      .sort({ _id: 1 })
+      .toArray();
     if (!countdownDates) {
       return;
     }
