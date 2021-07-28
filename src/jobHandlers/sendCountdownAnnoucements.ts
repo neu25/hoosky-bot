@@ -19,7 +19,8 @@ const sendCountdownAnnouncements: JobHandler<JobType.SEND_COUNTDOWN_ANNOUNCEMENT
 
     for (const date of countdownDates) {
       const endDay = dayjs(date._id, 'YYYY-MM-DD');
-      const daysToEnd = endDay.diff(today, 'days');
+      const hoursToEnd = endDay.diff(today, 'hours');
+      const daysToEnd = Math.ceil(hoursToEnd / 24);
 
       let msg: string;
       if (daysToEnd === 0) {
