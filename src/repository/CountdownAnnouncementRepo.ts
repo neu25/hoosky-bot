@@ -14,6 +14,13 @@ class CountdownAnnouncementRepo {
     this._db = db;
   }
 
+  async listByEventId(
+    guildId: string,
+    eventId: number,
+  ): Promise<CountdownAnnouncement[] | null> {
+    return this.collection(guildId).find({ eventId }).toArray();
+  }
+
   async getByMessageId(
     guildId: string,
     messageId: string,
@@ -23,8 +30,8 @@ class CountdownAnnouncementRepo {
 
   async create(
     guildId: string,
-    messageId: string,
     channelId: string,
+    messageId: string,
     eventId: number,
   ): Promise<void> {
     await this.collection(guildId).insertOne({

@@ -11,7 +11,7 @@ import sendBirthdayMessages, {
 } from './sendBirthdayMessages';
 import sendCountdownAnnouncements, {
   SendCountdownAnnouncementsData,
-} from './sendCountdownAnnoucements';
+} from './sendCountdownAnnouncements';
 
 export enum JobType {
   ADD_BIRTHDAY_ROLES = 'add_birthday_roles',

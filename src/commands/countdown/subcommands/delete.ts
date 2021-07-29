@@ -25,7 +25,7 @@ const del = new SubCommand({
     const date = await ctx.countdowns().getById(guildId, eventId);
     if (!date) {
       return ctx.interactionApi.respondWithError(
-        "Event not found. Find an event's ID by running `/countdown list`.",
+        'Event not found. Find an event’s ID by running `/countdown list`.',
       );
     }
 
@@ -37,7 +37,7 @@ const del = new SubCommand({
     });
     if (!eventData) {
       return ctx.interactionApi.respondWithError(
-        "Event not found. Find an event's ID by running `/countdown list`.",
+        'Event not found. Find an event’s ID by running `/countdown list`.',
       );
     }
 

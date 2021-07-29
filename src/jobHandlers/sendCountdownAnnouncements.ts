@@ -37,6 +37,35 @@ const sendCountdownAnnouncements: JobHandler<JobType.SEND_COUNTDOWN_ANNOUNCEMENT
       }
 
       for (const ev of date.events) {
+        const eventId = ev.id;
+
+        // Delete every previous announcement for this event.
+        {
+          const previousAnnouncements =
+            await ctx.repos.countdownAnnouncements.listByEventId(
+              guildId,
+              eventId,
+            );
+          if (previousAnnouncements) {
+            if (previousAnnouncements.length === 1) {
+              const a = previousAnnouncements[0];
+              await ctx.api.deleteMessage(ev.channel, a._id);
+            } else if (previousAnnouncements.length > 1) {
+              await ctx.api.bulkDeleteMessages(
+                ev.channel,
+                previousAnnouncements.map(a => a._id),
+              );
+            }
+
+            // Mark those announcement messages as deleted.
+            await ctx.repos.countdownAnnouncements.deleteByEventId(
+              guildId,
+              eventId,
+            );
+          }
+        }
+
+        // Send a new announcement.
         const sentMessage = await ctx.api.createMessage(ev.channel, {
           embeds: [
             {
@@ -48,19 +77,12 @@ const sendCountdownAnnouncements: JobHandler<JobType.SEND_COUNTDOWN_ANNOUNCEMENT
 
         const channelId = sentMessage.channel_id;
         const messageId = sentMessage.id;
-        const eventId = ev.id;
-
-        // Delete previous announcement(s).
-        await ctx.repos.countdownAnnouncements.deleteByEventId(
-          guildId,
-          eventId,
-        );
 
         // Store new announcement.
         await ctx.repos.countdownAnnouncements.create(
           guildId,
-          messageId,
           channelId,
+          messageId,
           eventId,
         );
       }
