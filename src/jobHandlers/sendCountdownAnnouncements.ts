@@ -19,6 +19,14 @@ const sendCountdownAnnouncements: JobHandler<JobType.SEND_COUNTDOWN_ANNOUNCEMENT
       return;
     }
 
+    const allEvents = countdownDates.map(d => d.events).flat(1);
+    await ctx.auditLogger.logMessage({
+      title: 'Sending countdown announcements',
+      description:
+        `I am sending countdown announcements for the following events:\n` +
+        allEvents.map(ev => `• ${ev.name}`).join('\n'),
+    });
+
     for (const date of countdownDates) {
       const endDay = dayjs(date._id, 'YYYY-MM-DD');
       const hoursToEnd = endDay.diff(today, 'hours');
