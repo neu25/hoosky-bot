@@ -28,7 +28,7 @@ const courseRole = new Trigger({
       code: data.role.name,
     });
 
-    return ctx.auditLogger.logMessage({
+    return ctx.auditLogger.logMessage(guildId, {
       title: 'Detected course role rename',
       color: Discord.Color.WARNING,
       description: [

@@ -4,7 +4,7 @@ import CommandOption from '../../../CommandOption';
 import CommandOptionChoice from '../../../CommandOptionChoice';
 import { bold } from '../../../format';
 import { Config } from '../../../database';
-import { BotConfig } from '../../../repository/ConfigRepo';
+import { GlobalBotConfig } from '../../../repository/ConfigRepo';
 
 export const STATUSES: Record<Discord.StatusType, string> = {
   [Discord.StatusType.Online]: 'Online',
@@ -47,10 +47,10 @@ const setStatus = new SubCommand({
     ctx.client.updateStatus(status, message);
 
     const currentBotCfg =
-      (await ctx.config().getGlobal<BotConfig>(Config.BOT)) ?? {};
+      (await ctx.config().getGlobal<GlobalBotConfig>(Config.BOT)) ?? {};
 
     // Update the saved status.
-    const botCfg: Partial<BotConfig> = {
+    const botCfg: Partial<GlobalBotConfig> = {
       ...currentBotCfg,
       status,
       statusMessage: message ?? '',

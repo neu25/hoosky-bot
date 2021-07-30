@@ -72,6 +72,7 @@ const join = new SubCommand({
 
     // Let the audit logger know that this join was intentional, via a command.
     ctx.auditLogger.preventDupe(
+      guildId,
       AuditLogger.generateDupeKey({
         guildId,
         action: 'join_course',

@@ -12,7 +12,7 @@ import InteractionManager from './InteractionManager';
 import InteractionApi from './InteractionApi';
 import Debouncer from './Debouncer';
 import MasterScheduler from './MasterScheduler';
-import { BotConfig } from './repository/ConfigRepo';
+import { GlobalBotConfig } from './repository/ConfigRepo';
 import { Config } from './database';
 import { STATUSES } from './commands/bot/subcommands/setStatus';
 import AuditLogger from './auditLogger';
@@ -250,7 +250,9 @@ class Client {
         }
 
         // Set the initial status and status message of the bot.
-        const botCfg = await this.repos.config.getGlobal<BotConfig>(Config.BOT);
+        const botCfg = await this.repos.config.getGlobal<GlobalBotConfig>(
+          Config.BOT,
+        );
         this.updateStatus(
           botCfg?.status ?? Discord.StatusType.Online,
           botCfg?.statusMessage,

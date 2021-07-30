@@ -3,28 +3,32 @@ import * as Discord from '../Discord';
 import { Collection, Config, Database } from '../database';
 
 /**
- * Config data structures
+ * Global config data structures
  */
 
-export type BotConfig = {
+export type GlobalBotConfig = {
   status: Discord.StatusType;
   statusMessage: string;
-  loggingChannelId: string;
 };
+
+export type GlobalMailConfig = {
+  guildId: string;
+  categoryId: string;
+  blockedUserIds: string[];
+};
+
+/**
+ * Guild-specific config data structures
+ */
 
 export type GuildConfig = {
   commandPrefixes: string[];
+  loggingChannelId: string;
 };
 
 export type RolesConfig = {
   muted: string;
   birthday: string;
-};
-
-export type MailConfig = {
-  guildId: string;
-  categoryId: string;
-  blockedUserIds: string[];
 };
 
 export type BirthdayMessage = {
@@ -48,10 +52,9 @@ export type CountdownConfig = {
  * Default config values
  */
 
-export const botConfig: BotConfig = {
+export const globalBotConfig: GlobalBotConfig = {
   status: Discord.StatusType.Online,
   statusMessage: 'DM me to contact mods',
-  loggingChannelId: '',
 };
 
 export const rolesConfig: RolesConfig = {
@@ -61,9 +64,10 @@ export const rolesConfig: RolesConfig = {
 
 export const guildConfig: GuildConfig = {
   commandPrefixes: ['-'],
+  loggingChannelId: '',
 };
 
-export const mailConfig: MailConfig = {
+export const globalMailConfig: GlobalMailConfig = {
   guildId: '',
   categoryId: '',
   blockedUserIds: [],
@@ -93,8 +97,8 @@ class ConfigRepo {
    * already exists, the insertion is skipped.
    */
   async initialize(guildIds: string[]): Promise<void> {
-    await this.insertGlobalIfNotExists(Config.BOT, botConfig);
-    await this.insertGlobalIfNotExists(Config.MAIL, mailConfig);
+    await this.insertGlobalIfNotExists(Config.BOT, globalBotConfig);
+    await this.insertGlobalIfNotExists(Config.MAIL, globalMailConfig);
 
     for (const gId of guildIds) {
       await this.insertIfNotExists(gId, Config.ROLES, rolesConfig);

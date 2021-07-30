@@ -21,7 +21,7 @@ const unmute: JobHandler<JobType.UNMUTE> = async ctx => {
     throw new Error('Muted role missing in roles configuration');
   }
 
-  await ctx.auditLogger.logMessage({
+  await ctx.auditLogger.logMessage(data.guildId, {
     title: 'Removing mute',
     description: `The mute for <@${data.userId}> has ended, so I am removing the Muted role from them.`,
   });

@@ -43,7 +43,7 @@ export const handleBirthdayJob = async (
   };
 
   if (birthdays && birthdays.users.length > 0) {
-    await ctx.auditLogger.logMessage({
+    await ctx.auditLogger.logMessage(guildId, {
       title: (add ? 'Adding' : 'Removing') + ' birthday roles',
       description: add
         ? 'I am giving the birthday role to the following people:\n'

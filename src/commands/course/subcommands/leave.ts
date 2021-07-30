@@ -34,6 +34,7 @@ const leave = new SubCommand({
 
     // Let the audit logger know that this leave was intentional, via a command.
     ctx.auditLogger.preventDupe(
+      guildId,
       AuditLogger.generateDupeKey({
         guildId,
         action: 'leave_course',

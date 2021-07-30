@@ -25,6 +25,7 @@ const courseRole = new Trigger({
     await ctx.courses().deleteByRoleId(guildId, data.role_id);
 
     return ctx.auditLogger.logMessage(
+      guildId,
       {
         title: 'Detected course role deletion',
         color: Discord.Color.WARNING,

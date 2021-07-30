@@ -102,19 +102,18 @@ const normalizeDatabase = new Trigger({
 
     console.log('[Normalize] Database normalization completed');
 
-    return ctx.auditLogger.logMessage({
-      title: 'Database scan completed',
-      color: problemCount === 0 ? Discord.Color.SUCCESS : Discord.Color.WARNING,
-      description:
-        problemCount === 0
-          ? 'No problems were found.'
-          : [
-              'I automatically fixed',
-              problemCount.toLocaleString(),
-              pluralize('problem', problemCount),
-              'in the database.',
-            ].join(' '),
-    });
+    if (problemCount > 0) {
+      await ctx.auditLogger.logMessage(guild.id, {
+        title: 'Database scan completed',
+        color: Discord.Color.WARNING,
+        description: [
+          'I automatically fixed',
+          problemCount.toLocaleString(),
+          pluralize('problem', problemCount),
+          'in the database.',
+        ].join(' '),
+      });
+    }
   },
 });
 

@@ -20,7 +20,7 @@ const sendCountdownAnnouncements: JobHandler<JobType.SEND_COUNTDOWN_ANNOUNCEMENT
     }
 
     const allEvents = countdownDates.map(d => d.events).flat(1);
-    await ctx.auditLogger.logMessage({
+    await ctx.auditLogger.logMessage(guildId, {
       title: 'Sending countdown announcements',
       description:
         `I am sending countdown announcements for the following events:\n` +
@@ -55,14 +55,19 @@ const sendCountdownAnnouncements: JobHandler<JobType.SEND_COUNTDOWN_ANNOUNCEMENT
               eventId,
             );
           if (previousAnnouncements) {
-            if (previousAnnouncements.length === 1) {
-              const a = previousAnnouncements[0];
-              await ctx.api.deleteMessage(ev.channel, a._id);
-            } else if (previousAnnouncements.length > 1) {
-              await ctx.api.bulkDeleteMessages(
-                ev.channel,
-                previousAnnouncements.map(a => a._id),
-              );
+            // Ignore deletion errors, in case the message was already deleted.
+            try {
+              if (previousAnnouncements.length === 1) {
+                const a = previousAnnouncements[0];
+                await ctx.api.deleteMessage(ev.channel, a._id);
+              } else if (previousAnnouncements.length > 1) {
+                await ctx.api.bulkDeleteMessages(
+                  ev.channel,
+                  previousAnnouncements.map(a => a._id),
+                );
+              }
+            } catch (e) {
+              console.warn(e);
             }
 
             // Mark those announcement messages as deleted.

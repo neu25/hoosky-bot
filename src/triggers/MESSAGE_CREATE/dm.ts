@@ -5,7 +5,7 @@ import { ButtonStyle, MessageComponentType } from '../../Discord';
 import TriggerContext from '../../TriggerContext';
 import Trigger from '../../Trigger';
 import { Config } from '../../database';
-import { MailConfig } from '../../repository/ConfigRepo';
+import { GlobalMailConfig } from '../../repository/ConfigRepo';
 import { MailThread } from '../../repository/MailRepo';
 import { generateChannelData } from '../../commands/mail/_common';
 import { authorAvatarUrl } from '../../cdn';
@@ -130,7 +130,9 @@ const dm = new Trigger({
       // 2 second period, and all the bounced messages are supplied in the array `bouncedMessages`.
       async bouncedMessages => {
         // Get the server mail configuration.
-        const mailCfg = await ctx.config().getGlobal<MailConfig>(Config.MAIL);
+        const mailCfg = await ctx
+          .config()
+          .getGlobal<GlobalMailConfig>(Config.MAIL);
         if (!mailCfg?.guildId || !mailCfg?.categoryId) {
           // Server mail not set up yet, so ignore the DM.
           return;

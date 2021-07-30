@@ -1,7 +1,7 @@
 import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import { Config } from '../../../database';
-import { MailConfig } from '../../../repository/ConfigRepo';
+import { GlobalMailConfig } from '../../../repository/ConfigRepo';
 import CommandOption from '../../../CommandOption';
 
 const setup = new SubCommand({
@@ -30,7 +30,7 @@ const setup = new SubCommand({
     }
 
     // Update the mail configuration in the database.
-    const mailCfg: MailConfig = {
+    const mailCfg: GlobalMailConfig = {
       categoryId,
       guildId,
       blockedUserIds: [],

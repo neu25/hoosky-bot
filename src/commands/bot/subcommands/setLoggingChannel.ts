@@ -3,7 +3,7 @@ import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
 import { bold } from '../../../format';
 import { Config } from '../../../database';
-import { BotConfig } from '../../../repository/ConfigRepo';
+import { GuildConfig } from '../../../repository';
 
 const setLoggingChannel = new SubCommand({
   name: 'set-logging-channel',
@@ -19,6 +19,7 @@ const setLoggingChannel = new SubCommand({
     }),
   ],
   handler: async ctx => {
+    const guildId = ctx.mustGetGuildId();
     const channelId = ctx.getArgument<string>('channel')!;
 
     const channel = await ctx.api.getChannel(channelId);
@@ -29,14 +30,15 @@ const setLoggingChannel = new SubCommand({
       );
     }
 
-    const currentBotCfg =
-      (await ctx.config().getGlobal<BotConfig>(Config.BOT)) ?? {};
-    const update: Partial<BotConfig> = {
-      ...currentBotCfg,
+    const currentGuildCfg =
+      (await ctx.config().get<GuildConfig>(guildId, Config.GUILD)) ?? {};
+    const update: Partial<GuildConfig> = {
+      ...currentGuildCfg,
       loggingChannelId: channelId,
     };
 
-    await ctx.config().updateGlobal(Config.BOT, update);
+    ctx.auditLogger.setChannel(guildId, channelId);
+    await ctx.config().update(guildId, Config.GUILD, update);
 
     await ctx.interactionApi.respondWithMessage(
       bold('Logging channel set') + ` to <#${channelId}>.`,

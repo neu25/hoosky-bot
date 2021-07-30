@@ -32,6 +32,7 @@ const courseRole = new Trigger({
         await ctx.courses().removeMember(guildId, user.id, c.roleId);
 
         return ctx.auditLogger.logMessage(
+          guildId,
           {
             title: 'Detected course role removal',
             color: Discord.Color.WARNING,
@@ -60,6 +61,7 @@ const courseRole = new Trigger({
         await ctx.courses().addMember(guildId, user.id, c.roleId);
 
         return ctx.auditLogger.logMessage(
+          guildId,
           {
             title: 'Detected course role assignment',
             color: Discord.Color.WARNING,

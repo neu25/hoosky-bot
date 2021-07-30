@@ -33,7 +33,7 @@ const sendBirthdayMessages: JobHandler<JobType.SEND_BIRTHDAY_MESSAGES> =
     const birthdays = await ctx.repos.birthdays.getByDay(guildId, today);
 
     if (channel && birthdays && birthdays.users.length > 0) {
-      await ctx.auditLogger.logMessage({
+      await ctx.auditLogger.logMessage(guildId, {
         title: 'Giving happy birthday wishes',
         description:
           'I am wishing happy birthday to the following people:\n' +
@@ -58,7 +58,7 @@ const sendBirthdayMessages: JobHandler<JobType.SEND_BIRTHDAY_MESSAGES> =
 
       await ctx.api.createMessage(channel, messageData);
     } else {
-      await ctx.auditLogger.logMessage({
+      await ctx.auditLogger.logMessage(guildId, {
         title: 'Skipping happy birthday wishes',
         description: 'There are no birthdays today.',
       });

@@ -8,13 +8,12 @@ import commands from './commands';
 import triggers from './triggers';
 import { Config, Database } from './database';
 import Api from './Api';
-import { setupRepos } from './repository';
+import { GuildConfig, setupRepos } from './repository';
 import Cache from './Cache';
 import FollowUpManager from './FollowUpManager';
 import InteractionManager from './InteractionManager';
 import interactions from './interactions';
 import AuditLogger from './auditLogger';
-import { BotConfig } from './repository/ConfigRepo';
 
 (async () => {
   const argv = await yargs(hideBin(process.argv)).argv;
@@ -45,12 +44,13 @@ import { BotConfig } from './repository/ConfigRepo';
   // Insert default configuration values into the database.
   await repos.config.initialize(guildIds);
 
-  // Fetch the global bot config.
-  const botCfg = await repos.config.getGlobal<BotConfig>(Config.BOT);
-
+  // Populate the audit logger with a map of guild IDs to logging channel IDs.
   const auditLogger = new AuditLogger(api);
-  if (botCfg?.loggingChannelId) {
-    auditLogger.setChannel(botCfg.loggingChannelId);
+  for (const g of guildIds) {
+    const guildCfg = await repos.config.get<GuildConfig>(g, Config.GUILD);
+    if (guildCfg && guildCfg.loggingChannelId) {
+      auditLogger.setChannel(g, guildCfg.loggingChannelId);
+    }
   }
 
   console.log('[Main] Connecting to gateway...');
@@ -84,7 +84,7 @@ import { BotConfig } from './repository/ConfigRepo';
     console.log(
       `[Main] ${data.user.username}#${data.user.discriminator} connected`,
     );
-    auditLogger.logMessage({
+    auditLogger.logGlobalMessage({
       title: 'Connection established to the gateway',
     });
   });
@@ -100,7 +100,7 @@ import { BotConfig } from './repository/ConfigRepo';
       console.log('[Main] Received termination signal');
 
       try {
-        await auditLogger.logMessage({
+        await auditLogger.logGlobalMessage({
           title: 'Shutting down',
           color: Discord.Color.DANGER,
         });
