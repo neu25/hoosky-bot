@@ -9,6 +9,7 @@ export enum Collection {
   BIRTHDAYS = 'birthdays',
   COUNTDOWNS = 'countdowns',
   COUNTDOWN_ANNOUNCEMENTS = 'countdownAnnouncements',
+  AUTOCLEAR = 'autoclear',
   JOBS = 'jobs',
 }
 
