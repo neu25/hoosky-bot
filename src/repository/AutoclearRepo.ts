@@ -1,4 +1,4 @@
-import { Collection as MongoCollection } from 'mongodb';
+import { Collection as MongoCollection, Cursor } from 'mongodb';
 import { Collection, Database } from '../database';
 
 export type Autoclear = {
@@ -11,6 +11,10 @@ class AutoclearRepo {
 
   constructor(db: Database) {
     this._db = db;
+  }
+
+  async scan(guildId: string): Promise<Cursor<Autoclear>> {
+    return await this.collection(guildId).find();
   }
 
   async set(guildId: string, _id: string, duration: number): Promise<void> {
