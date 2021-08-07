@@ -21,6 +21,22 @@ export const generateHighlightMessageContent = (
   ].join('');
 };
 
+export const getHighestReaction = (
+  reactions: Discord.Reaction[],
+): Discord.Reaction => {
+  if (reactions.length === 0) {
+    throw new Error('Reactions is empty');
+  }
+
+  let re = reactions[0];
+  for (const r of reactions) {
+    if (r.count > re.count) {
+      re = r;
+    }
+  }
+  return re;
+};
+
 const anyboard = new Trigger({
   event: Discord.Event.MESSAGE_REACTION_ADD,
   handler: async ctx => {
@@ -39,16 +55,19 @@ const anyboard = new Trigger({
     if (ogUserId === ctx.botUser.id) return;
 
     // Format emoji to a consistent representation consumable by the Discord UI.
-    const formattedEmoji = formatEmoji(emoji);
+    const formattedReactEmoji = formatEmoji(emoji);
 
     // Get the original message.
     const ogMessage = await ctx.api.getChannelMessage(ogChannelId, ogMessageId);
     const { author, referenced_message: referencedMessage } = ogMessage;
     const ogReactions = ogMessage.reactions ?? [];
 
-    // Get the specific reaction type on the message matching the emoji added.
-    const reactionForEmoji = ogReactions.find(r => r.emoji.name === emoji.name);
-    if (!reactionForEmoji) return;
+    // Impossible case where there are no reactions on the message.
+    if (ogReactions.length === 0) return;
+
+    const highestReaction = getHighestReaction(ogReactions);
+    // Ignore the reaction if it's not of the highest.
+    if (formatEmoji(highestReaction.emoji) !== formattedReactEmoji) return;
 
     // Try to get this board message. If this is `null`, then it means this message
     // hasn't been highlighted yet.
@@ -57,7 +76,7 @@ const anyboard = new Trigger({
       .getByMessageId(guildId, ogMessageId);
     if (boardMsg) {
       // Reaction count hasn't changed, do nothing.
-      if (boardMsg.reactionCount === reactionForEmoji.count) return;
+      if (boardMsg.reactionCount === highestReaction.count) return;
 
       await ctx.api.editMessage(
         boardMsg.highlightChannelId,
@@ -65,14 +84,15 @@ const anyboard = new Trigger({
         {
           content: generateHighlightMessageContent(
             ogChannelId,
-            reactionForEmoji,
-            formattedEmoji,
+            highestReaction,
+            formattedReactEmoji,
           ),
         },
       );
 
       await ctx.anyboardMessages().update(guildId, ogMessageId, {
-        reactionCount: reactionForEmoji.count,
+        emoji: formattedReactEmoji,
+        reactionCount: highestReaction.count,
       });
 
       return;
@@ -117,15 +137,15 @@ const anyboard = new Trigger({
       });
     }
 
-    if (reactionForEmoji.count >= anyboardCfg.minReactionCount) {
+    if (highestReaction.count >= anyboardCfg.minReactionCount) {
       const authorMember = await ctx.api.getGuildMember(guildId, author.id);
       const authorName = authorMember.nick ?? author.username;
 
       const highlightMsg = await ctx.api.createMessage(anyboardCfg.channelId, {
         content: generateHighlightMessageContent(
           ogChannelId,
-          reactionForEmoji,
-          formattedEmoji,
+          highestReaction,
+          formattedReactEmoji,
         ),
         embeds: [
           {
@@ -149,7 +169,8 @@ const anyboard = new Trigger({
         sendDate: new Date(ogMessage.timestamp),
         highlightMessageId: highlightMsg.id,
         highlightChannelId: highlightMsg.channel_id,
-        reactionCount: reactionForEmoji.count,
+        emoji: formattedReactEmoji,
+        reactionCount: highestReaction.count,
       });
 
       // React to the message with the emoji.

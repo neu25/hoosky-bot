@@ -7,6 +7,7 @@ export type AnyboardMessage = {
   sendDate: Date;
   highlightChannelId: string; // Channel ID of posted highlight
   highlightMessageId: string; // Message ID of posted highlight
+  emoji: string; // The most-reacted emoji.
   reactionCount: number;
 };
 
