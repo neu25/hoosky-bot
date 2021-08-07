@@ -9,7 +9,7 @@ type MonthGroup = {
   list: string;
 };
 
-export const list = new SubCommand({
+const list = new SubCommand({
   name: 'list',
   displayName: 'List Birthdays',
   description: 'List all stored birthdays',
@@ -51,13 +51,19 @@ export const list = new SubCommand({
 
     // Map month groups to Discord embed fields.
     const fields: Discord.EmbedField[] = subGroups.map(sub => ({
-      name: fancyCenter(`${sub.month} (${sub.count})`, 50),
+      name: fancyCenter(`${sub.month} (${sub.count})`),
       value: sub.list, // The birthday list.
     }));
+
+    let embedDescription = '';
+    if (fields.length < 1) {
+      embedDescription = 'There are no stored birthdays.';
+    }
 
     await ctx.interactionApi.respondSilentlyWithEmbed({
       type: Discord.EmbedType.RICH,
       title: 'All Birthdays',
+      description: embedDescription,
       fields,
     });
   },

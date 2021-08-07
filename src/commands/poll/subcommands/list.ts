@@ -28,7 +28,7 @@ const list = new SubCommand({
       fields: embedFields,
     };
     if (embedFields.length < 1) {
-      embed.description = "You don't have any active polls";
+      embed.description = 'You don’t have any active polls.';
     }
 
     return ctx.interactionApi.respondWithEmbed(embed);

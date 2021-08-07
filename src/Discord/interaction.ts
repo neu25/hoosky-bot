@@ -48,6 +48,7 @@ export type CommandInteractionData = {
   name: string;
   resolved?: CommandInteractionDataResolved;
   options?: CommandInteractionDataOption[];
+  values?: string[]; // For select interactions
   custom_id: string;
   component_type: MessageComponentType;
 };

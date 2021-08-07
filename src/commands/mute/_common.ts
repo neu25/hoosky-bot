@@ -3,6 +3,8 @@ import * as Discord from '../../Discord';
 import { compareRank, guildRoleListToMap } from '../_utils';
 import { Config } from '../../database';
 import { RolesConfig } from '../../repository';
+import { JobType } from '../../jobHandlers';
+import { UnmuteJobData } from '../../jobHandlers/unmute';
 
 export const respondSetupError = async (
   ctx: ExecutionContext,
@@ -69,4 +71,32 @@ export const checkMutePermissionsOrExit = async (
   }
 
   return true;
+};
+
+export const constructUnmuteJobId = (userId: string): string => {
+  return `${JobType.UNMUTE}-${userId}`;
+};
+
+export const createUnmuteJob = async (
+  ctx: ExecutionContext,
+  userId: string,
+  targetDate: Date,
+): Promise<void> => {
+  const guildId = ctx.mustGetGuildId();
+
+  const data: UnmuteJobData = { guildId, userId };
+  await ctx.scheduler.addJob(guildId, {
+    _id: constructUnmuteJobId(userId),
+    type: JobType.UNMUTE,
+    targetDate,
+    data,
+  });
+};
+
+export const removeUnmuteJob = async (
+  ctx: ExecutionContext,
+  userId: string,
+): Promise<void> => {
+  const guildId = ctx.mustGetGuildId();
+  await ctx.repos.jobs.delete(guildId, constructUnmuteJobId(userId));
 };

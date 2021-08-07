@@ -3,7 +3,7 @@ import SubCommand from '../../../SubCommand';
 import { Config } from '../../../database';
 import { BirthdaysConfig } from '../../../repository';
 
-export const messageList = new SubCommand({
+const messageList = new SubCommand({
   name: 'message-list',
   displayName: 'List Birthday Messages',
   description: 'List server birthday messages',

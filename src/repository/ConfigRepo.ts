@@ -1,23 +1,34 @@
 import { Collection as MongoCollection } from 'mongodb';
+import * as Discord from '../Discord';
 import { Collection, Config, Database } from '../database';
 
 /**
- * Config data structures
+ * Global config data structures
+ */
+
+export type GlobalBotConfig = {
+  status: Discord.StatusType;
+  statusMessage: string;
+};
+
+export type GlobalMailConfig = {
+  guildId: string;
+  categoryId: string;
+  blockedUserIds: string[];
+};
+
+/**
+ * Guild-specific config data structures
  */
 
 export type GuildConfig = {
   commandPrefixes: string[];
+  loggingChannelId: string;
 };
 
 export type RolesConfig = {
   muted: string;
   birthday: string;
-};
-
-export type MailConfig = {
-  guildId: string;
-  categoryId: string;
-  blockedUserIds: string[];
 };
 
 export type BirthdayMessage = {
@@ -26,14 +37,25 @@ export type BirthdayMessage = {
 };
 
 export type BirthdaysConfig = {
-  schedule: string;
+  scheduledHour: number;
+  scheduledMinute: number;
   channel: string;
   messages: BirthdayMessage[];
+};
+
+export type CountdownConfig = {
+  scheduledHour: number;
+  scheduledMinute: number;
 };
 
 /**
  * Default config values
  */
+
+export const globalBotConfig: GlobalBotConfig = {
+  status: Discord.StatusType.Online,
+  statusMessage: 'DM me to contact mods',
+};
 
 export const rolesConfig: RolesConfig = {
   muted: '',
@@ -42,18 +64,25 @@ export const rolesConfig: RolesConfig = {
 
 export const guildConfig: GuildConfig = {
   commandPrefixes: ['-'],
+  loggingChannelId: '',
 };
 
-export const mailConfig: MailConfig = {
+export const globalMailConfig: GlobalMailConfig = {
   guildId: '',
   categoryId: '',
   blockedUserIds: [],
 };
 
 export const birthdaysConfig: BirthdaysConfig = {
-  schedule: '00 15 10 * * *',
+  scheduledHour: 7,
+  scheduledMinute: 0,
   channel: '',
   messages: [{ id: 1, message: 'Happy birthday, %!' }],
+};
+
+export const countdownConfig: CountdownConfig = {
+  scheduledHour: 12,
+  scheduledMinute: 0,
 };
 
 class ConfigRepo {
@@ -68,11 +97,14 @@ class ConfigRepo {
    * already exists, the insertion is skipped.
    */
   async initialize(guildIds: string[]): Promise<void> {
+    await this.insertGlobalIfNotExists(Config.BOT, globalBotConfig);
+    await this.insertGlobalIfNotExists(Config.MAIL, globalMailConfig);
+
     for (const gId of guildIds) {
       await this.insertIfNotExists(gId, Config.ROLES, rolesConfig);
       await this.insertIfNotExists(gId, Config.GUILD, guildConfig);
       await this.insertIfNotExists(gId, Config.BIRTHDAYS, birthdaysConfig);
-      await this.insertGlobalIfNotExists(Config.MAIL, mailConfig);
+      await this.insertIfNotExists(gId, Config.COUNTDOWNS, countdownConfig);
     }
   }
 

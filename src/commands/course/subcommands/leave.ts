@@ -2,6 +2,7 @@ import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
 import { boldCourse } from '../_common';
+import AuditLogger from '../../../auditLogger';
 
 const leave = new SubCommand({
   name: 'leave',
@@ -30,6 +31,17 @@ const leave = new SubCommand({
     if (!members.includes(userId)) {
       return ctx.interactionApi.respondWithError(`You aren’t in that course`);
     }
+
+    // Let the audit logger know that this leave was intentional, via a command.
+    ctx.auditLogger.preventDupe(
+      guildId,
+      AuditLogger.generateDupeKey({
+        guildId,
+        action: 'leave_course',
+        subjectId: userId,
+        objectId: roleId,
+      }),
+    );
 
     // `GUILD_MEMBER_UPDATE` trigger will activate and automatically remove the
     // user from the database. Thus, there's no need to do it here.

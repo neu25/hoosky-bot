@@ -1,7 +1,7 @@
 import * as Discord from '../../Discord';
 import Trigger from '../../Trigger';
 import { Config } from '../../database';
-import { MailConfig } from '../../repository/ConfigRepo';
+import { GlobalMailConfig } from '../../repository/ConfigRepo';
 
 /**
  * Ensure correct permissions for the `Muted` role when channels are updated.
@@ -15,7 +15,7 @@ const mailThread = new Trigger({
       throw new Error('No guild ID found in trigger data');
     }
 
-    const mailCfg = await ctx.config().getGlobal<MailConfig>(Config.MAIL);
+    const mailCfg = await ctx.config().getGlobal<GlobalMailConfig>(Config.MAIL);
     if (!mailCfg) {
       throw new Error('No mail configuration found');
     }

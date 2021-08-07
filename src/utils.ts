@@ -1,9 +1,16 @@
 import util from 'util';
+import { customAlphabet } from 'nanoid';
+import { Duration } from 'dayjs/plugin/duration';
 
 export const emojiRegexAbomination =
   /<a:.+?:\d+>|\p{Extended_Pictographic}|<:.+?:\d+>/gu;
 
 export type Primitive = string | boolean | number | undefined | null;
+
+export const generateId = customAlphabet(
+  'abcdefghijklmnopqrstuvwxyz0123456789',
+  8,
+);
 
 /**
  * Returns a Promise that resolves after the given time.
@@ -89,4 +96,19 @@ export const eliminateDuplicates = <T extends Primitive>(array: T[]): T[] => {
 
 export const dateToUnixTime = (date: Date): number => {
   return Math.floor(date.getTime() / 1000);
+};
+
+export const formatDuration = (duration: Duration): string => {
+  const s = duration.seconds();
+  const m = duration.minutes();
+  const h = duration.hours();
+  const d = Math.floor(duration.asDays());
+
+  const strParts: string[] = [];
+  if (d > 0) strParts.push(d + 'd');
+  if (h > 0) strParts.push(h + 'h');
+  if (m > 0) strParts.push(m + 'm');
+  if (s > 0) strParts.push(s + 's');
+
+  return strParts.join(' ');
 };

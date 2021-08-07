@@ -96,14 +96,14 @@ class ExecutionContext extends BaseContext {
    * @param channelId The ID of the channel to listen in.
    * @param messageId The ID of the message being followed up on.
    * @param userId The ID of the user to listen to.
-   * @param ttl?? The number of milliseconds to keep the follow-up listener open. (Default: 10,000ms).
+   * @param ttl?? The number of milliseconds to keep the follow-up listener open. (Default: 30,000ms).
    */
   expectMessageFollowUp(
     followUpId: string,
     channelId: string,
-    messageId: string,
+    messageId: string | null,
     userId: string,
-    ttl = 30000,
+    ttl = 30_000,
   ): void {
     const handler = this.msgFollowUpHandlers[followUpId];
     if (!handler) {

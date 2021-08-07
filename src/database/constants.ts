@@ -6,6 +6,9 @@ export enum Collection {
   POLL = 'poll',
   COURSES = 'courses',
   BIRTHDAYS = 'birthdays',
+  COUNTDOWNS = 'countdowns',
+  COUNTDOWN_ANNOUNCEMENTS = 'countdownAnnouncements',
+  JOBS = 'jobs',
   MAIL = 'mail',
   BOARDS = 'boards',
 }
@@ -14,8 +17,11 @@ export enum Collection {
  * Document IDs within the `config` collection
  */
 export enum Config {
+  BOT = 'bot',
   GUILD = 'guild',
   ROLES = 'roles',
   MAIL = 'mail',
   BIRTHDAYS = 'birthdays',
+  COUNTDOWNS = 'countdowns',
+  COUNTDOWN_ANNOUNCEMENTS = 'countdownAnnouncements',
 }

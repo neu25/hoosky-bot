@@ -1,6 +1,6 @@
 import SubCommand from '../../../SubCommand';
 
-export const unset = new SubCommand({
+const unset = new SubCommand({
   name: 'unset',
   displayName: 'Unset Birthday',
   description: 'Unset your birthday',

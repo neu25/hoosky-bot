@@ -3,6 +3,8 @@ import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
 import CommandOptionChoice from '../../../CommandOptionChoice';
 import { bold } from '../../../format';
+import { Config } from '../../../database';
+import { GlobalBotConfig } from '../../../repository/ConfigRepo';
 
 export const STATUSES: Record<Discord.StatusType, string> = {
   [Discord.StatusType.Online]: 'Online',
@@ -15,7 +17,7 @@ export const STATUSES: Record<Discord.StatusType, string> = {
 const setStatus = new SubCommand({
   name: 'set-status',
   displayName: 'Set Status',
-  description: 'Sets the activity status of the bot',
+  description: 'Set the activity status of the bot',
   requiredPermissions: [Discord.Permission.ADMINISTRATOR],
   options: [
     new CommandOption({
@@ -38,29 +40,23 @@ const setStatus = new SubCommand({
     }),
   ],
   handler: async ctx => {
-    const message = ctx.getArgument<string>('message');
     const status = ctx.getArgument<string>('status') as Discord.StatusType;
+    const message = ctx.getArgument<string>('message');
 
-    const activity: Discord.Activity = message
-      ? {
-          // Discord only allows status messages for bots if they are prefixed by
-          // "Playing", "Listening to", "Streaming", etc.
-          name: message,
-          type: Discord.ActivityType.Game,
-          created_at: Date.now(),
-        }
-      : {
-          name: '',
-          type: Discord.ActivityType.Custom,
-          created_at: Date.now(),
-        };
+    // Send a status update message to the gateway.
+    ctx.client.updateStatus(status, message);
 
-    ctx.client.updatePresence({
-      activities: [activity],
-      since: null,
-      afk: false,
+    const currentBotCfg =
+      (await ctx.config().getGlobal<GlobalBotConfig>(Config.BOT)) ?? {};
+
+    // Update the saved status.
+    const botCfg: Partial<GlobalBotConfig> = {
+      ...currentBotCfg,
       status,
-    });
+      statusMessage: message ?? '',
+    };
+    await ctx.config().updateGlobal(Config.BOT, botCfg);
+
     return ctx.interactionApi.respondWithMessage(
       'Bot status updated to ' + bold(`${STATUSES[status]} - ${message}`),
     );

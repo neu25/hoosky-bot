@@ -56,7 +56,7 @@ const listJoined = new SubCommand({
         if (!curGroup || c.subject !== curGroup.subject) {
           curGroup = {
             subject: c.subject,
-            heading: fancyCenter(c.subject, 50),
+            heading: fancyCenter(c.subject),
             list: '',
           };
           subGroups.push(curGroup);
@@ -83,7 +83,7 @@ const listJoined = new SubCommand({
       value: sub.list, // The course list.
     }));
 
-    await ctx.interactionApi.respondSilentlyWithEmbed({
+    await ctx.interactionApi.respondWithEmbed({
       type: Discord.EmbedType.RICH,
       title: `${username}’s Course List`,
       fields,

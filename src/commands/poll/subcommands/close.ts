@@ -23,7 +23,7 @@ const close = new SubCommand({
     const poll = await ctx.polls().getById(guildId, pollId, userId);
     if (!poll) {
       return ctx.interactionApi.respondWithError(
-        "Couldn't find poll. It may already be closed.",
+        'Couldn’t find poll. It may already be closed.',
       );
     }
 

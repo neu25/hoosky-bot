@@ -1,6 +1,20 @@
-import { bold } from '../../format';
+import { bold, EN_SPACE, fancyCenter, underline } from '../../format';
 import { Course, Section } from '../../repository';
 import ExecutionContext from '../../ExecutionContext';
+import { Page, paginate } from '../../paginate';
+import * as Discord from '../../Discord';
+
+// The number of subjects to display per page (for `/course list-all`).
+export const SUBJECTS_PER_PAGE = 6;
+
+/**
+ * Groups courses of the same subject together for easy display.
+ */
+type SubjectGroup = {
+  subject: string;
+  heading: string;
+  list: string;
+};
 
 /**
  * Returns a formatted version of the course name.
@@ -19,6 +33,25 @@ export const formatCourse = (course: Course): string => {
  */
 export const semiBoldCourse = (course: Course): string => {
   return bold(course.code) + ` - ${course.name}`;
+};
+
+/**
+ * Returns a partially-bolded version of the course string WITHOUT the subject code.
+ * Only the number and "(NUA)" identifier are bolded, not the name.
+ *
+ * @param course The course to format and partially bold
+ */
+export const formatListedCourse = (course: Course): string => {
+  const splitCode = course.code.split(' ');
+
+  let reference = '';
+  if (course.code.includes('(NUA)')) {
+    reference = `NUA ${splitCode[2]}`;
+  } else {
+    reference = splitCode[1];
+  }
+
+  return bold(reference) + ` - ${course.name}`;
 };
 
 /**
@@ -79,4 +112,82 @@ export const addUserToPossiblyNonexistentSection = async (
       members: [userId],
     });
   }
+};
+
+export const fetchCoursePages = async (
+  ctx: ExecutionContext,
+): Promise<Page<SubjectGroup>[]> => {
+  const guildId = ctx.mustGetGuildId();
+  const courses = await (
+    await ctx.courses().scan(guildId)
+  )
+    .sort({
+      subject: 1,
+      code: 1,
+    })
+    .toArray();
+
+  // Hold an array of subject groups to output.
+  const subGroups: SubjectGroup[] = [];
+  // Record the current subject being written to.
+  let curGroup: SubjectGroup | null = null;
+
+  // Iterate over every course.
+  for (const c of courses) {
+    // If the course's subject is different, then create a new subject group.
+    if (!curGroup || c.subject !== curGroup.subject) {
+      curGroup = {
+        subject: c.subject,
+        heading: fancyCenter(c.subject),
+        list: '',
+      };
+      subGroups.push(curGroup);
+    }
+
+    // Write the course to the subject group.
+    curGroup.list += formatListedCourse(c) + '\n';
+  }
+
+  return paginate(
+    subGroups.map(g => ({
+      sortKey: g.subject,
+      data: g,
+    })),
+    SUBJECTS_PER_PAGE,
+  );
+};
+
+export const constructSubjectEmbedFromPage = (
+  page: Page<SubjectGroup>,
+  totalPageCount: number,
+): Discord.Embed => {
+  // Map subject groups to Discord embed fields.
+  const fields = page.items.map(item => ({
+    name: item.data.heading, // The subject name.
+    value: item.data.list, // The course list.
+  }));
+
+  return {
+    type: Discord.EmbedType.RICH,
+    title:
+      `(Page ` +
+      underline(`${page.id + 1}/${totalPageCount}`) +
+      `)${EN_SPACE}Viewing subjects ` +
+      bold(`${page.startKey} — ${page.endKey}`),
+    fields,
+  };
+};
+
+export const constructSubjectSelectFromPages = (
+  pages: Page<SubjectGroup>[],
+): Discord.MessageComponent => {
+  return {
+    type: Discord.MessageComponentType.SelectMenu,
+    custom_id: 'courses-open-page',
+    placeholder: 'View a different page',
+    options: pages.map(p => ({
+      label: `${p.startKey} — ${p.endKey}`,
+      value: p.id.toString(10),
+    })),
+  };
 };

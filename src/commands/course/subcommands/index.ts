@@ -8,6 +8,7 @@ import listJoined from './listJoined';
 import roster from './roster';
 import classmates from './classmates';
 import bulkCreate from './bulkCreate';
+import rename from './rename';
 
 const subcommands: SubCommand[] = [
   create,
@@ -19,6 +20,7 @@ const subcommands: SubCommand[] = [
   roster,
   classmates,
   bulkCreate,
+  rename,
 ];
 
 export default subcommands;

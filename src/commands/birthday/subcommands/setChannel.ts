@@ -4,10 +4,9 @@ import CommandOption from '../../../CommandOption';
 import { CommandOptionType } from '../../../Discord';
 import { Config } from '../../../database';
 import { bold } from '../../../format';
-import { restartScheduler } from '../messageScheduler';
 import { BirthdaysConfig } from '../../../repository';
 
-export const setChannel = new SubCommand({
+const setChannel = new SubCommand({
   name: 'set-channel',
   displayName: 'Set Up Birthdays Channel',
   description: 'Set up channel for birthday messages',
@@ -39,9 +38,6 @@ export const setChannel = new SubCommand({
 
     // Update database.
     await ctx.config().update(guildId, Config.BIRTHDAYS, birthdaysCfg);
-
-    // Restart scheduler.
-    restartScheduler();
 
     return ctx.interactionApi.respondWithMessage(
       `${bold('Birthdays channel updated')} to <#${channel}>`,

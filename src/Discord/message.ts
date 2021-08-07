@@ -115,15 +115,39 @@ export enum MessageComponentType {
   SelectMenu,
 }
 
-export type MessageComponent = {
-  type: MessageComponentType;
+export type MessageComponent = ActionRow | Button | SelectMenu;
+
+export type ActionRow = {
+  type: MessageComponentType.ActionRow;
+  components?: MessageComponent[];
+};
+
+export type Button = {
+  type: MessageComponentType.Button;
   style?: ButtonStyle;
   label?: string;
   emoji?: Pick<Emoji, 'name' | 'id' | 'animated'>;
   custom_id?: string;
   url?: string;
   disabled?: boolean;
-  components?: MessageComponent[];
+};
+
+export type SelectMenu = {
+  type: MessageComponentType.SelectMenu;
+  custom_id: string;
+  options: SelectOption[];
+  placeholder?: string;
+  min_values?: number;
+  max_values?: number;
+  disabled?: boolean;
+};
+
+export type SelectOption = {
+  label: string;
+  value: string;
+  description?: string;
+  emoji?: Pick<Emoji, 'id' | 'name' | 'animated'>;
+  default?: boolean;
 };
 
 export enum ButtonStyle {

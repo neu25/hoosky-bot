@@ -4,10 +4,9 @@ import CommandOption from '../../../CommandOption';
 import { CommandOptionType } from '../../../Discord';
 import { Config } from '../../../database';
 import { BirthdaysConfig } from '../../../repository';
-import { restartScheduler } from '../messageScheduler';
 import { bold } from '../../../format';
 
-export const messageAdd = new SubCommand({
+const messageAdd = new SubCommand({
   name: 'message-add',
   displayName: 'Add Birthday Message',
   description:
@@ -36,14 +35,13 @@ export const messageAdd = new SubCommand({
     const birthdaysCfg = await ctx
       .config()
       .get<BirthdaysConfig>(guildId, Config.BIRTHDAYS);
-
     if (!birthdaysCfg) {
       return ctx.interactionApi.respondWithError(
         `Unable to fetch birthdays config`,
       );
     }
 
-    const messages = birthdaysCfg?.messages;
+    const messages = birthdaysCfg.messages;
     let nextId = 1;
     if (messages) {
       nextId = messages[messages.length - 1].id + 1;
@@ -59,9 +57,6 @@ export const messageAdd = new SubCommand({
 
     // Update database.
     await ctx.config().update(guildId, Config.BIRTHDAYS, birthdaysCfg);
-
-    // Restart scheduler.
-    restartScheduler();
 
     return ctx.interactionApi.respondWithMessage(
       `${bold('Birthday message added:')}\n${message}`,

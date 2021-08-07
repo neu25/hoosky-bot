@@ -132,6 +132,28 @@ class InteractionApi {
   }
 
   /**
+   * (For component interactions only) Acknowledges the command execution.
+   * The user does not see a loader.
+   */
+  acknowledge(): Promise<void> {
+    return this.respond({
+      type: Discord.InteractionCallbackType.DeferredUpdateMessage,
+    });
+  }
+
+  /**
+   * (For component interactions only) Updates the message the component is on.
+   *
+   * @param data The update data.
+   */
+  updateMessage(data: Discord.InteractionCommandCallbackData): Promise<void> {
+    return this.respond({
+      type: Discord.InteractionCallbackType.UpdateMessage,
+      data,
+    });
+  }
+
+  /**
    * Returns our response to the command execution. This is only relevant if
    * `respond` has already been called.
    */

@@ -2,6 +2,7 @@ import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
 import { boldCourse } from '../_common';
+import AuditLogger from '../../../auditLogger';
 
 const del = new SubCommand({
   name: 'delete',
@@ -25,8 +26,17 @@ const del = new SubCommand({
       return ctx.interactionApi.respondWithError('That course does not exist');
     }
 
+    // Let the audit logger know that this deletion was intentional, via a command.
+    ctx.auditLogger.preventDupe(
+      guildId,
+      AuditLogger.generateDupeKey({
+        guildId,
+        action: 'delete_course',
+        objectId: roleId,
+      }),
+    );
+
     await ctx.api.deleteGuildRole(guildId, course.roleId);
-    await ctx.courses().deleteByRoleId(guildId, course.roleId);
 
     return ctx.interactionApi.respondWithMessage(
       `Deleted course ${boldCourse(course)}`,

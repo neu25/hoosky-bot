@@ -17,7 +17,7 @@ const respondWithInvalidBirthday = (ctx: ExecutionContext): Promise<void> => {
   );
 };
 
-export const set = new SubCommand({
+const set = new SubCommand({
   name: 'set',
   displayName: 'Set Birthday',
   description: 'Set your birthday',
@@ -61,7 +61,7 @@ export const set = new SubCommand({
 
     await ctx.birthdays().set(guildId, dateKey, userId);
     return ctx.interactionApi.respondWithMessage(
-      `Your birthday has been set to ${prettyDate}!`,
+      `Your birthday has been set to ${bold(prettyDate)}!`,
     );
   },
 });

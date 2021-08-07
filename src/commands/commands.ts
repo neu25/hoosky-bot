@@ -8,6 +8,7 @@ import bot from './bot';
 import say from './say';
 import birthday from './birthday';
 import mail from './mail';
+import countdown from './countdown';
 import starboard from './starboard';
 
 const commandList: Command[] = [
@@ -21,6 +22,7 @@ const commandList: Command[] = [
   birthday,
   mail,
   starboard,
+  countdown,
 ];
 
 export default commandList;

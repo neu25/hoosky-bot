@@ -3,6 +3,7 @@ import * as Discord from '../../Discord';
 import Trigger from '../../Trigger';
 import { Birthday, Course } from '../../repository';
 import { eliminateDuplicates } from '../../utils';
+import { pluralize } from '../../format';
 
 /**
  * Resolves data integrity issues of the given birthday.
@@ -59,6 +60,8 @@ const normalizeDatabase = new Trigger({
   handler: async ctx => {
     const guild = ctx.data;
 
+    let problemCount = 0;
+
     console.log(`Normalizing database of ${guild.name} (${guild.id})...`);
 
     const courses = await ctx.courses().list(guild.id);
@@ -66,7 +69,10 @@ const normalizeDatabase = new Trigger({
       const n = normalizeCourse(c);
       // If the course changed, then update it.
       if (!_.isEqual(c, n)) {
-        console.log(`Corruption in course ${c._id} (${c.code}). Fixing...`);
+        ++problemCount;
+        console.log(
+          `[Normalize] Corruption in course ${c._id} (${c.code}). Fixing...`,
+        );
         await ctx.courses().updateByRoleId(guild.id, c.roleId, n);
       }
     }
@@ -76,12 +82,38 @@ const normalizeDatabase = new Trigger({
       const n = normalizeBirthday(b);
       // If the birthday changed, then update it.
       if (!_.isEqual(b, n)) {
-        console.log(`Corruption in birthday ${b._id}. Fixing...`);
+        ++problemCount;
+        console.log(`[Normalize] Corruption in birthday ${b._id}. Fixing...`);
         await ctx.birthdays().updateById(guild.id, b._id, n);
       }
     }
 
-    console.log('Database normalization completed');
+    const countdowns = await ctx.countdowns().list(guild.id);
+    for (const c of countdowns) {
+      // If the countdown has 0 events, then delete the date.
+      if (c.events.length === 0) {
+        ++problemCount;
+        console.log(
+          `[Normalize] Countdown for ${c._id} has 0 events. Deleting...`,
+        );
+        await ctx.countdowns().deleteCountdown(guild.id, c._id);
+      }
+    }
+
+    console.log('[Normalize] Database normalization completed');
+
+    if (problemCount > 0) {
+      await ctx.auditLogger.logMessage(guild.id, {
+        title: 'Database scan completed',
+        color: Discord.Color.WARNING,
+        description: [
+          'I automatically fixed',
+          problemCount.toLocaleString(),
+          pluralize('problem', problemCount),
+          'in the database.',
+        ].join(' '),
+      });
+    }
   },
 });
 
