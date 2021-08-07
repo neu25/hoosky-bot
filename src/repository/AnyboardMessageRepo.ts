@@ -4,6 +4,7 @@ import { Collection, Database } from '../database';
 export type AnyboardMessage = {
   _id: string; // Original message ID
   userId: string;
+  sendDate: Date;
   highlightChannelId: string; // Channel ID of posted highlight
   highlightMessageId: string; // Message ID of posted highlight
   reactionCount: number;

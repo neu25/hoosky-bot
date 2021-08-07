@@ -146,6 +146,7 @@ const anyboard = new Trigger({
       await ctx.anyboardMessages().create(guildId, {
         _id: ogMessageId,
         userId: author.id,
+        sendDate: new Date(ogMessage.timestamp),
         highlightMessageId: highlightMsg.id,
         highlightChannelId: highlightMsg.channel_id,
         reactionCount: reactionForEmoji.count,
