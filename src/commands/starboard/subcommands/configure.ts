@@ -1,30 +1,25 @@
 import * as Discord from '../../../Discord';
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
-import { extractEmojis } from '../../../utils';
+import { AnyboardConfig } from '../../../repository/ConfigRepo';
+import { Config } from '../../../database';
 
 const configure = new SubCommand({
   name: 'configure',
   displayName: 'Configure',
-  description: 'Configure a channel as a new starboard',
+  description: 'Configure a channel as a new anyboard',
   requiredPermissions: [Discord.Permission.MANAGE_CHANNELS],
   options: [
     new CommandOption({
       name: 'channel',
-      description: 'The channel to display boarded messages',
+      description: 'The channel to display highlighted messages',
       required: true,
       type: Discord.CommandOptionType.CHANNEL,
     }),
     new CommandOption({
-      name: 'emoji',
-      description: 'The board’s emoji',
-      required: true,
-      type: Discord.CommandOptionType.STRING,
-    }),
-    new CommandOption({
       name: 'min-reactions',
       description:
-        'The minimum number of reactions required to get on the board',
+        'The minimum number of reactions required to get highlighted',
       required: true,
       type: Discord.CommandOptionType.INTEGER,
     }),
@@ -32,33 +27,17 @@ const configure = new SubCommand({
   handler: async ctx => {
     const guildId = ctx.mustGetGuildId();
     const channelId = ctx.getArgument<string>('channel')!;
-    const emojiString = ctx.getArgument<string>('emoji')!;
-    const minReactions = ctx.getArgument<number>('min-reactions')!;
+    const minReactionCount = ctx.getArgument<number>('min-reactions')!;
 
-    // Make sure there is no existing board.
-    const existingBoard = await ctx.boards().getByChannelId(guildId, channelId);
-    if (existingBoard) {
-      return ctx.interactionApi.respondWithError(
-        `<#${channelId}> has already been taken by the starboard for emoji ${existingBoard.emoji}.`,
-      );
-    }
+    const cfgUpdate: Partial<AnyboardConfig> = {
+      channelId,
+      minReactionCount,
+    };
 
-    const emojis = extractEmojis(emojiString);
-    if (emojis === null || emojis.length === 0) {
-      return ctx.interactionApi.respondWithError(
-        'Please specify the board’s emoji.',
-      );
-    }
-    const emoji = emojis[0];
-
-    await ctx.boards().create(guildId, {
-      _id: channelId,
-      emoji,
-      minReactions,
-    });
+    await ctx.config().update(guildId, Config.ANYBOARD, cfgUpdate);
 
     await ctx.interactionApi.respondWithMessage(
-      `Starboard created for <#${channelId}> with ${minReactions} minimum reactions of ${emoji} required.`,
+      `Anyboard set to <#${channelId}> with ${minReactionCount} reactions required.`,
     );
 
     /*

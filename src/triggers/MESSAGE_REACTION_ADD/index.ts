@@ -1,5 +1,5 @@
-import starboard from './starboard';
+import anyboard from './anyboard';
 
-const MESSAGE_REACTION_ADD = [starboard];
+const MESSAGE_REACTION_ADD = [anyboard];
 
 export default MESSAGE_REACTION_ADD;

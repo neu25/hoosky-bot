@@ -10,7 +10,7 @@ export enum Collection {
   COUNTDOWN_ANNOUNCEMENTS = 'countdownAnnouncements',
   JOBS = 'jobs',
   MAIL = 'mail',
-  BOARDS = 'boards',
+  ANYBOARD_MESSAGES = 'anyboardMessages',
 }
 
 /**
@@ -23,5 +23,5 @@ export enum Config {
   MAIL = 'mail',
   BIRTHDAYS = 'birthdays',
   COUNTDOWNS = 'countdowns',
-  COUNTDOWN_ANNOUNCEMENTS = 'countdownAnnouncements',
+  ANYBOARD = 'anyboard',
 }

@@ -11,7 +11,7 @@ import BirthdayRepo from './repository/BirthdayRepo';
 import CountdownRepo from './repository/CountdownRepo';
 import MasterScheduler from './MasterScheduler';
 import AuditLogger from './auditLogger';
-import BoardRepo from './repository/BoardRepo';
+import AnyboardMessageRepo from './repository/AnyboardMessageRepo';
 
 export type State = Record<string, any>;
 
@@ -52,8 +52,8 @@ class BaseContext {
     return this.repos.countdowns;
   }
 
-  boards(): BoardRepo {
-    return this.repos.boards;
+  anyboardMessages(): AnyboardMessageRepo {
+    return this.repos.boardMessages;
   }
 
   courses(): CourseRepo {

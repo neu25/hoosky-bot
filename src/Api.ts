@@ -322,6 +322,7 @@ class Api {
       return res.data;
     });
   }
+
   /**
    * Sends a message in the specified channel.
    *
@@ -337,7 +338,9 @@ class Api {
         `/channels/${channelId}/messages`,
         data,
       );
-      return res.data as Discord.Message;
+      const msg = res.data as Discord.Message;
+      this._cache._setMessage(msg);
+      return msg;
     });
   }
 
@@ -371,7 +374,9 @@ class Api {
           headers: formData.getHeaders(),
         },
       );
-      return res.data as Discord.Message;
+      const msg = res.data as Discord.Message;
+      this._cache._setMessage(msg);
+      return msg;
     });
   }
 
@@ -457,7 +462,9 @@ class Api {
         `/channels/${channelId}/messages/${messageId}`,
         data,
       );
-      return res.data as Discord.Message;
+      const msg = res.data as Discord.Message;
+      this._cache._updateMessage(messageId, msg);
+      return msg;
     });
   }
 
@@ -470,6 +477,7 @@ class Api {
   deleteMessage(channelId: string, messageId: string): Promise<void> {
     return performRequest(async () => {
       await this._http.delete(`/channels/${channelId}/messages/${messageId}`);
+      this._cache._deleteMessage(messageId);
     });
   }
 
@@ -484,6 +492,9 @@ class Api {
       await this._http.post(`/channels/${channelId}/messages/bulk-delete`, {
         messages: messageIds,
       });
+      for (const id of messageIds) {
+        this._cache._deleteMessage(id);
+      }
     });
   }
 
@@ -542,7 +553,7 @@ class Api {
    * @param channelId The channel ID of the channel.
    * @param messageId The message ID of the message.
    * @param emojiString The emoji string of the reaction.
-   * @param userId? The id of the user. (If ommitted deletes the reaction made by the bot)
+   * @param userId? The id of the user. (If omitted deletes the reaction made by the bot)
    */
   async deleteUserReaction(
     channelId: string,
@@ -551,13 +562,14 @@ class Api {
     userId?: number,
   ): Promise<void> {
     const target = !userId ? '@me' : userId.toString();
-    await performRequest(() =>
-      this._http.delete(
+    return performRequest(async () => {
+      await this._http.delete(
         `/channels/${channelId}/messages/${messageId}/reactions/${prepareEmoji(
           emojiString,
         )}/${target}`,
-      ),
-    );
+      );
+      await this._cache._removeMessageReaction(messageId, emojiString);
+    });
   }
 
   /**
@@ -572,13 +584,14 @@ class Api {
     messageId: string,
     emojiString?: string,
   ): Promise<void> {
-    await performRequest(() =>
-      this._http.delete(
+    await performRequest(async () => {
+      await this._http.delete(
         `/channels/${channelId}/messages/${messageId}/reactions${
           emojiString ? `/${prepareEmoji(emojiString)}` : ''
         }`,
-      ),
-    );
+      );
+      this._cache._removeAllMessageReactions(messageId);
+    });
   }
 
   /**
@@ -593,6 +606,8 @@ class Api {
     messageId: string,
     emojiString: string,
   ): Promise<User[]> {
+    // This isn't cacheable.
+
     return performRequest(async () => {
       const res = await this._http.get(
         `/channels/${channelId}/messages/${messageId}/reactions/${prepareEmoji(
@@ -615,13 +630,14 @@ class Api {
     messageId: string,
     emojiString: string,
   ): Promise<void> {
-    await performRequest(() =>
-      this._http.put(
+    await performRequest(async () => {
+      await this._http.put(
         `/channels/${channelId}/messages/${messageId}/reactions/${prepareEmoji(
           emojiString,
         )}/@me`,
-      ),
-    );
+      );
+      // TODO: Add message reaction to cache.
+    });
   }
 
   /**

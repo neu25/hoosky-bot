@@ -7,7 +7,7 @@ import MailRepo from './MailRepo';
 import CountdownRepo from './CountdownRepo';
 import CountdownAnnouncementRepo from './CountdownAnnouncementRepo';
 import JobRepo from './JobRepo';
-import BoardRepo from './BoardRepo';
+import AnyboardMessageRepo from './AnyboardMessageRepo';
 
 export type { Birthday, BirthdayMessage } from './BirthdayRepo';
 export type { Course, Section } from './CourseRepo';
@@ -16,7 +16,7 @@ export type Repositories = {
   birthdays: BirthdayRepo;
   courses: CourseRepo;
   jobs: JobRepo;
-  boards: BoardRepo;
+  boardMessages: AnyboardMessageRepo;
   mail: MailRepo;
   config: ConfigRepo;
   countdowns: CountdownRepo;
@@ -28,7 +28,7 @@ export const setupRepos = (db: Database): Repositories => {
   return {
     birthdays: new BirthdayRepo(db),
     courses: new CourseRepo(db),
-    boards: new BoardRepo(db),
+    boardMessages: new AnyboardMessageRepo(db),
     jobs: new JobRepo(db),
     mail: new MailRepo(db),
     config: new ConfigRepo(db),

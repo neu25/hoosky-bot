@@ -33,7 +33,7 @@ export type MessageActivity = {
 };
 
 export type Emoji = {
-  id: string;
+  id: string | null;
   name: string;
   roles?: Role[];
   user?: User;
@@ -276,6 +276,12 @@ export type CreateMessagePayload = {
   components?: MessageComponent[];
 };
 
+export type DeleteMessagePayload = {
+  id: string;
+  channel_id: string;
+  guild_id?: string;
+};
+
 export type EditMessagePayload = {
   payload_json?: string;
 } & Partial<
@@ -290,6 +296,7 @@ export type MessageReactionAddPayload = {
   guild_id?: string;
   member?: GuildMember;
   emoji: Emoji;
+  me: boolean;
 };
 
 export type MessageReactionRemovePayload = {

@@ -60,6 +60,7 @@ export {
   EmbedThumbnail,
   EmbedFooter,
   CreateMessagePayload,
+  DeleteMessagePayload,
   EditMessagePayload,
   MessageReactionAddPayload,
   MessageReactionRemovePayload,
