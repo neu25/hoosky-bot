@@ -9,7 +9,7 @@ import say from './say';
 import birthday from './birthday';
 import mail from './mail';
 import countdown from './countdown';
-import starboard from './starboard';
+import anyboard from './starboard';
 
 const commandList: Command[] = [
   ping,
@@ -21,7 +21,7 @@ const commandList: Command[] = [
   say,
   birthday,
   mail,
-  starboard,
+  anyboard,
   countdown,
 ];
 

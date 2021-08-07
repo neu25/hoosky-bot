@@ -39,13 +39,6 @@ const configure = new SubCommand({
     await ctx.interactionApi.respondWithMessage(
       `Anyboard set to <#${channelId}> with ${minReactionCount} reactions required.`,
     );
-
-    /*
-    Use response system to extract variables from parameters
-    Use database as a means to communicate with starboard.ts and as a means to store aformentioned variables
-    Implement/Utilize a listening system to recognize when the number of stars has been reached (DONE)
-      Once code works, revamp setstarboard to include self-star:(boolean), starring a bot(boolean), and emoji(STRING)
-  */
   },
 });
 
