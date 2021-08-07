@@ -9,7 +9,7 @@ import say from './say';
 import birthday from './birthday';
 import mail from './mail';
 import countdown from './countdown';
-import anyboard from './starboard';
+import anyboard from './anyboard';
 
 const commandList: Command[] = [
   ping,

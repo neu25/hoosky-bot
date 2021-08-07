@@ -3,10 +3,11 @@ import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
 import { AnyboardConfig } from '../../../repository/ConfigRepo';
 import { Config } from '../../../database';
+import { bold, pluralize } from '../../../format';
 
 const configure = new SubCommand({
   name: 'configure',
-  displayName: 'Configure',
+  displayName: 'Configure Anyboard',
   description: 'Configure a channel as a new anyboard',
   requiredPermissions: [Discord.Permission.MANAGE_CHANNELS],
   options: [
@@ -29,15 +30,31 @@ const configure = new SubCommand({
     const channelId = ctx.getArgument<string>('channel')!;
     const minReactionCount = ctx.getArgument<number>('min-reactions')!;
 
-    const cfgUpdate: Partial<AnyboardConfig> = {
+    if (minReactionCount <= 0) {
+      return ctx.interactionApi.respondWithError(
+        'The reaction threshold must be greater than 0.',
+      );
+    }
+
+    const anyboardCfg: AnyboardConfig = {
       channelId,
       minReactionCount,
+      blacklistedChannelIds: [],
     };
 
-    await ctx.config().update(guildId, Config.ANYBOARD, cfgUpdate);
+    await ctx.config().update(guildId, Config.ANYBOARD, anyboardCfg);
 
     await ctx.interactionApi.respondWithMessage(
-      `Anyboard set to <#${channelId}> with ${minReactionCount} reactions required.`,
+      [
+        bold('Anyboard configured'),
+        `to <#${channelId}> with`,
+        bold(
+          minReactionCount.toString(10) +
+            ' ' +
+            pluralize('reaction', minReactionCount),
+        ),
+        'required.',
+      ].join(' '),
     );
   },
 });

@@ -51,6 +51,7 @@ export type CountdownConfig = {
 export type AnyboardConfig = {
   channelId: string;
   minReactionCount: number;
+  blacklistedChannelIds: string[];
 };
 
 /**
@@ -93,6 +94,7 @@ export const countdownConfig: CountdownConfig = {
 export const anyboardConfig: AnyboardConfig = {
   channelId: '',
   minReactionCount: 1,
+  blacklistedChannelIds: [],
 };
 
 class ConfigRepo {

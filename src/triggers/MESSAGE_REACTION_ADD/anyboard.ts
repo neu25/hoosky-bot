@@ -54,6 +54,19 @@ const anyboard = new Trigger({
     // Ignore the bot's own reactions.
     if (ogUserId === ctx.botUser.id) return;
 
+    const anyboardCfg = await ctx
+      .config()
+      .get<AnyboardConfig>(guildId, Config.ANYBOARD);
+    if (
+      !anyboardCfg?.channelId ||
+      !anyboardCfg?.minReactionCount ||
+      !anyboardCfg?.blacklistedChannelIds
+    )
+      return;
+
+    // If this channel is blacklisted, then ignore this reaction.
+    if (anyboardCfg.blacklistedChannelIds.includes(ogChannelId)) return;
+
     // Format emoji to a consistent representation consumable by the Discord UI.
     const formattedReactEmoji = formatEmoji(emoji);
 
@@ -97,12 +110,6 @@ const anyboard = new Trigger({
 
       return;
     }
-
-    // Get config and create a new anyboard highlight.
-    const anyboardCfg = await ctx
-      .config()
-      .get<AnyboardConfig>(guildId, Config.ANYBOARD);
-    if (!anyboardCfg?.channelId || !anyboardCfg?.minReactionCount) return;
 
     // If the reaction is in the anyboard channel, do nothing.
     if (anyboardCfg.channelId === ogChannelId) return;
