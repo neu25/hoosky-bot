@@ -36,10 +36,9 @@ const configure = new SubCommand({
       );
     }
 
-    const anyboardCfg: AnyboardConfig = {
+    const anyboardCfg: Partial<AnyboardConfig> = {
       channelId,
       minReactionCount,
-      blacklistedChannelIds: [],
     };
 
     await ctx.config().update(guildId, Config.ANYBOARD, anyboardCfg);

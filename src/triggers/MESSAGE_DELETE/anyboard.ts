@@ -8,19 +8,32 @@ const anyboard = new Trigger({
     if (!guildId) {
       throw new Error('No guild ID found in trigger data');
     }
+
     // Try to get this board message. If this is `null`, then it means this message
     // hasn't been highlighted yet.
-    const boardMsg = await ctx
+    let boardMsg = await ctx
       .anyboardMessages()
       .getByMessageId(guildId, messageId);
-    if (!boardMsg) return;
+    if (boardMsg) {
+      // Case: Original message was deleted.
+      await ctx.api.deleteMessage(
+        boardMsg.highlightChannelId,
+        boardMsg.highlightMessageId,
+      );
 
-    await ctx.api.deleteMessage(
-      boardMsg.highlightChannelId,
-      boardMsg.highlightMessageId,
-    );
-
-    await ctx.anyboardMessages().delete(guildId, messageId);
+      await ctx.anyboardMessages().delete(guildId, messageId);
+    } else {
+      boardMsg = await ctx
+        .anyboardMessages()
+        .getByHighlightMessageId(guildId, messageId);
+      if (boardMsg) {
+        // Case: Highlight message was deleted.
+        // Blacklist this message from appearing on anyboard again.
+        await ctx
+          .anyboardMessages()
+          .update(guildId, messageId, { blacklisted: true });
+      }
+    }
   },
 });
 

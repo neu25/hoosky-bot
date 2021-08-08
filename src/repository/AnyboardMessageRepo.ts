@@ -9,6 +9,7 @@ export type AnyboardMessage = {
   highlightMessageId: string; // Message ID of posted highlight
   emoji: string; // The most-reacted emoji.
   reactionCount: number;
+  blacklisted: boolean;
 };
 
 class AnyboardMessageRepo {
@@ -23,6 +24,13 @@ class AnyboardMessageRepo {
     messageId: string,
   ): Promise<AnyboardMessage | null> {
     return this.collection(guildId).findOne({ _id: messageId });
+  }
+
+  async getByHighlightMessageId(
+    guildId: string,
+    highlightMessageId: string,
+  ): Promise<AnyboardMessage | null> {
+    return this.collection(guildId).findOne({ highlightMessageId });
   }
 
   async create(guildId: string, message: AnyboardMessage): Promise<void> {

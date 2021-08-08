@@ -67,6 +67,14 @@ const anyboard = new Trigger({
     // If this channel is blacklisted, then ignore this reaction.
     if (anyboardCfg.blacklistedChannelIds.includes(ogChannelId)) return;
 
+    // Try to get this board message. If this is `null`, then it means this message
+    // hasn't been highlighted yet.
+    const boardMsg = await ctx
+      .anyboardMessages()
+      .getByMessageId(guildId, ogMessageId);
+    // If this message was blacklisted, then do nothing.
+    if (boardMsg?.blacklisted) return;
+
     // Format emoji to a consistent representation consumable by the Discord UI.
     const formattedReactEmoji = formatEmoji(emoji);
 
@@ -82,33 +90,37 @@ const anyboard = new Trigger({
     // Ignore the reaction if it's not of the highest.
     if (formatEmoji(highestReaction.emoji) !== formattedReactEmoji) return;
 
-    // Try to get this board message. If this is `null`, then it means this message
-    // hasn't been highlighted yet.
-    const boardMsg = await ctx
-      .anyboardMessages()
-      .getByMessageId(guildId, ogMessageId);
     if (boardMsg) {
       // Reaction count hasn't changed, do nothing.
       if (boardMsg.reactionCount === highestReaction.count) return;
 
-      await ctx.api.editMessage(
-        boardMsg.highlightChannelId,
-        boardMsg.highlightMessageId,
-        {
-          content: generateHighlightMessageContent(
-            ogChannelId,
-            highestReaction,
-            formattedReactEmoji,
-          ),
-        },
-      );
+      let createNewHighlight = false;
 
-      await ctx.anyboardMessages().update(guildId, ogMessageId, {
-        emoji: formattedReactEmoji,
-        reactionCount: highestReaction.count,
-      });
+      try {
+        await ctx.api.editMessage(
+          boardMsg.highlightChannelId,
+          boardMsg.highlightMessageId,
+          {
+            content: generateHighlightMessageContent(
+              ogChannelId,
+              highestReaction,
+              formattedReactEmoji,
+            ),
+          },
+        );
 
-      return;
+        await ctx.anyboardMessages().update(guildId, ogMessageId, {
+          emoji: formattedReactEmoji,
+          reactionCount: highestReaction.count,
+        });
+      } catch (e) {
+        console.log('Unable to edit anyboard highlight message');
+        createNewHighlight = true;
+        // Delete the old anyboard message entry, which is corrupt.
+        await ctx.anyboardMessages().delete(guildId, ogMessageId);
+      }
+
+      if (!createNewHighlight) return;
     }
 
     // If the reaction is in the anyboard channel, do nothing.
@@ -178,6 +190,7 @@ const anyboard = new Trigger({
         highlightChannelId: highlightMsg.channel_id,
         emoji: formattedReactEmoji,
         reactionCount: highestReaction.count,
+        blacklisted: false,
       });
 
       // React to the message with the emoji.
@@ -186,8 +199,6 @@ const anyboard = new Trigger({
       //   highlightMsg.id,
       //   formattedEmoji,
       // );
-
-      return;
     }
   },
 });
