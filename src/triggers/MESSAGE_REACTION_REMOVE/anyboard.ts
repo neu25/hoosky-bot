@@ -41,10 +41,14 @@ const anyboard = new Trigger({
     const ogReactions = ogMessage.reactions ?? [];
 
     const deleteMessage = async () => {
-      await ctx.api.deleteMessage(
-        boardMsg.highlightChannelId,
-        boardMsg.highlightMessageId,
-      );
+      try {
+        await ctx.api.deleteMessage(
+          boardMsg.highlightChannelId,
+          boardMsg.highlightMessageId,
+        );
+      } catch (e) {
+        console.warn('Unable to delete anyboard highlight message');
+      }
       await ctx.anyboardMessages().delete(guildId, ogMessageId);
     };
 

@@ -31,7 +31,7 @@ const anyboard = new Trigger({
         // Blacklist this message from appearing on anyboard again.
         await ctx
           .anyboardMessages()
-          .update(guildId, messageId, { blacklisted: true });
+          .update(guildId, boardMsg._id, { blacklisted: true });
       }
     }
   },
