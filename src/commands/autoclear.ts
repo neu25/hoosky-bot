@@ -26,6 +26,13 @@ const autoclear = new Command({
     const channel = ctx.getArgument<string>('channel')!;
     const duration = ctx.getArgument<number>('duration')!;
 
+    if (duration === 0) {
+      await ctx.repos.autoclear.delete(guildId, channel);
+      return ctx.interactionApi.respondWithMessage(
+        `Disabled autoclearing of <#${channel}>`,
+      );
+    }
+
     await ctx.repos.autoclear.set(guildId, channel, duration);
 
     return ctx.interactionApi.respondWithMessage(

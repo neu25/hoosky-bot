@@ -29,6 +29,10 @@ class AutoclearRepo {
     return await this.collection(guildId).findOne({ _id });
   }
 
+  async delete(guildId: string, _id: string): Promise<void> {
+    await this.collection(guildId).deleteOne({ _id });
+  }
+
   collection(guildId: string): MongoCollection<Autoclear> {
     return this._db.getDb(guildId).collection(Collection.AUTOCLEAR);
   }
