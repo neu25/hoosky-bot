@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import isLeapYearPlugin from 'dayjs/plugin/isLeapYear';
 import { BirthdaysConfig } from '../repository';
 import { Config } from '../database';
-import { CreateMessage } from '../Discord/message';
+import * as Discord from '../Discord';
 import { JobHandler, JobType } from './index';
 
 dayjs.extend(isLeapYearPlugin);
@@ -51,7 +51,7 @@ const sendBirthdayMessages: JobHandler<JobType.SEND_BIRTHDAY_MESSAGES> =
       let randomMessage =
         messages[Math.floor(Math.random() * messages.length)].message; // Pick a random message.
       randomMessage = randomMessage.replace('%', greeting); // Replace template with user mention(s)
-      const messageData: CreateMessage = {
+      const messageData: Discord.CreateMessagePayload = {
         content: randomMessage,
         tts: false,
       };
@@ -87,7 +87,7 @@ const sendBirthdayMessages: JobHandler<JobType.SEND_BIRTHDAY_MESSAGES> =
         let randomMessage =
           messages[Math.floor(Math.random() * messages.length)].message; // Pick a random message.
         randomMessage = randomMessage.replace('%', greeting); // Replace template with user mention(s)
-        const messageData: CreateMessage = {
+        const messageData: Discord.CreateMessagePayload = {
           content: randomMessage,
           tts: false,
         };

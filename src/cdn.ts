@@ -2,6 +2,14 @@ import * as Discord from './Discord';
 
 const BASE_URL = 'https://cdn.discordapp.com';
 
+export const messageLink = (
+  guildId: string,
+  channelId: string,
+  messageId: string,
+): string => {
+  return `https://discord.com/channels/${guildId}/${channelId}/${messageId}`;
+};
+
 export const authorAvatarUrl = (author: Discord.Message['author']): string => {
   return author.avatar
     ? userAvatarUrl(author.id, author.avatar)

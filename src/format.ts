@@ -3,6 +3,10 @@ export const DEFAULT_HEADING_WIDTH = 30;
 export const EM_SPACE = ' ';
 export const EN_SPACE = ' ';
 
+export const hyperlink = (text: string, url: string): string => {
+  return `[${text}](${url})`;
+};
+
 /**
  * Returns a plural version (with an appended `s`) of the provided word if the
  * `count` isn't equal to 1.

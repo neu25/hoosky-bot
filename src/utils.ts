@@ -1,6 +1,10 @@
 import util from 'util';
 import { customAlphabet } from 'nanoid';
 import { Duration } from 'dayjs/plugin/duration';
+import * as Discord from './Discord';
+
+export const emojiRegexAbomination =
+  /<a:.+?:\d+>|\p{Extended_Pictographic}|<:.+?:\d+>/gu;
 
 export type Primitive = string | boolean | number | undefined | null;
 
@@ -52,6 +56,36 @@ export const performRequest = async <T>(fn: () => Promise<T>): Promise<T> => {
 
     throw stack;
   }
+};
+
+export const formatEmoji = (emoji: Discord.Emoji): string => {
+  if (emoji.id === null) {
+    return emoji.name;
+  }
+  return `<:${emoji.name}:${emoji.id}>`;
+};
+
+export const parseEmoji = (emojiString: string): Discord.Emoji => {
+  if (emojiString.length === 1) {
+    return {
+      name: emojiString,
+      id: null,
+    };
+  }
+
+  const parts = emojiString.replaceAll('<:', '').replaceAll('>', '').split(':');
+  if (parts.length !== 2) {
+    throw new Error(`Unable to parse emoji: '${emojiString}'`);
+  }
+
+  return {
+    name: parts[0],
+    id: parts[1],
+  };
+};
+
+export const extractEmojis = (text: string): string[] | null => {
+  return text.match(emojiRegexAbomination);
 };
 
 /**

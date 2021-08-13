@@ -1,11 +1,14 @@
 import * as Discord from './Discord';
 import Trigger from './Trigger';
+import { formatEmoji } from './utils';
 
 class Cache {
+  private readonly _messages: Record<string, Discord.Message>;
   private readonly _dms: Record<string, Discord.Channel>;
   private _guilds: Record<string, Discord.Guild>;
 
   constructor() {
+    this._messages = {};
     this._guilds = {};
     this._dms = {};
   }
@@ -81,6 +84,34 @@ class Cache {
         handler: ctx =>
           this._removeGuildMember(ctx.data.guild_id, ctx.data.user.id),
       }),
+      /**
+       * Messages
+       */
+      /*new Trigger<Discord.Event.MESSAGE_CREATE>({
+        event: Discord.Event.MESSAGE_CREATE,
+        handler: ctx => this._setMessage(ctx.data),
+      }),
+      new Trigger<Discord.Event.MESSAGE_UPDATE>({
+        event: Discord.Event.MESSAGE_UPDATE,
+        handler: ctx => this._updateMessage(ctx.data.id, ctx.data),
+      }),
+      new Trigger<Discord.Event.MESSAGE_DELETE>({
+        event: Discord.Event.MESSAGE_DELETE,
+        handler: ctx => this._deleteMessage(ctx.data.id),
+      }),
+      new Trigger<Discord.Event.MESSAGE_REACTION_ADD>({
+        event: Discord.Event.MESSAGE_REACTION_ADD,
+        handler: ctx => this._addMessageReaction(ctx.data.message_id, ctx.data),
+      }),
+      new Trigger<Discord.Event.MESSAGE_REACTION_REMOVE>({
+        event: Discord.Event.MESSAGE_REACTION_REMOVE,
+        handler: ctx =>
+          this._removeMessageReaction(ctx.data.message_id, ctx.data.emoji),
+      }),
+      new Trigger<Discord.Event.MESSAGE_REACTION_REMOVE_ALL>({
+        event: Discord.Event.MESSAGE_REACTION_REMOVE_ALL,
+        handler: ctx => this._removeAllMessageReactions(ctx.data.message_id),
+      }),*/
     ];
   }
 
@@ -105,6 +136,10 @@ class Cache {
     userId: string,
   ): Discord.GuildMember | undefined {
     return this.getGuild(guildId)?.members?.find(m => m.user?.id === userId);
+  }
+
+  getMessage(messageId: string): Discord.Message | undefined {
+    return this._messages[messageId];
   }
 
   getChannel(channelId: string): Discord.Channel | undefined {
@@ -179,6 +214,90 @@ class Cache {
     if (i === -1) return;
 
     guild.roles.splice(i, 1);
+  }
+
+  _setMessage(message: Discord.Message): void {
+    console.log('[Cache] Setting message', message.id);
+
+    this._messages[message.id] = message;
+  }
+
+  _updateMessage(
+    id: string,
+    message: Partial<Omit<Discord.Message, 'id'>>,
+  ): void {
+    console.log('[Cache] Updating message', id);
+
+    this._messages[id] = Object.assign({}, this._messages[id] ?? {}, message);
+  }
+
+  _addMessageReaction(
+    id: string,
+    eventData: Discord.MessageReactionAddPayload,
+  ): void {
+    console.log('[Cache] Adding message reaction to', id);
+
+    const msg = this._messages[id];
+    if (!msg) return;
+
+    const reaction = msg.reactions?.find(
+      r => formatEmoji(r.emoji) === formatEmoji(eventData.emoji),
+    );
+    if (reaction) {
+      ++reaction.count;
+    } else {
+      msg.reactions = [
+        ...(msg.reactions ?? []),
+        {
+          count: 1,
+          emoji: eventData.emoji,
+          me: eventData.me,
+        },
+      ];
+    }
+  }
+
+  _removeMessageReaction(id: string, emoji: Discord.Emoji | string): void {
+    console.log('[Cache] Removing message reaction from', id);
+
+    const msg = this._messages[id];
+    if (!msg) return;
+
+    let emojiString: string;
+    if (typeof emoji === 'string') {
+      emojiString = emoji;
+    } else {
+      emojiString = formatEmoji(emoji);
+    }
+
+    const i =
+      msg.reactions?.findIndex(r => formatEmoji(r.emoji) === emojiString) ?? -1;
+
+    if (i === -1) {
+      console.warn('[Cache] No reactions found');
+    } else {
+      const reaction = msg.reactions![i];
+      --reaction.count;
+
+      if (reaction.count <= 0) {
+        msg.reactions!.splice(i, 1);
+      }
+    }
+  }
+
+  _removeAllMessageReactions(id: string): void {
+    console.log('[Cache] Removing all message reactions from', id);
+
+    const msg = this._messages[id];
+    if (!msg) return;
+
+    msg.reactions = [];
+  }
+
+  _deleteMessage(id: string): void {
+    console.log('[Cache] Deleting message', id);
+
+    delete this._messages[id];
   }
 
   _updateChannel(channel: Discord.Channel): void {

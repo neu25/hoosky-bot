@@ -29,6 +29,15 @@ type EventTypeMap = {
   [Discord.Event.GUILD_MEMBER_REMOVE]: Discord.GuildMemberRemovePayload;
   [Discord.Event.INTERACTION_CREATE]: Discord.Interaction;
   [Discord.Event.MESSAGE_CREATE]: Discord.Message;
+  [Discord.Event.MESSAGE_UPDATE]: Partial<Discord.Message> &
+    Pick<Discord.Message, 'id' | 'channel_id'>;
+  [Discord.Event.MESSAGE_DELETE]: Discord.DeleteMessagePayload;
+  [Discord.Event.MESSAGE_REACTION_ADD]: Discord.MessageReactionAddPayload;
+  [Discord.Event.MESSAGE_REACTION_REMOVE]: Discord.MessageReactionRemovePayload;
+  [Discord.Event
+    .MESSAGE_REACTION_REMOVE_ALL]: Discord.MessageReactionRemoveAllPayload;
+  [Discord.Event
+    .MESSAGE_REACTION_REMOVE_EMOJI]: Discord.MessageReactionRemoveEmojiPayload;
 };
 
 export type EventData<E extends keyof EventTypeMap> = EventTypeMap[E];

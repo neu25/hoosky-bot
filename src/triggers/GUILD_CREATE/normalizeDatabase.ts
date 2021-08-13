@@ -4,6 +4,7 @@ import Trigger from '../../Trigger';
 import { Birthday, Course } from '../../repository';
 import { eliminateDuplicates } from '../../utils';
 import { pluralize } from '../../format';
+import { AnyboardMessage } from '../../repository/AnyboardMessageRepo';
 
 /**
  * Resolves data integrity issues of the given birthday.
@@ -53,6 +54,18 @@ const normalizeCourse = (c: Course): Course => {
 };
 
 /**
+ * Resolves data integrity issues of the given anyboard message.
+ *
+ * @param m The anyboard message to fix.
+ */
+const normalizeAnyboardMessage = (m: AnyboardMessage): AnyboardMessage => {
+  return {
+    ...m,
+    blacklisted: m.blacklisted ?? false,
+  };
+};
+
+/**
  * Normalize the database for every guild. This allows us to perform schema migrations.
  */
 const normalizeDatabase = new Trigger({
@@ -97,6 +110,19 @@ const normalizeDatabase = new Trigger({
           `[Normalize] Countdown for ${c._id} has 0 events. Deleting...`,
         );
         await ctx.countdowns().deleteCountdown(guild.id, c._id);
+      }
+    }
+
+    const anyboardMessages = await ctx.anyboardMessages().list(guild.id);
+    for (const m of anyboardMessages) {
+      const n = normalizeAnyboardMessage(m);
+      // If the anyboard message changed, then update it.
+      if (!_.isEqual(m, n)) {
+        ++problemCount;
+        console.log(
+          `[Normalize] Corruption in anyboard message ${m._id}. Fixing...`,
+        );
+        await ctx.anyboardMessages().update(guild.id, m._id, n);
       }
     }
 

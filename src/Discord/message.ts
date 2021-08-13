@@ -28,23 +28,12 @@ export enum MessageType {
   GUILD_INVITE_REMINDER,
 }
 
-// https://discord.com/developers/docs/resources/channel#create-message
-export type CreateMessage = {
-  content?: string;
-  tts?: boolean;
-  // file: fileContents;
-  embeds?: [Embed];
-  // payload_json?: string;
-  // allowed_mentions?: [];
-  // message_reference?: ;
-};
-
 export type MessageActivity = {
   // https://discord.com/developers/docs/resources/channel#message-object-message-activity-structure
 };
 
 export type Emoji = {
-  id: string;
+  id: string | null;
   name: string;
   roles?: Role[];
   user?: User;
@@ -287,8 +276,46 @@ export type CreateMessagePayload = {
   components?: MessageComponent[];
 };
 
+export type DeleteMessagePayload = {
+  id: string;
+  channel_id: string;
+  guild_id?: string;
+};
+
 export type EditMessagePayload = {
   payload_json?: string;
 } & Partial<
   Pick<Message, 'content' | 'embeds' | 'flags' | 'attachments' | 'components'>
 >;
+
+// https://discord.com/developers/docs/topics/gateway#message-reaction-add
+export type MessageReactionAddPayload = {
+  user_id: string;
+  channel_id: string;
+  message_id: string;
+  guild_id?: string;
+  member?: GuildMember;
+  emoji: Emoji;
+  me: boolean;
+};
+
+export type MessageReactionRemovePayload = {
+  user_id: string;
+  channel_id: string;
+  message_id: string;
+  guild_id?: string;
+  emoji: Emoji;
+};
+
+export type MessageReactionRemoveAllPayload = {
+  channel_id: string;
+  message_id: string;
+  guild_id?: string;
+};
+
+export type MessageReactionRemoveEmojiPayload = {
+  channel_id: string;
+  guild_id?: string;
+  message_id: string;
+  emoji: Emoji;
+};

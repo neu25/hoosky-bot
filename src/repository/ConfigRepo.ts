@@ -48,6 +48,12 @@ export type CountdownConfig = {
   scheduledMinute: number;
 };
 
+export type AnyboardConfig = {
+  channelId: string;
+  minReactionCount: number;
+  blacklistedChannelIds: string[];
+};
+
 /**
  * Default config values
  */
@@ -85,6 +91,12 @@ export const countdownConfig: CountdownConfig = {
   scheduledMinute: 0,
 };
 
+export const anyboardConfig: AnyboardConfig = {
+  channelId: '',
+  minReactionCount: 1,
+  blacklistedChannelIds: [],
+};
+
 class ConfigRepo {
   private readonly _db: Database;
 
@@ -105,6 +117,7 @@ class ConfigRepo {
       await this.insertIfNotExists(gId, Config.GUILD, guildConfig);
       await this.insertIfNotExists(gId, Config.BIRTHDAYS, birthdaysConfig);
       await this.insertIfNotExists(gId, Config.COUNTDOWNS, countdownConfig);
+      await this.insertIfNotExists(gId, Config.ANYBOARD, anyboardConfig);
     }
   }
 

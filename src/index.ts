@@ -66,6 +66,7 @@ import AuditLogger from './auditLogger';
       Discord.Intent.GUILDS,
       Discord.Intent.GUILD_MEMBERS,
       Discord.Intent.GUILD_MESSAGES,
+      Discord.Intent.GUILD_MESSAGE_REACTIONS,
       Discord.Intent.DIRECT_MESSAGES,
     ],
     followUpManager,
