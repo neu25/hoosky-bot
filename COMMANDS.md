@@ -47,6 +47,8 @@ This is a list of commands currently implemented in Hoosky Bot.
 | --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ----------------- |
 | `/autoclear [channel] [duration]` | Automatically clears messages in specified channel after a specified number of hours. If duration is 0, disables autoclearing for the channel. | `MANAGE_CHANNELS` |
 
+> Note: Messages older than 2 weeks cannot be automatically cleared
+
 ## `/course`
 
 | Command                                    | Description                                                                                                                                            | Permissions    |
