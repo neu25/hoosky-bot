@@ -19,6 +19,8 @@ const autoclear: JobHandler<JobType.AUTOCLEAR> = async ctx => {
     });
     const beforeTime = today.add(-channel.duration, 'hour');
 
+    // Find set of messages with at least one message before `beforeTime`
+
     let messages = await ctx.api.getMessages(channel._id, 100);
     while (
       messages.length > 0 &&
@@ -33,6 +35,7 @@ const autoclear: JobHandler<JobType.AUTOCLEAR> = async ctx => {
       continue;
     }
 
+    // Find first message before `beforeTime`
     let anchorMessage = messages[0];
     for (
       let i = 0;
@@ -45,12 +48,14 @@ const autoclear: JobHandler<JobType.AUTOCLEAR> = async ctx => {
     const twoWeeks = today.add(-14, 'day');
 
     while (messages.length > 0) {
+      // Find messages before `anchorMessage` that are less than two weeks old
       messages = (
         await ctx.api.getMessages(channel._id, 100, {
           before: anchorMessage.id,
         })
       ).filter(message => twoWeeks.isBefore(message.timestamp));
 
+      // Delete those messages
       if (messages.length >= 2) {
         await ctx.api.bulkDeleteMessages(
           channel._id,
@@ -61,6 +66,7 @@ const autoclear: JobHandler<JobType.AUTOCLEAR> = async ctx => {
       }
     }
 
+    // Delete `anchorMessage`
     await ctx.api.deleteMessage(channel._id, anchorMessage.id);
   }
 };
