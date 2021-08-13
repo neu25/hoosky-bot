@@ -13,6 +13,7 @@ export const addDefaultJobs = async (
   await addBirthdayRoleJobs(scheduler, guildId);
   await addBirthdayMessageJobs(scheduler, repos, guildId);
   await addCountdownAnnouncementJobs(scheduler, repos, guildId);
+  await addAutoclearJobs(scheduler, guildId);
 };
 
 const getNextTimeOf = (
@@ -122,5 +123,20 @@ export const addCountdownAnnouncementJobs = async (
     data: { guildId },
     // After executing, run it again the next day.
     reschedule: lastDate => dayjs(lastDate).add(1, 'day').toDate(),
+  });
+};
+
+export const addAutoclearJobs = async (
+  scheduler: Scheduler,
+  guildId: string,
+): Promise<void> => {
+  const nextHour = dayjs().millisecond(0).second(0).minute(0).add(1, 'hour');
+
+  await scheduler.addJob({
+    _id: JobType.AUTOCLEAR,
+    type: JobType.AUTOCLEAR,
+    targetDate: nextHour.toDate(),
+    data: { guildId },
+    reschedule: lastDate => dayjs(lastDate).add(1, 'hour').toDate(),
   });
 };
