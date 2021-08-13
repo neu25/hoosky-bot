@@ -41,6 +41,12 @@ This is a list of commands currently implemented in Hoosky Bot.
 | `/mute remove [user]` | Unmutes a user.                                            | `KICK_MEMBERS` |
 | `/mute setup`         | Sets up the muted role and configures channel permissions. | any            |
 
+## `/autoclear`
+
+| Command                           | Description                                                                                                                                    | Permissions       |
+| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ----------------- |
+| `/autoclear [channel] [duration]` | Automatically clears messages in specified channel after a specified number of hours. If duration is 0, disables autoclearing for the channel. | `MANAGE_CHANNELS` |
+
 ## `/course`
 
 | Command                                    | Description                                                                                                                                            | Permissions    |
