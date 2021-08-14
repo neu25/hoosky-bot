@@ -14,7 +14,11 @@ class AutoclearRepo {
   }
 
   async scan(guildId: string): Promise<Cursor<Autoclear>> {
-    return await this.collection(guildId).find();
+    return this.collection(guildId).find();
+  }
+
+  async list(guildId: string): Promise<Autoclear[]> {
+    return (await this.scan(guildId)).toArray();
   }
 
   async set(guildId: string, _id: string, duration: number): Promise<void> {

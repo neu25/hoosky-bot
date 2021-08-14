@@ -15,11 +15,15 @@ const anyboard = new Trigger({
       .anyboardMessages()
       .getByMessageId(guildId, messageId);
     if (boardMsg) {
-      // Case: Original message was deleted.
-      await ctx.api.deleteMessage(
-        boardMsg.highlightChannelId,
-        boardMsg.highlightMessageId,
-      );
+      try {
+        // Case: Original message was deleted.
+        await ctx.api.deleteMessage(
+          boardMsg.highlightChannelId,
+          boardMsg.highlightMessageId,
+        );
+      } catch (e) {
+        console.warn(e);
+      }
 
       await ctx.anyboardMessages().delete(guildId, messageId);
     } else {

@@ -9,8 +9,8 @@ import say from './say';
 import birthday from './birthday';
 import mail from './mail';
 import countdown from './countdown';
-import autoclear from './autoclear';
 import anyboard from './anyboard';
+import autoclear from './autoclear';
 
 const commandList: Command[] = [
   ping,
