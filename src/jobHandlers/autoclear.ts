@@ -11,7 +11,6 @@ const autoclear: JobHandler<JobType.AUTOCLEAR> = async ctx => {
   const today = dayjs();
 
   const channels = await (await ctx.repos.autoclear.scan(guildId)).toArray();
-  console.log(channels);
 
   for (const channel of channels) {
     await ctx.auditLogger.logMessage(guildId, {
