@@ -45,10 +45,11 @@ export const handleBirthdayJob = async (
   if (birthdays && birthdays.users.length > 0) {
     await ctx.auditLogger.logMessage(guildId, {
       title: (add ? 'Adding' : 'Removing') + ' birthday roles',
-      description: add
-        ? 'I am giving the birthday role to the following people:\n'
-        : 'I am removing the birthday role from the following people:\n' +
-          birthdays.users.map(userId => `• <@${userId}>`).join('\n'),
+      description:
+        (add
+          ? 'I am giving the birthday role to the following people:\n'
+          : 'I am removing the birthday role from the following people:\n') +
+        birthdays.users.map(userId => `• <@${userId}>`).join('\n'),
     });
 
     for (const userId of birthdays.users) {

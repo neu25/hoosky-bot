@@ -6,6 +6,7 @@ import PollRepo from './PollRepo';
 import MailRepo from './MailRepo';
 import CountdownRepo from './CountdownRepo';
 import CountdownAnnouncementRepo from './CountdownAnnouncementRepo';
+import AutoclearRepo from './AutoclearRepo';
 import JobRepo from './JobRepo';
 import AnyboardMessageRepo from './AnyboardMessageRepo';
 
@@ -21,6 +22,7 @@ export type Repositories = {
   config: ConfigRepo;
   countdowns: CountdownRepo;
   countdownAnnouncements: CountdownAnnouncementRepo;
+  autoclear: AutoclearRepo;
   poll: PollRepo;
 };
 
@@ -34,6 +36,7 @@ export const setupRepos = (db: Database): Repositories => {
     config: new ConfigRepo(db),
     countdowns: new CountdownRepo(db),
     countdownAnnouncements: new CountdownAnnouncementRepo(db),
+    autoclear: new AutoclearRepo(db),
     poll: new PollRepo(db),
   };
 };

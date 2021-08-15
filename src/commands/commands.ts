@@ -10,6 +10,7 @@ import birthday from './birthday';
 import mail from './mail';
 import countdown from './countdown';
 import anyboard from './anyboard';
+import autoclear from './autoclear';
 
 const commandList: Command[] = [
   ping,
@@ -23,6 +24,7 @@ const commandList: Command[] = [
   mail,
   anyboard,
   countdown,
+  autoclear,
 ];
 
 export default commandList;

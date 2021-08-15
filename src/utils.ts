@@ -1,7 +1,12 @@
 import util from 'util';
+import dayjs from 'dayjs';
+import duration, { Duration } from 'dayjs/plugin/duration';
 import { customAlphabet } from 'nanoid';
-import { Duration } from 'dayjs/plugin/duration';
+
 import * as Discord from './Discord';
+import { pluralize } from './format';
+
+dayjs.extend(duration);
 
 export const emojiRegexAbomination =
   /<a:.+?:\d+>|\p{Extended_Pictographic}|<:.+?:\d+>/gu;
@@ -125,7 +130,30 @@ export const dateToUnixTime = (date: Date): number => {
   return Math.floor(date.getTime() / 1000);
 };
 
-export const formatDuration = (duration: Duration): string => {
+export const formatMsLong = (ms: number): string => {
+  return formatDurationLong(dayjs.duration(ms));
+};
+
+export const formatMsCompact = (ms: number): string => {
+  return formatDurationCompact(dayjs.duration(ms));
+};
+
+export const formatDurationLong = (duration: Duration): string => {
+  const s = duration.seconds();
+  const m = duration.minutes();
+  const h = duration.hours();
+  const d = Math.floor(duration.asDays());
+
+  const strParts: string[] = [];
+  if (d > 0) strParts.push(d + ' ' + pluralize('day', d));
+  if (h > 0) strParts.push(h + ' ' + pluralize('hour', h));
+  if (m > 0) strParts.push(m + ' ' + pluralize('minute', m));
+  if (s > 0) strParts.push(s + ' ' + pluralize('second', s));
+
+  return strParts.join(' ');
+};
+
+export const formatDurationCompact = (duration: Duration): string => {
   const s = duration.seconds();
   const m = duration.minutes();
   const h = duration.hours();

@@ -13,6 +13,20 @@ export type GuildRoleData = {
   mentionable?: boolean;
 };
 
+export type FilterType = AroundType | BeforeType | AfterType | undefined;
+
+export type AroundType = {
+  around: string;
+};
+
+export type BeforeType = {
+  before: string;
+};
+
+export type AfterType = {
+  after: string;
+};
+
 class Api {
   private readonly _appId: string;
   private readonly _http: AxiosInstance;
@@ -303,6 +317,37 @@ class Api {
     return performRequest(async () => {
       const res = await this._http.get(`/users/${userId}`);
       return res.data;
+    });
+  }
+
+  /**
+   * Gets messages from the specified channel.
+   *
+   * @param limit The max number of messages to return (1-100)
+   * @param channelId The ID of the channel
+   * @param filter Object to filter messages
+   */
+  getMessages(
+    channelId: string,
+    limit = 50,
+    filter: FilterType = undefined,
+  ): Promise<Discord.Message[]> {
+    let filterString = '';
+    if (!filter) {
+      /**/
+    } else if ('around' in filter) {
+      filterString = `&around=${filter.around}`;
+    } else if ('before' in filter) {
+      filterString = `&before=${filter.before}`;
+    } else if ('after' in filter) {
+      filterString = `&after=${filter.after}`;
+    }
+
+    return performRequest(async () => {
+      const res = await this._http.get(
+        `/channels/${channelId}/messages?limit=${limit}${filterString}`,
+      );
+      return res.data as Discord.Message[];
     });
   }
 

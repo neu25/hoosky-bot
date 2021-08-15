@@ -11,7 +11,7 @@ import {
   getMuteRoleOrExit,
 } from '../_common';
 import { bold, inlineCode } from '../../../format';
-import { formatDuration } from '../../../utils';
+import { formatMsLong } from '../../../utils';
 
 dayjs.extend(duration);
 dayjs.extend(relativeTime);
@@ -88,7 +88,7 @@ const add = new SubCommand({
       const targetDate = new Date(Date.now() + durationMs);
       await createUnmuteJob(ctx, targetUserId, targetDate);
 
-      const durationStr = formatDuration(dayjs.duration(durationMs));
+      const durationStr = formatMsLong(durationMs);
       muteMsg += ' for ' + bold(`${durationStr}.`);
     } else {
       muteMsg += ' ' + bold('indefinitely.');

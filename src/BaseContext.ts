@@ -12,6 +12,7 @@ import CountdownRepo from './repository/CountdownRepo';
 import MasterScheduler from './MasterScheduler';
 import AuditLogger from './auditLogger';
 import AnyboardMessageRepo from './repository/AnyboardMessageRepo';
+import AutoclearRepo from './repository/AutoclearRepo';
 
 export type State = Record<string, any>;
 
@@ -46,6 +47,10 @@ class BaseContext {
     this.msgFollowUpHandlers = {};
     this._state = {};
     this._followUpManager = opts.followUpManager;
+  }
+
+  autoclears(): AutoclearRepo {
+    return this.repos.autoclear;
   }
 
   countdowns(): CountdownRepo {
