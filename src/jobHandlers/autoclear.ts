@@ -3,6 +3,7 @@ import { Autoclear } from '../repository/AutoclearRepo';
 import AuditLogger from '../auditLogger';
 import Api from '../Api';
 import { formatMsLong } from '../utils';
+import { bold, pluralize } from '../format';
 import { JobHandler, JobType } from './index';
 
 export type AutoclearJobData = {
@@ -18,13 +19,6 @@ export const runAutoclears = async (
   const today = dayjs();
 
   for (const ac of autoclears) {
-    await auditLogger.logMessage(guildId, {
-      description: [
-        `Clearing messages in <#${ac._id}>`,
-        `older than`,
-        formatMsLong(ac.duration) + '.',
-      ].join(' '),
-    });
     const beforeTime = today.add(-ac.duration);
 
     // Find set of messages with at least one message before `beforeTime`.
@@ -54,6 +48,7 @@ export const runAutoclears = async (
 
     const twoWeeks = today.add(-14, 'day');
 
+    let deletionCount = 0;
     while (messages.length > 0) {
       // Find messages before `anchorMessage` that are less than two weeks old.
       messages = (
@@ -71,10 +66,21 @@ export const runAutoclears = async (
       } else if (messages.length === 1) {
         await api.deleteMessage(ac._id, messages[0].id);
       }
+      deletionCount += messages.length;
     }
 
     // Delete `anchorMessage`.
     await api.deleteMessage(ac._id, anchorMessage.id);
+    ++deletionCount;
+
+    await auditLogger.logMessage(guildId, {
+      description: [
+        bold(`Cleared ${deletionCount} ${pluralize('message', deletionCount)}`),
+        `in <#${ac._id}>`,
+        `older than`,
+        formatMsLong(ac.duration) + '.',
+      ].join(' '),
+    });
   }
 };
 
