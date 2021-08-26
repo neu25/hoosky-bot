@@ -54,6 +54,10 @@ export type AnyboardConfig = {
   blacklistedChannelIds: string[];
 };
 
+export type PinsConfig = {
+  permittedChannels: string[];
+};
+
 /**
  * Default config values
  */
@@ -97,6 +101,10 @@ export const anyboardConfig: AnyboardConfig = {
   blacklistedChannelIds: [],
 };
 
+export const pinsConfig: PinsConfig = {
+  permittedChannels: [],
+};
+
 class ConfigRepo {
   private readonly _db: Database;
 
@@ -118,6 +126,7 @@ class ConfigRepo {
       await this.insertIfNotExists(gId, Config.BIRTHDAYS, birthdaysConfig);
       await this.insertIfNotExists(gId, Config.COUNTDOWNS, countdownConfig);
       await this.insertIfNotExists(gId, Config.ANYBOARD, anyboardConfig);
+      await this.insertIfNotExists(gId, Config.PINS, pinsConfig);
     }
   }
 

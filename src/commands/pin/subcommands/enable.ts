@@ -1,7 +1,8 @@
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
 import * as Discord from '../../../Discord';
-// import ExecutionContext from '../../../ExecutionContext';
+import { Config } from '../../../database';
+import { PinsConfig } from '../../../repository';
 
 const enable = new SubCommand({
   name: 'enable',
@@ -17,10 +18,34 @@ const enable = new SubCommand({
     }),
   ],
   handler: async ctx => {
-    // const guildId = ctx.mustGetGuildId();
-    // const channel = ctx.getArgument<string>('channel')!;
+    const guildId = ctx.mustGetGuildId();
+    const channel = ctx.getArgument<string>('channel')!;
 
-    return ctx.interactionApi.respondWithMessage('Placeholder');
+    const pinsCfg = await ctx.config().get<PinsConfig>(guildId, Config.PINS);
+
+    if (!pinsCfg || !pinsCfg.permittedChannels) {
+      return ctx.interactionApi.respondWithError(
+        `Unable to fetch pins config.`,
+      );
+    }
+
+    // Channel is already enabled, return message.
+    if (pinsCfg.permittedChannels.indexOf(channel) > -1) {
+      return ctx.interactionApi.respondWithMessage(
+        `<#${channel}> is already enabled.`,
+      );
+    }
+
+    // Update the `pins` configuration value.
+    pinsCfg.permittedChannels.push(channel);
+
+    // Update database.
+    await ctx.config().update(guildId, Config.PINS, pinsCfg);
+
+    // Send confirmation.
+    return ctx.interactionApi.respondWithMessage(
+      `<#${channel}> is now enabled!`,
+    );
   },
 });
 
