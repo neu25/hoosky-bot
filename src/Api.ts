@@ -261,6 +261,30 @@ class Api {
   }
 
   /**
+   * Pin a message.
+   *
+   * @param channelId The ID of the channel.
+   * @param messageId The ID of the message.
+   */
+  async pinMessage(channelId: string, messageId: string): Promise<void> {
+    return performRequest(async () => {
+      await this._http.put(`/channels/${channelId}/pins/${messageId}`);
+    });
+  }
+
+  /**
+   * Unpin a message.
+   *
+   * @param channelId The ID of the channel.
+   * @param messageId The ID of the message.
+   */
+  async unpinMessage(channelId: string, messageId: string): Promise<void> {
+    return performRequest(async () => {
+      await this._http.delete(`/channels/${channelId}/pins/${messageId}`);
+    });
+  }
+
+  /**
    * Gets a list of all the channels in the guild.
    *
    * @param guildId The ID of the guild.

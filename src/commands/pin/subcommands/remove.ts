@@ -1,7 +1,6 @@
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
 import * as Discord from '../../../Discord';
-// import ExecutionContext from '../../../ExecutionContext';
 
 const remove = new SubCommand({
   name: 'remove',
@@ -9,17 +8,27 @@ const remove = new SubCommand({
   description: 'Unpin a message',
   options: [
     new CommandOption({
-      name: 'message',
-      description: 'ID of the message to unpin',
+      name: 'link',
+      description:
+        'Hover over the message, click `⋯`, click `Copy Message Link`',
       required: true,
       type: Discord.CommandOptionType.STRING,
     }),
   ],
   handler: async ctx => {
-    // const guildId = ctx.mustGetGuildId();
-    // const channel = ctx.getArgument<string>('channel')!;
+    const link = ctx.getArgument<string>('link')!;
 
-    return ctx.interactionApi.respondWithMessage('Placeholder');
+    // Parse message link
+    const ids = link.substr(link.indexOf('/channels/') + 10).split('/');
+    console.log(link, ids);
+    const channelId = ids[1];
+    const messageId = ids[2];
+
+    // Unpin message
+    await ctx.api.unpinMessage(channelId, messageId);
+
+    // Post silent confirmation
+    return ctx.interactionApi.respondSilently('Message unpinned!');
   },
 });
 
