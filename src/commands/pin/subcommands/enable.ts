@@ -22,7 +22,6 @@ const enable = new SubCommand({
     const channel = ctx.getArgument<string>('channel')!;
 
     const pinsCfg = await ctx.config().get<PinsConfig>(guildId, Config.PINS);
-
     if (!pinsCfg || !pinsCfg.permittedChannels) {
       return ctx.interactionApi.respondWithError(
         `Unable to fetch pins config.`,

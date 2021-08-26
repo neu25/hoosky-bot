@@ -1,6 +1,9 @@
 import SubCommand from '../../../SubCommand';
 import CommandOption from '../../../CommandOption';
 import * as Discord from '../../../Discord';
+import { Config } from '../../../database';
+import { PinsConfig } from '../../../repository';
+import { checkCtxPermissions } from '../../_utils';
 
 const add = new SubCommand({
   name: 'add',
@@ -16,19 +19,48 @@ const add = new SubCommand({
     }),
   ],
   handler: async ctx => {
+    const guildId = ctx.mustGetGuildId();
     const link = ctx.getArgument<string>('link')!;
 
-    // Parse message link
+    // Parse message link.
     const ids = link.substr(link.indexOf('/channels/') + 10).split('/');
-    console.log(link, ids);
     const channelId = ids[1];
     const messageId = ids[2];
 
-    // Pin message
-    await ctx.api.pinMessage(channelId, messageId);
+    // Get pins config.
+    const pinsCfg = await ctx.config().get<PinsConfig>(guildId, Config.PINS);
+    if (!pinsCfg || !pinsCfg.permittedChannels) {
+      return ctx.interactionApi.respondWithError(
+        `Unable to fetch pins config.`,
+      );
+    }
 
-    // Post silent confirmation
-    return ctx.interactionApi.respondSilently('Message pinned!');
+    const channelIndex = pinsCfg.permittedChannels.indexOf(channelId);
+
+    const canManageChannel = checkCtxPermissions(ctx, [
+      Discord.Permission.MANAGE_CHANNELS,
+    ])[1];
+
+    if (channelIndex > -1) {
+      // Pin message
+      await ctx.api.pinMessage(channelId, messageId);
+
+      // Post silent confirmation
+      return ctx.interactionApi.respondSilently('Message pinned!');
+    } else if (canManageChannel) {
+      // Pin message
+      await ctx.api.pinMessage(channelId, messageId);
+
+      // Post silent confirmation
+      return ctx.interactionApi.respondSilently(
+        'Message pinned using `MANAGE_CHANNELS` permissions.',
+      );
+    }
+
+    // User does not have permission
+    return ctx.interactionApi.respondWithError(
+      'Unfortunately, you do not have permission to pin messages in this channel.',
+    );
   },
 });
 
