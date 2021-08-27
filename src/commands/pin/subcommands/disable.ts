@@ -3,6 +3,8 @@ import CommandOption from '../../../CommandOption';
 import * as Discord from '../../../Discord';
 import { Config } from '../../../database';
 import { PinsConfig } from '../../../repository';
+import { bold } from '../../../format';
+import { respondWithNoPinsConfig } from './_common';
 
 const disable = new SubCommand({
   name: 'disable',
@@ -23,17 +25,15 @@ const disable = new SubCommand({
 
     const pinsCfg = await ctx.config().get<PinsConfig>(guildId, Config.PINS);
     if (!pinsCfg || !pinsCfg.permittedChannels) {
-      return ctx.interactionApi.respondWithError(
-        `Unable to fetch pins config.`,
-      );
+      return respondWithNoPinsConfig(ctx);
     }
 
     const channelIndex = pinsCfg.permittedChannels.indexOf(channel);
 
     // Channel is already disabled, return message.
     if (channelIndex === -1) {
-      return ctx.interactionApi.respondWithMessage(
-        `<#${channel}> is already disabled.`,
+      return ctx.interactionApi.respondWithError(
+        `<#${channel}> already has user pins disabled.`,
       );
     }
 
@@ -45,7 +45,7 @@ const disable = new SubCommand({
 
     // Send confirmation.
     return ctx.interactionApi.respondWithMessage(
-      `<#${channel}> is now disabled!`,
+      bold('Disabled user pins') + ` for <#${channel}>.`,
     );
   },
 });

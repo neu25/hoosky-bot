@@ -4,6 +4,8 @@ import * as Discord from '../../../Discord';
 import { Config } from '../../../database';
 import { PinsConfig } from '../../../repository';
 import { checkCtxPermissions } from '../../_utils';
+import { bold } from '../../../format';
+import { extractIDsFromMessageLink, respondWithNoPinsConfig } from './_common';
 
 const add = new SubCommand({
   name: 'add',
@@ -22,17 +24,12 @@ const add = new SubCommand({
     const guildId = ctx.mustGetGuildId();
     const link = ctx.getArgument<string>('link')!;
 
-    // Parse message link.
-    const ids = link.substr(link.indexOf('/channels/') + 10).split('/');
-    const channelId = ids[1];
-    const messageId = ids[2];
+    const { messageId, channelId } = extractIDsFromMessageLink(link);
 
     // Get pins config.
     const pinsCfg = await ctx.config().get<PinsConfig>(guildId, Config.PINS);
     if (!pinsCfg || !pinsCfg.permittedChannels) {
-      return ctx.interactionApi.respondWithError(
-        `Unable to fetch pins config.`,
-      );
+      return respondWithNoPinsConfig(ctx);
     }
 
     const channelIndex = pinsCfg.permittedChannels.indexOf(channelId);
@@ -45,21 +42,21 @@ const add = new SubCommand({
       // Pin message
       await ctx.api.pinMessage(channelId, messageId);
 
-      // Post silent confirmation
-      return ctx.interactionApi.respondSilently('Message pinned!');
+      // Post confirmation
+      return ctx.interactionApi.respondWithMessage(bold('Message pinned.'));
     } else if (canManageChannel) {
       // Pin message
       await ctx.api.pinMessage(channelId, messageId);
 
-      // Post silent confirmation
-      return ctx.interactionApi.respondSilently(
-        'Message pinned using `MANAGE_CHANNELS` permissions.',
+      // Post confirmation
+      return ctx.interactionApi.respondWithMessage(
+        bold('Message pinned') + ' using your `MANAGE_CHANNELS` permission.',
       );
     }
 
     // User does not have permission
     return ctx.interactionApi.respondWithError(
-      'Unfortunately, you do not have permission to pin messages in this channel.',
+      'You do not have permission to pin messages in this channel.',
     );
   },
 });
