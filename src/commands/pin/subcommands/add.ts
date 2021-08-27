@@ -35,7 +35,7 @@ const add = new SubCommand({
     const channelIndex = pinsCfg.permittedChannels.indexOf(channelId);
 
     const canManageChannel = checkCtxPermissions(ctx, [
-      Discord.Permission.MANAGE_CHANNELS,
+      Discord.Permission.MANAGE_MESSAGES,
     ])[1];
 
     if (channelIndex > -1) {
@@ -50,7 +50,7 @@ const add = new SubCommand({
 
       // Post confirmation
       return ctx.interactionApi.respondWithMessage(
-        bold('Message pinned') + ' using your `MANAGE_CHANNELS` permission.',
+        bold('Message pinned') + ' using your `MANAGE_MESSAGES` permission.',
       );
     }
 
