@@ -12,6 +12,7 @@ export enum Collection {
   JOBS = 'jobs',
   MAIL = 'mail',
   ANYBOARD_MESSAGES = 'anyboardMessages',
+  PINS = 'pins',
 }
 
 /**
@@ -25,4 +26,5 @@ export enum Config {
   BIRTHDAYS = 'birthdays',
   COUNTDOWNS = 'countdowns',
   ANYBOARD = 'anyboard',
+  PINS = 'pins',
 }

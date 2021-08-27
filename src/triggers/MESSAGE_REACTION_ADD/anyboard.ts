@@ -131,7 +131,7 @@ const anyboard = new Trigger({
               reactionCount: highestReaction.count,
             });
           } catch (e) {
-            console.log('Unable to edit anyboard highlight message');
+            console.error('Unable to edit anyboard highlight message');
             createNewHighlight = true;
             // Delete the old anyboard message entry, which is corrupt.
             await ctx.anyboardMessages().delete(guildId, ogMessageId);

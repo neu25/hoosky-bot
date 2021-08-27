@@ -11,6 +11,7 @@ import mail from './mail';
 import countdown from './countdown';
 import anyboard from './anyboard';
 import autoclear from './autoclear';
+import pin from './pin';
 
 const commandList: Command[] = [
   ping,
@@ -25,6 +26,7 @@ const commandList: Command[] = [
   anyboard,
   countdown,
   autoclear,
+  pin,
 ];
 
 export default commandList;

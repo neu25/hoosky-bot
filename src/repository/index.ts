@@ -41,4 +41,9 @@ export const setupRepos = (db: Database): Repositories => {
   };
 };
 
-export { BirthdaysConfig, GuildConfig, RolesConfig } from './ConfigRepo';
+export {
+  BirthdaysConfig,
+  GuildConfig,
+  RolesConfig,
+  PinsConfig,
+} from './ConfigRepo';
